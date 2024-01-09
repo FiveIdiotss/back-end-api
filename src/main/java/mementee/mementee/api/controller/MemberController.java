@@ -1,7 +1,9 @@
 package mementee.mementee.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mementee.mementee.api.controller.dto.MemberDto;
 import mementee.mementee.api.controller.dto.MemberRequestDto;
@@ -32,6 +34,10 @@ public class MemberController {
 
 
     //모든 회원 조회
+    @Operation(description = "모든 회원 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/members")
     public List<MemberDto> findmembers(){
         List<Member> findmembers = memberService.findMembers();
