@@ -12,6 +12,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -19,7 +24,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/api/member","/api/members","/api/member/login",
+                                .requestMatchers("/api/member/signup","/api/member/signin","/api/members",
                                         "/api/schools/{schoolName}","/api/schools").permitAll()     //나중에 회원가입과 로그인을 제외하고는 인증 필요
                                 //swagger 허용
                                 .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**", "/swagger-resources/**").permitAll()
@@ -27,10 +32,4 @@ public class SecurityConfig {
                     );
             return http.build();
         }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
 }

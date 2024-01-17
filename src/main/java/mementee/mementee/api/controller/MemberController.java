@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MemberController {
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+
     private final MemberService memberService;
     private final SchoolService schoolService;
     private final MajorService majorService;
@@ -129,7 +129,7 @@ public class MemberController {
         try {
             Member member = memberService.findMemberByEmail(request.getEmail());
 
-            if(!passwordEncoder.matches(member.getPw(), request.getPw())){   //암호화된 비밀번호화 일치 검사
+                if(!passwordEncoder.matches(request.getPw(), member.getPw())){   //암호화 된 비밀번호와 일치 검사
                 LoginMemberResponse response = new LoginMemberResponse(null,"null","비밀번호 틀림");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
