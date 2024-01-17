@@ -1,8 +1,13 @@
 package mementee.mementee.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import mementee.mementee.domain.Major;
 import mementee.mementee.domain.Member;
+import mementee.mementee.domain.School;
 import mementee.mementee.repository.MemberRepository;
+import mementee.mementee.security.JwtUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,12 +18,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberService {
 
+    @Value("${spring.jwt.secret}")
+    private String secretKey;
+    private Long expiredMs = 1000 * 60 * 60l; //1시간
+
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Long join(Member member) {
+    public void join(Member member, School school, Major major) {
+        school.getMembers().add(member);
+        major.getMembers().add(member);
+
         memberRepository.save(member);
-        return member.getId();
+    }
+
+    //중복 이메일 검증
+    public void emailDuplicateCheck(String email){
+        List<Member> findMembers = memberRepository.emailDuplicateCheck(email);
+        if(!findMembers.isEmpty()){
+            throw new IllegalArgumentException("이미 존재하는 회원입니다.");
+        }
     }
 
     //회원 하나 조회
@@ -30,4 +49,17 @@ public class MemberService {
     public List<Member> findMembers() {
         return memberRepository.findAll();
     }
+
+    //로그인 시 이메일로 회원 조회
+    public Member findMemberByEmail(String email){
+        return memberRepository.findMemberByEmail(email);
+    }
+
+    public String login(String email, String pw){
+        //인증 과정 추가
+
+        return JwtUtil.createJwt(email, secretKey, expiredMs);
+    }
+
+
 }
