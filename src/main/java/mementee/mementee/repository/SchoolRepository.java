@@ -31,4 +31,11 @@ public class SchoolRepository {
         return em.createQuery("select m from School m", School.class)
                 .getResultList();
     }
+
+    //학교 초성 검색
+    public List<School> findSearch(String keyWord){
+        return em.createQuery("select s from School s where s.name =: keyWord ", School.class)
+                .setParameter("keyWord", "%" + keyWord + "%")
+                .getResultList();
+    }
 }

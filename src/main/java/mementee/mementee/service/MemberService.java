@@ -7,7 +7,9 @@ import mementee.mementee.domain.Member;
 import mementee.mementee.domain.School;
 import mementee.mementee.repository.MemberRepository;
 import mementee.mementee.security.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberService {
 
-    @Value("${spring.jwt.secret}")
+    @Value("${spring.jwt.secret}")      //JWT에 필요한 Key
     private String secretKey;
     private Long expiredMs = 1000 * 60 * 60l; //1시간
 

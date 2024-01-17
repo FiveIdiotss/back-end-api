@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import mementee.mementee.api.controller.memberDTO.*;
@@ -14,9 +13,11 @@ import mementee.mementee.domain.School;
 import mementee.mementee.service.MajorService;
 import mementee.mementee.service.MemberService;
 import mementee.mementee.service.SchoolService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,9 +28,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MemberController {
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
     private final MemberService memberService;
     private final SchoolService schoolService;
     private final MajorService majorService;
+
 
     //회원 등록--------------------------------------
     @Operation(description = "회원 등록")
@@ -45,7 +49,9 @@ public class MemberController {
 
            memberService.emailDuplicateCheck(request.getEmail());   //이메일 중복 체크
 
-           Member member = new Member(request.getEmail(), request.getName(), request.getPw(), request.getYear(),
+           String encodePw = passwordEncoder.encode(request.getPw()); //비밀번호 암호화
+
+           Member member = new Member(request.getEmail(), request.getName(), encodePw, request.getYear(),
                    request.getScore(), request.getGender(), school, major);
 
              memberService.join(member, school, major);
@@ -123,7 +129,7 @@ public class MemberController {
         try {
             Member member = memberService.findMemberByEmail(request.getEmail());
 
-            if(!(member.getPw().equals(request.getPw()))){
+            if(!passwordEncoder.matches(member.getPw(), request.getPw())){   //암호화된 비밀번호화 일치 검사
                 LoginMemberResponse response = new LoginMemberResponse(null,"null","비밀번호 틀림");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
@@ -140,6 +146,4 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
-
-
 }
