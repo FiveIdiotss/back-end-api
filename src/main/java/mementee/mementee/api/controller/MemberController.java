@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import mementee.mementee.api.controller.memberDTO.*;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
+@Tag(name = "회원 관련 -(회원가입, 로그인, 학교 조회, 전공 조회)")
 public class MemberController {
 
     private final PasswordEncoder passwordEncoder;
@@ -77,6 +79,21 @@ public class MemberController {
         return collect;
     }
 
+    @Operation(description = "검색(초성)으로 학교 목록 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @GetMapping("/api/schools/{keyWord}")
+    public List<SchoolDTO> schoolListByKeyWord(@PathVariable String keyWord){
+        List<School> findSchools = schoolService.findSchoolsByKeyWord(keyWord);
+        List<SchoolDTO> collect = findSchools.stream()
+                .map(s -> new SchoolDTO(s.getId(), s.getName()))
+                .collect(Collectors.toList());
+
+        return collect;
+    }
+
+
 //    @Operation(description = "학교에 속한 전공 목록")
 //    @ApiResponses(value = {
 //            @ApiResponse(responseCode = "success", description = "성공"),
@@ -95,7 +112,7 @@ public class MemberController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
-    @GetMapping("/api/schools/{schoolName}")
+    @GetMapping("/api/school/{schoolName}")
     public List<MajorDTO> majorList(@PathVariable String schoolName){
         List<Major> findMajors = majorService.findMajors(schoolName);
         List<MajorDTO> collect = findMajors.stream()

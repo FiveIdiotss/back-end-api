@@ -30,6 +30,11 @@ public class SchoolService {
 
     //학교 전체 조회
     public List<School> findSchools() {
-        return schoolRepository.findAll();
+        return schoolRepository.findSchools();
+    }
+
+    //학교 검색 조회
+    public List<School> findSchoolsByKeyWord(String keyWord) {
+        return schoolRepository.findSchoolsByKeyWord(keyWord);
     }
 }

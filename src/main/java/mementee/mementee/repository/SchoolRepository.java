@@ -2,7 +2,7 @@ package mementee.mementee.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import mementee.mementee.domain.Member;
+import mementee.mementee.config.ChoSungConfig;
 import mementee.mementee.domain.School;
 import org.springframework.stereotype.Repository;
 
@@ -27,15 +27,19 @@ public class SchoolRepository {
     }
 
     //학교 목록
-    public List<School> findAll() {
+    public List<School> findSchools() {
         return em.createQuery("select m from School m", School.class)
                 .getResultList();
     }
 
-    //학교 초성 검색
-    public List<School> findSearch(String keyWord){
-        return em.createQuery("select s from School s where s.name =: keyWord ", School.class)
+    //학교 초성 검색 추가 필요
+    public List<School> findSchoolsByKeyWord(String keyWord){
+        //String choSung = ChoSungConfig.extractChoSung(keyWord);
+        //System.out.println(choSung);
+
+        return em.createQuery("SELECT s FROM School s WHERE s.name LIKE :keyWord", School.class)
                 .setParameter("keyWord", "%" + keyWord + "%")
+                //.setParameter("choSung", "%" + choSung + "%")
                 .getResultList();
     }
 }
