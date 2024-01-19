@@ -1,10 +1,8 @@
-package mementee.mementee.service;
+package mementee.mementee.api.service;
 
 import lombok.RequiredArgsConstructor;
-import mementee.mementee.domain.Member;
-import mementee.mementee.domain.School;
-import mementee.mementee.repository.MemberRepository;
-import mementee.mementee.repository.SchoolRepository;
+import mementee.mementee.api.domain.School;
+import mementee.mementee.api.repository.SchoolRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

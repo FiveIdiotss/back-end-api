@@ -1,9 +1,9 @@
-package mementee.mementee.domain;
+package mementee.mementee.api.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import mementee.mementee.domain.enumtype.Gender;
-import mementee.mementee.domain.enumtype.Role;
+import mementee.mementee.api.domain.enumtype.Gender;
+import mementee.mementee.api.domain.enumtype.Role;
 
 
 @Entity
@@ -30,8 +30,6 @@ public class Member {
     @Column(nullable = false)
     private int year;                //학번
 
-    private int score;               //점수 필수 아님
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Gender gender;
@@ -47,12 +45,11 @@ public class Member {
     @JoinColumn(name = "major_id")
     private Major major;
 
-    public Member(String email, String name, String pw, int year, int score, Gender gender, School school, Major major) {
+    public Member(String email, String name, String pw, int year, Gender gender, School school, Major major) {
         this.email = email;
         this.name = name;
         this.pw = pw;
         this.year = year;
-        this.score = score;
         this.gender = gender;
         this.role = Role.USER;
         this.school = school;

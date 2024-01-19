@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorize -> authorize
                                 .requestMatchers("/api/member/signup","/api/member/signin","/api/members",
-                                        "/api/school/{schoolName}","/api/schools/{keyWord}","/api/schools").permitAll()     //나중에 회원가입과 로그인을 제외하고는 인증 필요
+                                        "/api/school/{schoolName}","/api/schools/{keyWord}","/api/schools", "/social/**").permitAll()     //나중에 회원가입과 로그인을 제외하고는 인증 필요
                                 //swagger 허용
                                 .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**", "/swagger-resources/**").permitAll()
                                 .anyRequest().authenticated() //or permitAll()

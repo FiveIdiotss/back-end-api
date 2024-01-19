@@ -1,9 +1,8 @@
-package mementee.mementee.repository;
+package mementee.mementee.api.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import mementee.mementee.domain.Board;
-import mementee.mementee.domain.Member;
+import mementee.mementee.api.domain.Board;
 import org.springframework.stereotype.Repository;
 
 @Repository

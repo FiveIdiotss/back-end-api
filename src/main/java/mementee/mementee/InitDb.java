@@ -4,11 +4,11 @@ import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import mementee.mementee.domain.Major;
-import mementee.mementee.domain.Member;
-import mementee.mementee.domain.School;
-import mementee.mementee.domain.enumtype.Gender;
-import mementee.mementee.service.SchoolService;
+import mementee.mementee.api.domain.Major;
+import mementee.mementee.api.domain.Member;
+import mementee.mementee.api.domain.School;
+import mementee.mementee.api.domain.enumtype.Gender;
+import mementee.mementee.api.service.SchoolService;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -128,11 +128,11 @@ public class InitDb {
             em.persist(major3);
             em.persist(major4);
 
-            Member member1 = new Member("aaa@naver.com", "김동연", "1234", 2018, 2, Gender.MALE, ICT폴리텍대학, major1);
-            Member member2 = new Member("bbb@naver.com", "김민기", "1234", 2024 , 3, Gender.MALE, ICT폴리텍대학, major2);
-            Member member3 = new Member("ccc@naver.com", "이종현", "1234", 2010, 4, Gender.MALE,  가야대학교, major3);
-            Member member4 = new Member("ddd@naver.com", "구민회", "1234", 2019, 5, Gender.MALE,  가야대학교, major4);
-            Member member5 = new Member("aaa", "한재형", "1234", 2019, 5, Gender.MALE,  가야대학교, major4);
+            Member member1 = new Member("aaa@naver.com", "김동연", "1234", 2018,  Gender.MALE, ICT폴리텍대학, major1);
+            Member member2 = new Member("bbb@naver.com", "김민기", "1234", 2024 , Gender.MALE, ICT폴리텍대학, major2);
+            Member member3 = new Member("ccc@naver.com", "이종현", "1234", 2010,  Gender.MALE,  가야대학교, major3);
+            Member member4 = new Member("ddd@naver.com", "구민회", "1234", 2019,  Gender.MALE,  가야대학교, major4);
+            Member member5 = new Member("aaa", "한재형", "1234", 2019,  Gender.MALE,  가야대학교, major4);
 
             ICT폴리텍대학.getMembers().add(member1);
             ICT폴리텍대학.getMembers().add(member2);

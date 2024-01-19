@@ -1,4 +1,4 @@
-package mementee.mementee.domain;
+package mementee.mementee.api.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

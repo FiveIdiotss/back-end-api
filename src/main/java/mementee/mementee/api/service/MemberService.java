@@ -1,11 +1,10 @@
-package mementee.mementee.service;
+package mementee.mementee.api.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import mementee.mementee.domain.Major;
-import mementee.mementee.domain.Member;
-import mementee.mementee.domain.School;
-import mementee.mementee.repository.MemberRepository;
+import mementee.mementee.api.domain.Major;
+import mementee.mementee.api.domain.Member;
+import mementee.mementee.api.domain.School;
+import mementee.mementee.api.repository.MemberRepository;
 import mementee.mementee.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

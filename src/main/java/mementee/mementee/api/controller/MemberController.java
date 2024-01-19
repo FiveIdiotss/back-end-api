@@ -8,13 +8,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import mementee.mementee.api.controller.memberDTO.*;
-import mementee.mementee.domain.Major;
-import mementee.mementee.domain.Member;
-import mementee.mementee.domain.School;
-import mementee.mementee.service.MajorService;
-import mementee.mementee.service.MemberService;
-import mementee.mementee.service.SchoolService;
-import org.springframework.beans.factory.annotation.Autowired;
+import mementee.mementee.api.domain.Major;
+import mementee.mementee.api.domain.Member;
+import mementee.mementee.api.domain.School;
+import mementee.mementee.api.service.MajorService;
+import mementee.mementee.api.service.MemberService;
+import mementee.mementee.api.service.SchoolService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +53,7 @@ public class MemberController {
            String encodePw = passwordEncoder.encode(request.getPw()); //비밀번호 암호화
 
            Member member = new Member(request.getEmail(), request.getName(), encodePw, request.getYear(),
-                   request.getScore(), request.getGender(), school, major);
+                   request.getGender(), school, major);
 
              memberService.join(member, school, major);
 
