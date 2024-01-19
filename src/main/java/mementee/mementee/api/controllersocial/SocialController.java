@@ -27,13 +27,6 @@ public class SocialController {
     private final HttpServletResponse response;
     private final SchoolEmailVerificationService schoolEmailVerificationService;
 
-//    @Operation(description = "해당 URL 클릭 시 해당 소셜 로그인 페이지로 이동")
-//    @GetMapping("/{socialLoginType}")
-//    public void socialLogin(@PathVariable(name = "socialLoginType") SocialLoginType socialLoginType) throws IOException {
-//        String url = oAuthService.requestAuthorizedURL(socialLoginType);
-//        response.sendRedirect(url);
-//    }
-
     @Operation(description = "해당 URL 클릭 시 해당 소셜 로그인 페이지로 이동")
     @GetMapping("/{socialLoginType}")
     public ResponseEntity<String> socialLogin(@PathVariable(name = "socialLoginType") SocialLoginType socialLoginType) throws IOException {
@@ -47,14 +40,12 @@ public class SocialController {
     }
 
     //unicer api key = ce6dc2f8-3d83-44ca-923a-7143022e5f3d
-    @GetMapping
-    @RequestMapping("/email")
+    @GetMapping("/email")
     public String hel() {
         return schoolEmailVerificationService.sendEmailVerificationRequest();
     }
 
-    @GetMapping
-    @RequestMapping("/email/{code}")
+    @GetMapping("/email/{code}")
     public String emailVerification(@PathVariable String code) {
         return schoolEmailVerificationService.requestCertification(code);
     }
