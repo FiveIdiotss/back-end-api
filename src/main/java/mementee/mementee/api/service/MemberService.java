@@ -22,6 +22,7 @@ public class MemberService {
     @Value("${spring.jwt.secret}")      //JWT에 필요한 Key
     private String secretKey;
     private Long expiredMs = 1000 * 60 * 60l; //1시간
+    //private Long expiredMs = 1000 * 60l; //1시간
 
     private final MemberRepository memberRepository;
 

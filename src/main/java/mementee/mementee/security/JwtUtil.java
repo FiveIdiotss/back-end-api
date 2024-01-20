@@ -10,9 +10,8 @@ public class JwtUtil {
 
     //token을 통해 사용자 email 조회
     public static String getMemberEmail(String token, String secretKey){
-        String realToken = token.split(" ")[2];
-
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(realToken)
+        //System.out.println("여기 token = " + token);
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
                 .getBody().get("email", String.class);
     }
 
