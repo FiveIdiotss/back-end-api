@@ -3,6 +3,7 @@ package mementee.mementee.api.service.social;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mementee.mementee.api.controller.socialDTO.SocialLoginCodeRequest;
 import mementee.mementee.vo.SocialLoginType;
 import mementee.mementee.vo.SocialMember;
 import mementee.mementee.vo.SocialToken;
@@ -34,11 +35,11 @@ public class OAuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Non-exist social login type"));
     }
 
-    public SocialMember oAuthLogin(Map<String, String> params, SocialLoginType socialLoginType) throws JsonProcessingException {
+    public SocialMember oAuthLogin(String code, SocialLoginType socialLoginType) throws JsonProcessingException {
         SocialService socialService = this.findSocialServiceByType(socialLoginType);
 
         // 요청한 토큰을 socialToken 형식에 맞게 변환하여 반환
-        SocialToken socialToken = socialService.requestLoginToken(params);
+        SocialToken socialToken = socialService.requestLoginToken(code);
 
         // 받은 토큰을 가지고 resouce server에게 사용자 정보를 요청 후 반환 받음
         String userInfo = socialService.requestUserInfo(socialToken);

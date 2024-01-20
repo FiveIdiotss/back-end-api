@@ -1,7 +1,11 @@
 package mementee.mementee.api.service.social;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import mementee.mementee.api.controller.emailDTO.EmailVerificationRequest;
+import mementee.mementee.api.controller.emailDTO.SendVerificationCodeRequest;
+import mementee.mementee.api.controller.emailDTO.TestObject;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,37 +18,41 @@ import java.util.Map;
 public class SchoolEmailVerificationService {
 
     private final WebClient webClient;
-    private final Map<String, String> emailVerification = new HashMap<>();
-    private final Map<String, String> requestCertification = new HashMap<>();
+    private final ObjectMapper objectMapper;
 
-    @Value("${spring.jwt.secret}")      //JWT에 필요한 Key
-    private String key;
+    public String createRequestBody(SendVerificationCodeRequest request) throws JsonProcessingException {
+        TestObject ob = new TestObject("ce6dc2f8-3d83-44ca-923a-7143022e5f3d", request.getEmail(), request.getUnivName());
 
-    public String sendEmailVerificationRequest() {
-        emailVerification.put("key", key);
-        emailVerification.put("email", "jjh943202@syuin.ac.kr");
-        emailVerification.put("univName", "삼육대학교");
-        emailVerification.put("univ_check", "true");
+        String hello = objectMapper.writeValueAsString(ob);
+        System.out.println("Generate Json Data = " + hello);
+        return hello;
+    }
 
-        return webClient.post()
+    public String sendEmailVerificationRequest(String requestBody) {
+        String block = webClient.post()
                 .uri("https://univcert.com/api/v1/certify")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(emailVerification)
+                .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+
+        System.out.println(block);
+        return block;
     }
 
-    public String requestCertification(String code) {
-        requestCertification.put("key", key);
-        requestCertification.put("email", "jjh943202@syuin.ac.kr");
-        requestCertification.put("univName", "삼육대학교");
-        requestCertification.put("code", code);
+    public String requestCertification(EmailVerificationRequest request) {
+        Map<String, String> requestBody = new HashMap<>();
+
+        requestBody.put("key", "ce6dc2f8-3d83-44ca-923a-7143022e5f3d");
+        requestBody.put("email", request.getEmail());
+        requestBody.put("univName", request.getUnivName());
+        requestBody.put("code", request.getCode());
 
         return webClient.post()
                 .uri("https://univcert.com/api/v1/certifycode")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(requestCertification)
+                .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
