@@ -43,12 +43,14 @@ public class BoardController {
     @PostMapping("/api/board")
     public ResponseEntity<String> saveBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
         try {
-            System.out.println("authorizationHeader 는 = " + authorizationHeader);   // Bearer Bearer
-            String memberEmail = JwtUtil.getMemberEmail(authorizationHeader, secretKey);
+            String token = authorizationHeader.split(" ")[1];
+            String memberEmail = JwtUtil.getMemberEmail(token, secretKey);
+
+            //System.out.println("memberEmail = " + memberEmail);
 
             Member member = memberService.findMemberByEmail(memberEmail);
-
             Board board = new Board(request.getTitle(), request.getContent());
+
             boardService.save(board);
 
             return ResponseEntity.ok().body(member.getName() + "님 글 등록 성공");

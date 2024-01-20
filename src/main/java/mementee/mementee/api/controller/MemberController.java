@@ -41,7 +41,7 @@ public class MemberController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping("/api/member/signup")
+    @PostMapping("/api/member/signUp")
     public ResponseEntity<String> joinMember(@RequestBody @Valid CreateMemberRequest request){
        try {
            //School school = schoolService.findOne(request.gnetSchoolId());
@@ -140,7 +140,7 @@ public class MemberController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "로그인 성공"),
             @ApiResponse(responseCode = "fail", description = "로그인 실패")})
-    @PostMapping("/api/member/signin")
+    @PostMapping("/api/member/signIn")
     public ResponseEntity<LoginMemberResponse> signIn(@Valid @RequestBody LoginMemberRequest request){
         try {
             Member member = memberService.findMemberByEmail(request.getEmail());
