@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mementee.mementee.api.controller.socialDTO.SocialLoginCodeRequest;
 import mementee.mementee.vo.SocialLoginType;
 import mementee.mementee.vo.SocialMember;
 import mementee.mementee.vo.SocialToken;
@@ -54,14 +55,14 @@ public class NaverLoginService implements SocialService {
         return uriComponents.toString();
     }
 
-    public SocialToken requestLoginToken(Map<String, String> params) {
+    public SocialToken requestLoginToken(String code) {
         String uri = UriComponentsBuilder
                 .fromUriString(token_uri)
                 .queryParam("client_id", client_id)
                 .queryParam("client_secret", client_secret)
                 .queryParam("grant_type", grant_type)
-                .queryParam("code", params.get("code"))
-                .queryParam("state", params.get("state"))
+                .queryParam("code", code)
+                .queryParam("state", "1234")
                 .build()
                 .encode().toUriString();
 

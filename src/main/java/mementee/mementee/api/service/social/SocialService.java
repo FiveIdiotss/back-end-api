@@ -1,6 +1,7 @@
 package mementee.mementee.api.service.social;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import mementee.mementee.api.controller.socialDTO.SocialLoginCodeRequest;
 import mementee.mementee.vo.SocialLoginType;
 import mementee.mementee.vo.SocialMember;
 import mementee.mementee.vo.SocialToken;
@@ -14,7 +15,7 @@ import static mementee.mementee.vo.SocialLoginType.NAVER;
 @Service
 public interface SocialService {
     String getAuthorizedURL();
-    SocialToken requestLoginToken(Map<String, String> params);
+    SocialToken requestLoginToken(String code);
     String requestUserInfo(SocialToken socialToken);
     SocialMember createSocialMember(String userInfo, SocialLoginType socialLoginType) throws JsonProcessingException;
 

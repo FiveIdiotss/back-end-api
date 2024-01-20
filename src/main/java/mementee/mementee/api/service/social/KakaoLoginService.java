@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import mementee.mementee.api.controller.socialDTO.SocialLoginCodeRequest;
 import mementee.mementee.vo.SocialLoginType;
 import mementee.mementee.vo.SocialMember;
 import mementee.mementee.vo.SocialToken;
@@ -49,14 +50,14 @@ public class KakaoLoginService implements SocialService {
     }
 
     // html form 형식으로 보내야 함
-    public SocialToken requestLoginToken(Map<String, String> params) {
+    public SocialToken requestLoginToken(String code) {
         String uri = UriComponentsBuilder
                 .fromUriString(token_uri)
                 .queryParam("grant_type", grant_type)
                 .queryParam("client_id", client_id)
                 .queryParam("client_secret", client_secret)
                 .queryParam("redirect_uri", redirect_uri)
-                .queryParam("code", params.get("code"))
+                .queryParam("code", code)
                 .build()
                 .encode().toUriString();
 
