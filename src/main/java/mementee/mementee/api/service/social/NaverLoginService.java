@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mementee.mementee.api.controller.socialDTO.SocialLoginCodeRequest;
 import mementee.mementee.vo.SocialLoginType;
 import mementee.mementee.vo.SocialMember;
 import mementee.mementee.vo.SocialToken;
@@ -14,8 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
