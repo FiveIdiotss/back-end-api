@@ -78,4 +78,4 @@ logging:
   level:
     org:
       springframework:
-        boot: DEBUG
+        boot: info

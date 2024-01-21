@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import mementee.mementee.api.controller.emailDTO.EmailVerificationRequest;
 import mementee.mementee.api.controller.emailDTO.SendVerificationCodeRequest;
-import mementee.mementee.api.controller.emailDTO.TestObject;
+import mementee.mementee.api.controller.emailDTO.EmailVerificationRequestDTO;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,7 +21,7 @@ public class SchoolEmailVerificationService {
     private final ObjectMapper objectMapper;
 
     public String createRequestBody(SendVerificationCodeRequest request) throws JsonProcessingException {
-        TestObject ob = new TestObject("ce6dc2f8-3d83-44ca-923a-7143022e5f3d", request.getEmail(), request.getUnivName());
+        EmailVerificationRequestDTO ob = new EmailVerificationRequestDTO("ce6dc2f8-3d83-44ca-923a-7143022e5f3d", request.getEmail(), request.getUnivName());
 
         String hello = objectMapper.writeValueAsString(ob);
         System.out.println("Generate Json Data = " + hello);
@@ -51,6 +51,32 @@ public class SchoolEmailVerificationService {
 
         return webClient.post()
                 .uri("https://univcert.com/api/v1/certifycode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+    }
+
+    public String resetVerifiedUsers() {
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("key", "ce6dc2f8-3d83-44ca-923a-7143022e5f3d");
+
+        return webClient.post()
+                .uri("https://univcert.com/api/v1/clear")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+    }
+
+    public String resetVerifiedUserByEmail(String email) {
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("key", "ce6dc2f8-3d83-44ca-923a-7143022e5f3d");
+
+        return webClient.post()
+                .uri("https://univcert.com/api/v1/clear/" + email)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()
