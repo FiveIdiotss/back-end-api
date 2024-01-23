@@ -4,17 +4,17 @@ spring:
     secret: 795a494eb4ca40d62227cc695a41e69d1e13fa5da2263727c28ba073fdbdd2f2
 
   datasource:
-    url: jdbc:mysql://localhost:3306/member
-#    url: jdbc:mysql://database-2.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
-    username : root
+    #url: jdbc:mysql://localhost:3306/member
+    url: jdbc:mysql://database-2.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
+    username : admin
     #username: root
-    password: asd990810
+    password: ehd5765613
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      #ddl-auto: create
-      ddl-auto: none
+      ddl-auto: create
+      #ddl-auto: none
     properties:
       hibernate:
         #        show_sql: true
@@ -73,6 +73,7 @@ spring:
 
             # 접근 토큰 이용하여 프로필 API 호출
             user-info-uri: https://kapi.kakao.com/v2/user/me
+
 
 logging:
   level:
