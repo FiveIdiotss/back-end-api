@@ -1,4 +1,4 @@
-package mementee.mementee.api.controllersocial;
+package mementee.mementee.api.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,5 +49,15 @@ public class SocialController {
     @PostMapping("/email/verify")
     public String emailVerification(@RequestBody EmailVerificationRequest request) {
         return schoolEmailVerificationService.requestCertification(request);
+    }
+
+    @PostMapping("/email/reset")
+    public String resetVerifiedUsers() {
+        return schoolEmailVerificationService.resetVerifiedUsers();
+    }
+
+    @PostMapping("/email/reset/{email}")
+    public String resetVerifiedUserByEmail(@PathVariable String email) {
+        return schoolEmailVerificationService.resetVerifiedUserByEmail(email);
     }
 }

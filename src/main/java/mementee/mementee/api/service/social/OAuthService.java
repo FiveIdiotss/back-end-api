@@ -3,14 +3,12 @@ package mementee.mementee.api.service.social;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mementee.mementee.api.controller.socialDTO.SocialLoginCodeRequest;
 import mementee.mementee.vo.SocialLoginType;
 import mementee.mementee.vo.SocialMember;
 import mementee.mementee.vo.SocialToken;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Slf4j

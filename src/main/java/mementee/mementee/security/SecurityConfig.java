@@ -39,7 +39,7 @@ public class SecurityConfig {
                                         "/api/school/{schoolName}","/api/schools/{keyWord}","/api/schools", "/login/**",
                                         "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**", "/swagger-resources/**").permitAll()     //나중에 회원가입과 로그인을 제외하고는 인증 필요
                                 //글 쓰기만
-                                .requestMatchers(HttpMethod.POST, "/api/board").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/board").authenticated().anyRequest().permitAll()
                     )
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JwtFilter(secretKey), UsernamePasswordAuthenticationFilter.class);
