@@ -40,13 +40,13 @@ public class SocialController {
 
     //unicert api key = ce6dc2f8-3d83-44ca-923a-7143022e5f3d
     @Operation(description = "테스트용")
-    @GetMapping("/email")
+    @PostMapping("/email")
     public String hel(@RequestBody SendVerificationCodeRequest request) throws JsonProcessingException {
         String requestBody = schoolEmailVerificationService.createRequestBody(request);
         return schoolEmailVerificationService.sendEmailVerificationRequest(requestBody);
     }
 
-    @GetMapping("/email/verify")
+    @PostMapping("/email/verify")
     public String emailVerification(@RequestBody EmailVerificationRequest request) {
         return schoolEmailVerificationService.requestCertification(request);
     }

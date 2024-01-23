@@ -3,10 +3,25 @@ package mementee.mementee.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import mementee.mementee.api.domain.RefreshToken;
+import mementee.mementee.api.repository.RefreshTokenRepository;
+import mementee.mementee.api.service.MemberService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.Optional;
 
+@Component
+@RequiredArgsConstructor
 public class JwtUtil {
+
+    private final RefreshTokenRepository refreshTokenRepository;
+    private static final long ACCESS_TIME = 60 * 1000L;
+    private static final long REFRESH_TIME = 7 * 24 * 60 * 60 * 1000L;
+
 
     //token을 통해 사용자 email 조회
     public static String getMemberEmail(String token, String secretKey){
@@ -21,16 +36,29 @@ public class JwtUtil {
                 .getBody().getExpiration().before(new Date());
     }
 
-    //토큰 발용
-    public static String createJwt(String email, String secretKey, Long expiredMs){
+
+    //토큰 발용 (아마 access 토큰)
+    public static String createAccessToken(String email, String secretKey){
         Claims claims = Jwts.claims();  //일종의 Map
         claims.put("email", email);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TIME))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
+
+    public static String createRefreshToken(String secretKey){
+        Claims claims = Jwts.claims();  //일종의 Map
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TIME))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
 }

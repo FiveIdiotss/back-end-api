@@ -39,17 +39,17 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         //Token 꺼내기
-        String token = authorization.split(" ")[1];
+        String accessToken = authorization.split(" ")[1];
 
         //Token Expired 되었는지 여부
-        if(JwtUtil.isExpired(token, secretKey)){
-            log.error("Token 이 만료 되었습니다.");
+        if(JwtUtil.isExpired(accessToken, secretKey)){
+            log.error("AccessToken 이 만료 되었습니다.");
             filterChain.doFilter(request, response);
             return;
         }
 
         //MemberName Token 에서 꺼내기
-        String memberEmail = JwtUtil.getMemberEmail(token, secretKey);
+        String memberEmail = JwtUtil.getMemberEmail(accessToken, secretKey);
         //System.out.println("memberEmail 확인 : " + memberEmail);
 
         //권한부여
@@ -62,4 +62,5 @@ public class JwtFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 }

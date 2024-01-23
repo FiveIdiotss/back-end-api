@@ -36,7 +36,7 @@ public class SecurityConfig {
                         authorize -> authorize
                                 //controller api 허용, swagger 허용
                                 .requestMatchers("/api/member/signUp","/api/member/signIn","/api/members",
-                                        "/api/school/{schoolName}","/api/schools/{keyWord}","/api/schools", "/social/**",
+                                        "/api/school/{schoolName}","/api/schools/{keyWord}","/api/schools", "/login/**",
                                         "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**", "/swagger-resources/**").permitAll()     //나중에 회원가입과 로그인을 제외하고는 인증 필요
                                 //글 쓰기만
                                 .requestMatchers(HttpMethod.POST, "/api/board").authenticated()
@@ -47,3 +47,4 @@ public class SecurityConfig {
             return http.build();
         }
 }
+

@@ -21,10 +21,10 @@ public class InitDb {
 
     private final InitService initService;
 
-//    @PostConstruct
-//    public void init() {
-//        initService.dbInit();
-//    }
+    @PostConstruct
+    public void init() {
+        initService.dbInit();
+    }
 
 
     @Component
@@ -96,6 +96,7 @@ public class InitDb {
             School ICT폴리텍대학 = schoolService.findOne(1L);
             School 가야대학교 = schoolService.findOne(2L);
             School 가천대학교 = schoolService.findOne(3L);
+            School 서경대학교 = schoolService.findOne(138L);
 
             List<String> 가천대과목록 = Arrays.asList("국어국문학과","영어영문학과","동양어문학과","유럽어문학과","법학과","행정학과",
                     "경영학과","글로벌경제학과","관광경영학과","회계·세무학과","사회복지학과","유아교육학과",
@@ -119,15 +120,19 @@ public class InitDb {
             Major major3 = new Major("컴퓨터공학과", 가야대학교);
             Major major4 = new Major("건축공학과", 가야대학교);
 
+            Major major5 = new Major("섹스학과", 서경대학교);
+
             ICT폴리텍대학.getMajors().add(major1);
             ICT폴리텍대학.getMajors().add(major2);
             가야대학교.getMajors().add(major3);
             가야대학교.getMajors().add(major4);
+            서경대학교.getMajors().add(major5);
 
             em.persist(major1);
             em.persist(major2);
             em.persist(major3);
             em.persist(major4);
+            em.persist(major5);
 
             Member member1 = new Member("aaa@naver.com", "김동연", "1234", 2018,  Gender.MALE, ICT폴리텍대학, major1);
             Member member2 = new Member("bbb@naver.com", "김민기", "1234", 2024 , Gender.MALE, ICT폴리텍대학, major2);

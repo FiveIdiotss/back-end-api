@@ -18,6 +18,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,7 +51,7 @@ public class MemberController {
 
            memberService.emailDuplicateCheck(request.getEmail());   //이메일 중복 체크
 
-           String encodePw = passwordEncoder.encode(request.getPw()); //비밀번호 암호화
+           String encodePw = passwordEncoder.encode(request.getPassword()); //비밀번호 암호화
 
            Member member = new Member(request.getEmail(), request.getName(), encodePw, request.getYear(),
                    request.getGender(), school, major);
@@ -141,24 +142,28 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "로그인 성공"),
             @ApiResponse(responseCode = "fail", description = "로그인 실패")})
     @PostMapping("/api/member/signIn")
-    public ResponseEntity<LoginMemberResponse> signIn(@Valid @RequestBody LoginMemberRequest request){
+    public ResponseEntity<LoginMemberResponse> signIn(@Valid @RequestBody LoginMemberRequest request, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         try {
             Member member = memberService.findMemberByEmail(request.getEmail());
 
-                if(!passwordEncoder.matches(request.getPw(), member.getPw())){   //암호화 된 비밀번호와 일치 검사
-                LoginMemberResponse response = new LoginMemberResponse(null,"null","비밀번호 틀림");
+                if(!passwordEncoder.matches(request.getPassword(), member.getPassword())){   //암호화 된 비밀번호와 일치 검사
+                LoginMemberResponse response = new LoginMemberResponse(null,"null","null","비밀번호 틀림");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
             //토큰 발행 로직
-            String token = memberService.login(member.getEmail(), member.getPw());
+            TokenDTO tokenDTO = memberService.login(member);
 
-            LoginMemberResponse response = new LoginMemberResponse(member.getId(), token, "로그인 성공");
+            LoginMemberResponse response = new LoginMemberResponse(member.getId(), tokenDTO.getAccessToken(),
+                    tokenDTO.getRefreshToken(), "로그인 성공");
 
             return ResponseEntity.ok(response);
 
         }catch (EmptyResultDataAccessException e){
-            LoginMemberResponse response = new LoginMemberResponse(null, "null", "로그인 실패");
+            LoginMemberResponse response = new LoginMemberResponse(null,"null","null", "로그인 실패");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }

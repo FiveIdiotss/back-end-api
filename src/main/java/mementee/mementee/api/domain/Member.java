@@ -4,14 +4,20 @@ import jakarta.persistence.*;
 import lombok.*;
 import mementee.mementee.api.domain.enumtype.Gender;
 import mementee.mementee.api.domain.enumtype.Role;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member {
+@Builder
+public class Member{
 
     @Id
     @GeneratedValue
@@ -25,7 +31,7 @@ public class Member {
     private String name;
 
     @Column(nullable = false)
-    private String pw;
+    private String password;
 
     @Column(nullable = false)
     private int year;                //학번
@@ -45,28 +51,14 @@ public class Member {
     @JoinColumn(name = "major_id")
     private Major major;
 
-    public Member(String email, String name, String pw, int year, Gender gender, School school, Major major) {
+    public Member(String email, String name, String password, int year, Gender gender, School school, Major major) {
         this.email = email;
         this.name = name;
-        this.pw = pw;
+        this.password = password;
         this.year = year;
         this.gender = gender;
         this.role = Role.USER;
         this.school = school;
         this.major = major;
     }
-
-//    public static Member toEntity(MemberDTO dto){
-//        return Member.builder()
-//                .id(dto.getId())
-//                .email(dto.getEmail())
-//                .name(dto.getName())
-//                .pw(dto.getPw())
-//                .year(dto.getYear())
-//                .score(dto.getScore())
-//                .gender(dto.getGender())
-//                .school(dto.getSchool())
-//                .major(dto.getMajor())
-//                .build();
-//    }
 }
