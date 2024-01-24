@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mementee.mementee.api.controller.emailDTO.EmailVerificationRequest;
-import mementee.mementee.api.controller.emailDTO.VerificationCodeRequestDTO;
+import mementee.mementee.api.controller.emailDTO.SendVerificationCodeRequest;
 import mementee.mementee.api.controller.emailDTO.CodeVerificationDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -139,7 +139,7 @@ public class EmailVerificationService {
         }
     }
 
-    public String createRequestBodyForCode(VerificationCodeRequestDTO request) {
+    public String createRequestBodyForCode(SendVerificationCodeRequest request) {
         try {
             CodeVerificationDTO ob = new CodeVerificationDTO(univcertApiKey, request.getEmail(), request.getUnivName());
 

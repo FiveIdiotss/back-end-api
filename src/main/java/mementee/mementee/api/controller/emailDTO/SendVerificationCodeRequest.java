@@ -3,7 +3,7 @@ package mementee.mementee.api.controller.emailDTO;
 import lombok.Data;
 
 @Data
-public class VerificationCodeRequestDTO {
+public class SendVerificationCodeRequest {
 
     private String email;
     private String univName;

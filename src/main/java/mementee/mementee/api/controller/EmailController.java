@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mementee.mementee.api.controller.emailDTO.EmailVerificationRequest;
-import mementee.mementee.api.controller.emailDTO.VerificationCodeRequestDTO;
+import mementee.mementee.api.controller.emailDTO.SendVerificationCodeRequest;
 import mementee.mementee.api.service.social.EmailVerificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,7 @@ public class EmailController {
 
     @Operation(description = "이메일 인증 코드 전송")
     @PostMapping
-    public ResponseEntity<String> requestVerificationCode(@RequestBody VerificationCodeRequestDTO request) {
+    public ResponseEntity<String> requestVerificationCode(@RequestBody SendVerificationCodeRequest request) {
         // @RequestBody로 email 및 univName 받아서 univcert 요청에 필요한 json 데이터로 가공.
         String requestBody = emailVerificationService.createRequestBodyForCode(request);
 
