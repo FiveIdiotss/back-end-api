@@ -69,7 +69,6 @@ public class KakaoLoginService implements SocialService {
         return socialToken;
     }
 
-    // html form 형식으로 보내야 함
     public String requestUserInfo(SocialToken socialToken) {
         String uri = UriComponentsBuilder
                 .fromUriString(user_info_uri)

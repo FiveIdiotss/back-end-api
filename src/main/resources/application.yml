@@ -80,3 +80,7 @@ logging:
     org:
       springframework:
         boot: info
+
+api:
+  univcert:
+    key: ce6dc2f8-3d83-44ca-923a-7143022e5f3d
