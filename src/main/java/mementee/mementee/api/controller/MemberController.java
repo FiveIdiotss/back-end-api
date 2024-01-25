@@ -38,6 +38,20 @@ public class MemberController {
 
 
     //회원 등록--------------------------------------
+    @Operation(description = "사용 가능한 이메일인지 체크")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "등록 성공"),
+            @ApiResponse(responseCode = "fail", description = "등록 실패")})
+    @PostMapping("/api/member/check")
+    public ResponseEntity<String> checkMember(@RequestBody @Valid CheckMemberRequest request){
+        try {
+            memberService.emailDuplicateCheck(request.getEmail());   //이메일 중복 체크
+            return ResponseEntity.ok().body("사용 가능한 이메일");
+        }catch (Exception e){
+            return ResponseEntity.ok().body("이미 사용중인 이메일");
+        }
+    }
+
     @Operation(description = "회원 등록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
@@ -130,7 +144,7 @@ public class MemberController {
     public List<MemberDTO> memberList(){
         List<Member> findMembers = memberService.findMembers();
         List<MemberDTO> collect = findMembers.stream()
-                .map(m -> new MemberDTO(m.getName())) //Member entity에서 꺼내와 dto에 넣음
+                .map(m -> new MemberDTO(m.getId(), m.getEmail(), m.getName(), m.getYear(), m.getGender(), m.getSchool().getName(), m.getMajor().getName())) //Member entity에서 꺼내와 dto에 넣음
                 .collect(Collectors.toList());
 
         return collect;
@@ -156,8 +170,10 @@ public class MemberController {
 
             //토큰 발행 로직
             TokenDTO tokenDTO = memberService.login(member);
+            MemberDTO memberDTO = new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear()
+            ,member.getGender(), member.getSchool().getName(), member.getMajor().getName());
 
-            LoginMemberResponse response = new LoginMemberResponse(member.getId(), tokenDTO.getAccessToken(),
+            LoginMemberResponse response = new LoginMemberResponse(memberDTO, tokenDTO.getAccessToken(),
                     tokenDTO.getRefreshToken(), "로그인 성공");
 
             return ResponseEntity.ok(response);

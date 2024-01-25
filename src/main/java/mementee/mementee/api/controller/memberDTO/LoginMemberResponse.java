@@ -6,11 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class LoginMemberResponse {
-    private Long memberId;
+    private MemberDTO memberDTO;
     private String accessToken;
     private String refreshToken;
-    //private String name;        //사용자 이름
     private String message;
-
-
 }

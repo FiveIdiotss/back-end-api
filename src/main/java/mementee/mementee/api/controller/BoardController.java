@@ -1,5 +1,6 @@
 package mementee.mementee.api.controller;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -54,10 +55,9 @@ public class BoardController {
             boardService.save(board);
 
             return ResponseEntity.ok().body(member.getName() + "님 글 등록 성공");
-        }catch (Exception e){
+        } catch (Exception e) {
+            // 다른 예외들을 처리하거나 로깅 등을 수행할 수 있습니다.
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("글 등록 실패");
         }
     }
-
-
 }
