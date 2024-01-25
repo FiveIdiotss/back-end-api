@@ -25,7 +25,6 @@ public class RefreshToken {
         this.refreshToken = refreshToken;
         return this;
     }
-
     public boolean validateRefreshToken(String refreshToken){
         return this.refreshToken.equals(refreshToken);
     }
