@@ -1,6 +1,5 @@
 package mementee.mementee.api.domain;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

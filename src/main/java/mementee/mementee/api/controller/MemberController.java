@@ -30,27 +30,25 @@ import java.util.stream.Collectors;
 @Tag(name = "회원 관련 -(회원가입, 로그인, 학교 조회, 전공 조회)")
 public class MemberController {
 
-    private final PasswordEncoder passwordEncoder;
-
     private final MemberService memberService;
     private final SchoolService schoolService;
     private final MajorService majorService;
 
 
     //회원 등록--------------------------------------
-    @Operation(description = "사용 가능한 이메일인지 체크")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "등록 성공"),
-            @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping("/api/member/check")
-    public ResponseEntity<String> checkMember(@RequestBody @Valid CheckMemberRequest request){
-        try {
-            memberService.emailDuplicateCheck(request.getEmail());   //이메일 중복 체크
-            return ResponseEntity.ok().body("사용 가능한 이메일");
-        }catch (Exception e){
-            return ResponseEntity.ok().body("이미 사용중인 이메일");
-        }
-    }
+//    @Operation(description = "사용 가능한 이메일 인지 체크")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "success", description = "등록 성공"),
+//            @ApiResponse(responseCode = "fail", description = "등록 실패")})
+//    @PostMapping("/api/member/check")
+//    public ResponseEntity<String> checkMember(@RequestBody @Valid CheckMemberRequest request){
+//        try {
+//            memberService.emailDuplicateCheck(request.getEmail());   //이메일 중복 체크
+//            return ResponseEntity.ok().body("사용 가능한 이메일");
+//        }catch (Exception e){
+//            return ResponseEntity.ok().body("이미 사용중인 이메일");
+//        }
+//    }
 
     @Operation(description = "회원 등록")
     @ApiResponses(value = {
@@ -59,19 +57,7 @@ public class MemberController {
     @PostMapping("/api/member/signUp")
     public ResponseEntity<String> joinMember(@RequestBody @Valid CreateMemberRequest request){
        try {
-           //School school = schoolService.findOne(request.gnetSchoolId());
-           School school = schoolService.findNameOne(request.getSchoolName());
-           Major major = majorService.findOne(request.getMajorId());
-
-           memberService.emailDuplicateCheck(request.getEmail());   //이메일 중복 체크
-
-           String encodePw = passwordEncoder.encode(request.getPassword()); //비밀번호 암호화
-
-           Member member = new Member(request.getEmail(), request.getName(), encodePw, request.getYear(),
-                   request.getGender(), school, major);
-
-             memberService.join(member, school, major);
-
+           memberService.join(request);
            return ResponseEntity.ok().body("회원 등록 성공");
        }catch (Exception e){
            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원 등록 실패");
@@ -161,26 +147,15 @@ public class MemberController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         try {
-            Member member = memberService.findMemberByEmail(request.getEmail());
-
-                if(!passwordEncoder.matches(request.getPassword(), member.getPassword())){   //암호화 된 비밀번호와 일치 검사
-                LoginMemberResponse response = new LoginMemberResponse(null,"null","null","비밀번호 틀림");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-
-            //토큰 발행 로직
-            TokenDTO tokenDTO = memberService.login(member);
-            MemberDTO memberDTO = new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear()
-            ,member.getGender(), member.getSchool().getName(), member.getMajor().getName());
-
-            LoginMemberResponse response = new LoginMemberResponse(memberDTO, tokenDTO.getAccessToken(),
-                    tokenDTO.getRefreshToken(), "로그인 성공");
-
+            LoginMemberResponse response = memberService.login(request);
             return ResponseEntity.ok(response);
-
         }catch (EmptyResultDataAccessException e){
-            LoginMemberResponse response = new LoginMemberResponse(null,"null","null", "로그인 실패");
+            LoginMemberResponse response = new LoginMemberResponse(null,null, "로그인 실패");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }catch (Exception e){
+            LoginMemberResponse response = new LoginMemberResponse(null,null, "로그인 실패");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+
 }

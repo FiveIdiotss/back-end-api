@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 
 @Entity
@@ -19,8 +20,7 @@ import java.util.Collection;
 @Builder
 public class Member{
 
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     @Column(name = "member_id")
     private Long id;
 
@@ -50,6 +50,15 @@ public class Member{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "major_id")
     private Major major;
+
+    @OneToMany(mappedBy = "member")
+    private List<MentorBoard> mentorBoards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<MenteeBoard> menteeBoards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<Friend> friends= new ArrayList<>();
 
     public Member(String email, String name, String password, int year, Gender gender, School school, Major major) {
         this.email = email;

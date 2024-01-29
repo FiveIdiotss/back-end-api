@@ -1,9 +1,6 @@
 package mementee.mementee.api.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,15 +11,19 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Board {
-    @Id
-    @GeneratedValue
-    @Column(name = "board_id")
+public class MentorBoard {
+
+    @Id @GeneratedValue
+    @Column(name = "mentor_board_id")
     private Long id;
     private String title;
     private String content;
 
-    public Board(String title, String content) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    public MentorBoard(String title, String content) {
         this.title = title;
         this.content = content;
     }
