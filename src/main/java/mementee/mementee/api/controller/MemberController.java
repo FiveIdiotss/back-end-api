@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
-@Tag(name = "회원 관련 -(회원가입, 로그인, 학교 조회, 전공 조회)")
+@Tag(name = "회원 관련 -(회원 가입, 회원 조회, 로그인, 학교 조회, 전공 조회)")
 public class MemberController {
 
     private final MemberService memberService;
@@ -79,7 +79,7 @@ public class MemberController {
         return collect;
     }
 
-    @Operation(description = "검색(초성)으로 학교 목록 조회")
+    @Operation(description = "검색으로 학교 목록 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
@@ -157,5 +157,54 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+
+    //회원 정보-----------------------------------
+    //해당 멤버가 쓴 게시물 조회 추가?
+    @Operation(description = "회원 정보")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "회원 조회 성공"),
+            @ApiResponse(responseCode = "fail", description = "회원 조회 실패")})
+    @GetMapping("/api/member/{memberId}")
+    public ResponseEntity<MemberInfoResponse> memberInfo(@PathVariable Long memberId){
+        try {
+            Member member = memberService.findOne(memberId);
+            MemberInfoResponse response = new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(),
+                    member.getYear(), member.getGender(), member.getSchool().getName(), member.getMajor().getName());
+            return ResponseEntity.ok(response);
+
+        }catch (EmptyResultDataAccessException e){
+            MemberInfoResponse response = new MemberInfoResponse(null , null, null, 0,
+                    null , null, null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+        }catch (Exception e){
+        MemberInfoResponse response = new MemberInfoResponse(null , null, null, 0,
+                null , null, null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    //친구 요청 기능------------
+    @Operation(description = "친구 요청 (미구현)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "회원 조회 성공"),
+            @ApiResponse(responseCode = "fail", description = "회원 조회 실패")})
+    @PostMapping("/api/member/{memberId}")
+    public ResponseEntity<String> requestFriend(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId){
+        try {
+            Member member = memberService.getMemberByToken(authorizationHeader);
+            Member addMember = memberService.findOne(memberId);
+
+
+            return ResponseEntity.ok().body("친구 요청 성공");
+        }catch (EmptyResultDataAccessException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("친구 요청 실패");
+
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("친구 요청 실패");
+        }
+    }
+
+
 
 }

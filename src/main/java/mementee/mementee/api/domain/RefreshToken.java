@@ -13,9 +13,12 @@ public class RefreshToken {
     @Column(name = "refresh_token_id")
     private Long id;
 
+    @Column(nullable = false)
     private String refreshToken;
 
+    @Column(nullable = false)
     private String email;
+
     public RefreshToken(String refreshToken, String email) {
         this.refreshToken = refreshToken;
         this.email = email;

@@ -1,19 +1,18 @@
 package mementee.mementee.api.controller.memberDTO;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import mementee.mementee.api.domain.enumtype.Gender;
 
-@Data
+@Getter
 @AllArgsConstructor
-public class CreateMemberRequest {
+public class MemberInfoResponse {
+    private Long memberId;
     private String email;
     private String name;
-    private String password;
-    private int year;  //학번
+    private int year;
     private Gender gender;
 
-   // private Long schoolId;
+    private String majorName;
     private String schoolName;
-    private Long majorId;
 }

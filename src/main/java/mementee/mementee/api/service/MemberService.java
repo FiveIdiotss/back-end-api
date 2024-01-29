@@ -32,6 +32,13 @@ public class MemberService {
     private final SchoolService schoolService;
     private final MajorService majorService;
 
+    public Member getMemberByToken(String authorizationHeader){
+        String token = authorizationHeader.split(" ")[1];
+        String email = JwtUtil.getMemberEmail(token, secretKey);
+        return findMemberByEmail(email);
+    }
+
+
     //비밀번호 맞는지 체크
     public void matchPassWord(String requestPw, String memberPw){
          if(!passwordEncoder.matches(requestPw, memberPw))

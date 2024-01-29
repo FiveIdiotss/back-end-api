@@ -4,12 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import mementee.mementee.api.domain.enumtype.Gender;
 import mementee.mementee.api.domain.enumtype.Role;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -41,6 +37,7 @@ public class Member{
     private Gender gender;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -52,10 +49,7 @@ public class Member{
     private Major major;
 
     @OneToMany(mappedBy = "member")
-    private List<MentorBoard> mentorBoards = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member")
-    private List<MenteeBoard> menteeBoards = new ArrayList<>();
+    private List<Board> boards = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
     private List<Friend> friends= new ArrayList<>();
