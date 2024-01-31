@@ -2,12 +2,14 @@ package mementee.mementee.api.domain.chat;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
+@NoArgsConstructor
 public class ChatMessage {
 
     @Id @GeneratedValue
@@ -18,6 +20,6 @@ public class ChatMessage {
     private LocalDateTime localDateTime;
 
     @ManyToOne
-    @JoinColumn(name = "chat_room_id")
+    @JoinColumn(name = "chatroom_id")
     private ChatRoom chatRoom;
 }
