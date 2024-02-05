@@ -17,7 +17,6 @@ import mementee.mementee.api.service.SchoolService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -137,12 +136,12 @@ public class MemberController {
     }
 
     //로그인--------------------------------------
-    @Operation(description = "로그인")
+    @Operation(description = "로그인 - (access token 기간 1시간)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "로그인 성공"),
             @ApiResponse(responseCode = "fail", description = "로그인 실패")})
     @PostMapping("/api/member/signIn")
-    public ResponseEntity<LoginMemberResponse> signIn(@Valid @RequestBody LoginMemberRequest request, BindingResult bindingResult){
+    public ResponseEntity<?> signIn(@Valid @RequestBody LoginMemberRequest request, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -150,11 +149,9 @@ public class MemberController {
             LoginMemberResponse response = memberService.login(request);
             return ResponseEntity.ok(response);
         }catch (EmptyResultDataAccessException e){
-            LoginMemberResponse response = new LoginMemberResponse(null,null, "로그인 실패");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그인 실패");
         }catch (Exception e){
-            LoginMemberResponse response = new LoginMemberResponse(null,null, "로그인 실패");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그인 실패");
         }
     }
 
@@ -165,7 +162,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "회원 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "회원 조회 실패")})
     @GetMapping("/api/member/{memberId}")
-    public ResponseEntity<MemberInfoResponse> memberInfo(@PathVariable Long memberId){
+    public ResponseEntity<?> memberInfo(@PathVariable Long memberId){
         try {
             Member member = memberService.findOne(memberId);
             MemberInfoResponse response = new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(),
@@ -173,38 +170,11 @@ public class MemberController {
             return ResponseEntity.ok(response);
 
         }catch (EmptyResultDataAccessException e){
-            MemberInfoResponse response = new MemberInfoResponse(null , null, null, 0,
-                    null , null, null);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("조회 실패");
         }catch (Exception e){
-        MemberInfoResponse response = new MemberInfoResponse(null , null, null, 0,
-                null , null, null);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("조회 실패");
         }
     }
 
     //친구 요청 기능------------
-    @Operation(description = "친구 요청 (미구현)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "회원 조회 성공"),
-            @ApiResponse(responseCode = "fail", description = "회원 조회 실패")})
-    @PostMapping("/api/member/{memberId}")
-    public ResponseEntity<String> requestFriend(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId){
-        try {
-            Member member = memberService.getMemberByToken(authorizationHeader);
-            Member addMember = memberService.findOne(memberId);
-
-
-            return ResponseEntity.ok().body("친구 요청 성공");
-        }catch (EmptyResultDataAccessException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("친구 요청 실패");
-
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("친구 요청 실패");
-        }
-    }
-
-
-
 }

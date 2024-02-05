@@ -11,6 +11,10 @@ public class BoardDTO {
     private String title;
     private String content;
 
-    private Long memberId;
-    private String memberName;
+    private int year;           //작성자 학번
+    private String schoolName;  //작성자 학교
+    private String majorName;   //작성자 전공
+
+    private Long memberId;      //작성자
+    private String memberName;  //작성자
 }

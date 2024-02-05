@@ -13,7 +13,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Member{
 
     @Id @GeneratedValue
@@ -51,8 +50,13 @@ public class Member{
     @OneToMany(mappedBy = "member")
     private List<Board> boards = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
-    private List<Friend> friends= new ArrayList<>();
+    @OneToMany(mappedBy = "sendMember")
+    @Column(name = "send_member")
+    private List<Application> sendApplications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiveMember")
+    @Column(name = "receive_member")
+    private List<Application> receiveApplications = new ArrayList<>();
 
     public Member(String email, String name, String password, int year, Gender gender, School school, Major major) {
         this.email = email;
@@ -64,4 +68,13 @@ public class Member{
         this.school = school;
         this.major = major;
     }
+
+    public void removeSendApplication(Application application) {        //보낸 신청 제거
+        sendApplications.remove(application);
+    }
+
+    public void removeReceiveApplication(Application application) {     //받은 신청 제거
+        receiveApplications.remove(application);
+    }
+
 }

@@ -2,7 +2,10 @@ package mementee.mementee.api.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import mementee.mementee.api.domain.Application;
 import mementee.mementee.api.domain.Board;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,7 +27,6 @@ public class BoardRepository {
     public Board findBoard(Long boardId) {
         return em.find(Board.class, boardId);
     }
-
 
     //전체 멘토 게시글
     public List<Board> findAllMentorBoards() {

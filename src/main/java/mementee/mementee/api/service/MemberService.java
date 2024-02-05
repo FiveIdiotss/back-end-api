@@ -115,6 +115,6 @@ public class MemberService {
             refreshTokenRepository.save(newToken);
         }
 
-        return new LoginMemberResponse(getMemberDTO(member), tokenDTO, "로그인 성공");
+        return new LoginMemberResponse(getMemberDTO(member), tokenDTO);
     }
 }

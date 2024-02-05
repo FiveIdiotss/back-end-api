@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mementee.mementee.api.domain.enumtype.BoardType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -21,6 +24,7 @@ public class Board {
     @Column(nullable = false)
     private String title;
 
+    @Lob
     @Column(nullable = false)
     private String content;
 
@@ -31,6 +35,9 @@ public class Board {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @OneToMany(mappedBy = "board")
+    private List<Application> applications = new ArrayList<>();
 
     public Board(String title, String content, BoardType boardType, Member member) {
         this.title = title;

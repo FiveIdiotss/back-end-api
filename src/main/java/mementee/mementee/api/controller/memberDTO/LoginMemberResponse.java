@@ -8,5 +8,4 @@ import lombok.Data;
 public class LoginMemberResponse {
     private MemberDTO memberDTO;
     private TokenDTO tokenDTO;
-    private String message;
 }

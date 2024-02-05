@@ -18,8 +18,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtUtil {
 
-    private static final long ACCESS_TIME = 60 * 1000L;
-    private static final long REFRESH_TIME = 7 * 24 * 60 * 60 * 1000L;
+    private static final long ACCESS_TIME = 60 * 60 * 1000L;
+    private static final long REFRESH_TIME = 7 * 24 * 60 * 60 * 1000L;        //일주일 168 시간
 
 
     //token을 통해 사용자 email 조회
@@ -36,7 +36,7 @@ public class JwtUtil {
     }
 
 
-    //토큰 발행
+    //access 토큰 발행
     public static String createAccessToken(String email, String secretKey){
         Claims claims = Jwts.claims();  //일종의 Map
         claims.put("email", email);
@@ -49,7 +49,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    //토큰 발행
+    //refresh 토큰 발행
     public static String createRefreshToken(String secretKey){
         Claims claims = Jwts.claims();  //일종의 Map
 
