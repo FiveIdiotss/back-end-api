@@ -13,9 +13,12 @@ public class RefreshToken {
     @Column(name = "refresh_token_id")
     private Long id;
 
+    @Column(nullable = false)
     private String refreshToken;
 
+    @Column(nullable = false)
     private String email;
+
     public RefreshToken(String refreshToken, String email) {
         this.refreshToken = refreshToken;
         this.email = email;
@@ -25,7 +28,7 @@ public class RefreshToken {
         this.refreshToken = refreshToken;
         return this;
     }
-    public boolean validateRefreshToken(String refreshToken){
+    public boolean checkMatchRefreshToken(String refreshToken){
         return this.refreshToken.equals(refreshToken);
     }
 }

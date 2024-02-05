@@ -1,13 +1,14 @@
 package mementee.mementee.api.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import mementee.mementee.api.domain.enumtype.BoardType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,15 +16,33 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Board {
-    @Id
-    @GeneratedValue
+
+    @Id @GeneratedValue
     @Column(name = "board_id")
     private Long id;
+
+    @Column(nullable = false)
     private String title;
+
+    @Lob
+    @Column(nullable = false)
     private String content;
 
-    public Board(String title, String content) {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BoardType boardType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @OneToMany(mappedBy = "board")
+    private List<Application> applications = new ArrayList<>();
+
+    public Board(String title, String content, BoardType boardType, Member member) {
         this.title = title;
         this.content = content;
+        this.boardType = boardType;
+        this.member = member;
     }
 }

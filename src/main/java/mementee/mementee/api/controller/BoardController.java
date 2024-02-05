@@ -1,6 +1,5 @@
 package mementee.mementee.api.controller;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -9,55 +8,119 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mementee.mementee.api.controller.applicationDTO.ApplicationRequest;
+import mementee.mementee.api.controller.boardDTO.BoardDTO;
+import mementee.mementee.api.controller.boardDTO.BoardInfoResponse;
 import mementee.mementee.api.controller.boardDTO.WriteBoardRequest;
 import mementee.mementee.api.domain.Board;
-import mementee.mementee.api.domain.Member;
-import mementee.mementee.security.JwtUtil;
+import mementee.mementee.api.domain.enumtype.BoardType;
+import mementee.mementee.api.service.ApplicationService;
 import mementee.mementee.api.service.BoardService;
 import mementee.mementee.api.service.MemberService;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
-@Tag(name = "글 쓰기 테스트 옹")
+@Tag(name = "글 쓰기, 글 리스트, 글 조회")
 @Slf4j
 public class BoardController {
 
-    @Value("${spring.jwt.secret}")
-    private String secretKey;
-
     private final BoardService boardService;
     private final MemberService memberService;
+    private final ApplicationService applicationService;
 
     //글 쓰기--------------------------------------
-    @Operation(description = "글쓰기 테스트 용 (로그인 토큰 테스트 용)")
+    @Operation(description = "글 쓰기")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping("/api/board")
-    public ResponseEntity<String> saveBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
+    public ResponseEntity<String> saveMentorBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
         try {
-            String token = authorizationHeader.split(" ")[1];
-            String memberEmail = JwtUtil.getMemberEmail(token, secretKey);
-
-            //System.out.println("memberEmail = " + memberEmail);
-
-            Member member = memberService.findMemberByEmail(memberEmail);
-            Board board = new Board(request.getTitle(), request.getContent());
-
-            boardService.save(board);
-
-            return ResponseEntity.ok().body(member.getName() + "님 글 등록 성공");
+            String name = boardService.saveBoard(request, authorizationHeader);
+            return ResponseEntity.ok().body(name + "님 글 등록 성공");
         } catch (Exception e) {
-            // 다른 예외들을 처리하거나 로깅 등을 수행할 수 있습니다.
+            // 다른 예외들을 처리
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("글 등록 실패");
         }
     }
+
+    //글 전체 조회---------------
+    //무한 스크롤 용 멘토,멘티 글 전체 조회
+    @Operation(description =  "페이지 단위로 멘토/멘티 전체 리스트")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @GetMapping("/api/boards")
+    public Slice<BoardDTO> boardListTest(@RequestParam BoardType boardType,  @RequestParam int page, @RequestParam int size){
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
+
+        Slice<Board> findBoards = boardService.findAllByBoardType(boardType, pageable);
+        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getTitle(), b.getContent(),
+                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
+
+        return slice;
+    }
+
+    @Operation(description = "페이지 단위로 멘토/멘티 학교별 리스트")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @GetMapping("/api/boards/{schoolName}")
+    public Slice<BoardDTO> schoolBoardList(@RequestParam BoardType boardType,  @RequestParam int page, @RequestParam int size, @PathVariable String schoolName){
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
+
+        Slice<Board> findBoards = boardService.findAllByBoardTypeAndSchoolName(boardType, schoolName, pageable);
+        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getTitle(), b.getContent(),
+                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
+
+        return slice;
+    }
+
+    //게시글 조회 --------------------
+    @Operation(description = "글 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "글 조회 성공"),
+            @ApiResponse(responseCode = "fail", description = "글 조회 실패")})
+    @GetMapping("/api/board/{boardId}")
+    public ResponseEntity<?> boardInfo(@PathVariable Long boardId){
+        try {
+            Board board = boardService.findBoard(boardId);
+            BoardDTO boardDTO = new BoardDTO(board.getId(), board.getTitle(), board.getContent(),
+                    board.getMember().getYear(), board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
+                    board.getMember().getId(), board.getMember().getName());
+
+            BoardInfoResponse response = new BoardInfoResponse(boardDTO);
+            return ResponseEntity.ok(response);
+
+        }catch (EmptyResultDataAccessException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("글 조회 실패");
+
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("글 조회 실패");
+        }
+    }
+
+    //신청 기능 -------------------
+    @Operation(description = "멘토/멘티 신청 - 이미 신청한 글이거나, 자신이 쓴 글에 신청 할 경우 BAD_REQUEST")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "신청 성공"),
+            @ApiResponse(responseCode = "fail", description = "신청 실패")})
+    @PostMapping("/api/board/{boardId}")
+    public ResponseEntity<?> boardApply(@RequestBody @Valid ApplicationRequest request, @PathVariable Long boardId, @RequestHeader("Authorization") String authorizationHeader){
+        try {
+            applicationService.sendApply(authorizationHeader, boardId, request);
+
+            return ResponseEntity.ok("신청 성공");
+
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }
