@@ -27,7 +27,6 @@ import java.util.List;
 public class ApplicationController {
 
     private final ApplicationService applicationService;
-    private final BoardService boardService;
 
     //신청 한 글인지 아닌지 체크하는 api 필요
 

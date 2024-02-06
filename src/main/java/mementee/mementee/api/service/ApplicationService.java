@@ -29,7 +29,7 @@ public class ApplicationService {
 
         isCheckMyBoard(sendMember,board);
         isDuplicateApply(sendMember.getId(), receiveMember.getId(), board.getId());
-        Application application = new Application(sendMember, receiveMember, board, request.getContent());
+        Application application = new Application(request.getDate(), request.getTime(), sendMember, receiveMember, board, request.getContent());
 
         sendMember.getSendApplications().add(application);
         board.getMember().getReceiveApplications().add(application);

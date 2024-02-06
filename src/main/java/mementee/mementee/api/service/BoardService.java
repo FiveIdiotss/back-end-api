@@ -26,7 +26,8 @@ public class BoardService {
     @Transactional
     public String saveBoard(WriteBoardRequest request, String authorizationHeader) {
         Member member = memberService.getMemberByToken(authorizationHeader);
-        Board board = new Board(request.getTitle(), request.getContent(), request.getBoardType(), member);
+        Board board = new Board(request.getTitle(), request.getContent(), request.getBoardType(), member,
+                request.getStartTime(),request.getLastTime(), request.getAvailableDays());
 
         member.getBoards().add(board);
 

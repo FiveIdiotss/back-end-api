@@ -2,10 +2,7 @@ package mementee.mementee.api.service;
 
 import lombok.RequiredArgsConstructor;
 import mementee.mementee.api.controller.memberDTO.*;
-import mementee.mementee.api.domain.Major;
-import mementee.mementee.api.domain.Member;
-import mementee.mementee.api.domain.RefreshToken;
-import mementee.mementee.api.domain.School;
+import mementee.mementee.api.domain.*;
 import mementee.mementee.api.repository.MemberRepository;
 import mementee.mementee.api.repository.RefreshTokenRepository;
 import mementee.mementee.security.JwtUtil;
@@ -38,6 +35,15 @@ public class MemberService {
         return findMemberByEmail(email);
     }
 
+    //현재 로그인한 유저와 내 정보에 대한 일치 여부
+    public Member isCheckMe(String authorizationHeader, Long memberId){
+        Member serverMember = getMemberByToken(authorizationHeader);
+        Member member = findOne(memberId);
+
+        if(member != serverMember)
+            throw new IllegalArgumentException("권한 없음.");
+        return member;
+    }
 
     //비밀번호 맞는지 체크
     public void matchPassWord(String requestPw, String memberPw){

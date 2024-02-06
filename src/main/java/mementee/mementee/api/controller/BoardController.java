@@ -35,7 +35,17 @@ public class BoardController {
     private final ApplicationService applicationService;
 
     //글 쓰기--------------------------------------
-    @Operation(description = "글 쓰기")
+    @Operation(description = "글 쓰기 - 글 작성시 상담 가능한 요일들, 상담 가능 시작시간 ~ 종료시간 같이 적으셈" +
+            "{\n" +
+            "  \"title\": \"구민회 씹ㅌ 라모\",\n" +
+            "  \"content\": \"구민회 씹탈뮤ㅗ\",\n" +
+            "  \"boardType\": \"MENTEE\",\n" +
+            "  \"startTime\": \"00:00:00\",\n" +
+            "  \"lastTime\": \"02:00:00\",\n" +
+            "  \"availableDays\": [\n" +
+            "    \"MONDAY\"\n" +
+            " ]\n" +
+            "} 시간 입력시 이런식으로 작성 바람")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
@@ -50,7 +60,7 @@ public class BoardController {
         }
     }
 
-    //글 전체 조회---------------
+    //글 리스트로 전체 조회---------------
     //무한 스크롤 용 멘토,멘티 글 전체 조회
     @Operation(description =  "페이지 단위로 멘토/멘티 전체 리스트")
     @ApiResponses(value = {
@@ -61,7 +71,7 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Slice<Board> findBoards = boardService.findAllByBoardType(boardType, pageable);
-        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getTitle(), b.getContent(),
+        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
                 b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
 
         return slice;
@@ -76,7 +86,7 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Slice<Board> findBoards = boardService.findAllByBoardTypeAndSchoolName(boardType, schoolName, pageable);
-        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getTitle(), b.getContent(),
+        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
                 b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
 
         return slice;
@@ -91,11 +101,11 @@ public class BoardController {
     public ResponseEntity<?> boardInfo(@PathVariable Long boardId){
         try {
             Board board = boardService.findBoard(boardId);
-            BoardDTO boardDTO = new BoardDTO(board.getId(), board.getTitle(), board.getContent(),
+            BoardDTO boardDTO = new BoardDTO(board.getId(), board.getBoardType(), board.getTitle(), board.getContent(),
                     board.getMember().getYear(), board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
                     board.getMember().getId(), board.getMember().getName());
 
-            BoardInfoResponse response = new BoardInfoResponse(boardDTO);
+            BoardInfoResponse response = new BoardInfoResponse(boardDTO, board.getStartTime(), board.getLastTime(), board.getAvailableDays());
             return ResponseEntity.ok(response);
 
         }catch (EmptyResultDataAccessException e){

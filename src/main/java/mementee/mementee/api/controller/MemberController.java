@@ -162,9 +162,9 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "회원 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "회원 조회 실패")})
     @GetMapping("/api/member/{memberId}")
-    public ResponseEntity<?> memberInfo(@PathVariable Long memberId){
+    public ResponseEntity<?> memberInfo(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId){
         try {
-            Member member = memberService.findOne(memberId);
+            Member member = memberService.isCheckMe(authorizationHeader, memberId);
             MemberInfoResponse response = new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(),
                     member.getYear(), member.getGender(), member.getSchool().getName(), member.getMajor().getName());
             return ResponseEntity.ok(response);
