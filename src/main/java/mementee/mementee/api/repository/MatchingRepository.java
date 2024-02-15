@@ -2,10 +2,7 @@ package mementee.mementee.api.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import mementee.mementee.api.domain.Apply;
-import mementee.mementee.api.domain.Major;
 import mementee.mementee.api.domain.Matching;
-import mementee.mementee.api.domain.enumtype.ApplyState;
 import mementee.mementee.api.domain.enumtype.BoardType;
 import org.springframework.stereotype.Repository;
 

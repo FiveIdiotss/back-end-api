@@ -1,11 +1,9 @@
 package mementee.mementee.api.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import mementee.mementee.api.domain.enumtype.ApplyState;
-import mementee.mementee.api.domain.enumtype.BoardType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

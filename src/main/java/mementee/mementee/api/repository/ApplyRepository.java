@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import mementee.mementee.api.domain.*;
-import mementee.mementee.api.domain.enumtype.ApplyState;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

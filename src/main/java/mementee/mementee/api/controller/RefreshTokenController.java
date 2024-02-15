@@ -3,16 +3,10 @@ package mementee.mementee.api.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import mementee.mementee.api.domain.RefreshToken;
-import mementee.mementee.api.repository.RefreshTokenRepository;
 import mementee.mementee.api.service.RefreshService;
-import mementee.mementee.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
