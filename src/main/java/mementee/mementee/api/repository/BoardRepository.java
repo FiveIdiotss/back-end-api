@@ -2,15 +2,10 @@ package mementee.mementee.api.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import mementee.mementee.api.domain.Application;
 import mementee.mementee.api.domain.Board;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
-import static mementee.mementee.api.domain.enumtype.BoardType.MENTOR;
 
 @Repository
 @RequiredArgsConstructor

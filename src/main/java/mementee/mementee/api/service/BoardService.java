@@ -5,6 +5,7 @@ import mementee.mementee.api.controller.boardDTO.WriteBoardRequest;
 import mementee.mementee.api.domain.Member;
 import mementee.mementee.api.domain.Board;
 import mementee.mementee.api.domain.enumtype.BoardType;
+import mementee.mementee.api.domain.subdomain.ScheduleTime;
 import mementee.mementee.api.repository.BoardRepository;
 import mementee.mementee.api.repository.BoardRepositorySub;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,10 +27,30 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardRepositorySub boardRepositorySub;
 
+    //멘토가 자신의 스케줄을 입력시 중복되는 시간을 고를경우 ex) 01:00:00 ~ 03:00:00 와 02:00:00 ~ 05:00:00를 동시에 할수 없음
+    public void isDuplicateTime(List<ScheduleTime> times) {
+        Set<LocalTime> timeSet = new HashSet<>();
+        for (ScheduleTime time : times) {
+            LocalTime startTime = time.getStartTime();
+            LocalTime finishTime = time.getEndTime();
+            for (LocalTime existingTime : timeSet) {
+                if ((startTime.isAfter(existingTime) && startTime.isBefore(existingTime.plusHours(2))) ||
+                        (finishTime.isAfter(existingTime) && finishTime.isBefore(existingTime.plusHours(2)))) {
+                    throw new IllegalArgumentException("상담 시간이 중복됩니다.");
+                }
+            }
+            timeSet.add(startTime);
+            timeSet.add(finishTime);
+        }
+    }
+
+
     @Transactional
     public String saveBoard(WriteBoardRequest request, String authorizationHeader) {
         Member member = memberService.getMemberByToken(authorizationHeader);
-        Board board = new Board(request.getTitle(), request.getContent(), request.getBoardType(), member);
+
+        Board board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(), request.getBoardType(), member,
+                request.getTimes(), request.getAvailableDays());
 
         member.getBoards().add(board);
 

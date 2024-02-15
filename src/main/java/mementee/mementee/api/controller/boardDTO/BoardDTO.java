@@ -1,13 +1,22 @@
 package mementee.mementee.api.controller.boardDTO;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import mementee.mementee.api.domain.enumtype.BoardType;
 import org.aspectj.apache.bcel.generic.LocalVariableGen;
+
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
 public class BoardDTO {
     private Long boardId;
+    private BoardType boardType;
     private String title;
     private String content;
 

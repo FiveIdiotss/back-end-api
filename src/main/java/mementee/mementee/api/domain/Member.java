@@ -12,7 +12,6 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Member{
 
     @Id @GeneratedValue
@@ -52,11 +51,20 @@ public class Member{
 
     @OneToMany(mappedBy = "sendMember")
     @Column(name = "send_member")
-    private List<Application> sendApplications = new ArrayList<>();
+    private List<Apply> sendApplies = new ArrayList<>();
 
     @OneToMany(mappedBy = "receiveMember")
     @Column(name = "receive_member")
-    private List<Application> receiveApplications = new ArrayList<>();
+    private List<Apply> receiveApplies = new ArrayList<>();
+
+    //--------------
+    @OneToMany(mappedBy = "mentor")
+    @Column(name = "mentor")
+    private List<Matching> myMentorMatching = new ArrayList<>();
+
+    @OneToMany(mappedBy = "mentee")
+    @Column(name = "mentee")
+    private List<Matching> myMenteeMatching = new ArrayList<>();
 
     public Member(String email, String name, String password, int year, Gender gender, School school, Major major) {
         this.email = email;
@@ -69,12 +77,12 @@ public class Member{
         this.major = major;
     }
 
-    public void removeSendApplication(Application application) {        //보낸 신청 제거
-        sendApplications.remove(application);
+    public void removeSendApplication(Apply apply) {        //보낸 신청 제거
+        sendApplies.remove(apply);
     }
 
-    public void removeReceiveApplication(Application application) {     //받은 신청 제거
-        receiveApplications.remove(application);
+    public void removeReceiveApplication(Apply apply) {     //받은 신청 제거
+        receiveApplies.remove(apply);
     }
 
 }

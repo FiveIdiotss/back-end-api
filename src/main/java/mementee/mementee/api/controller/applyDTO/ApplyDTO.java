@@ -1,12 +1,11 @@
-package mementee.mementee.api.controller.applicationDTO;
+package mementee.mementee.api.controller.applyDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import mementee.mementee.api.controller.boardDTO.BoardDTO;
 
 @Data
 @AllArgsConstructor
-public class ApplicationDTO {
+public class ApplyDTO {
     private Long applyId;
     //private BoardDTO boardDTO;
     private Long boardId;

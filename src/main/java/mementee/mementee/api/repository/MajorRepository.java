@@ -18,12 +18,6 @@ public class MajorRepository {
         return em.find(Major.class, id);
     }
 
-    //학교에 속하는 과목 목록
-//    public List<Major> findMajors(Long schoolId) {
-//        return em.createQuery("SELECT m FROM Major m WHERE m.school.id = :schoolId", Major.class)
-//                .setParameter("schoolId", schoolId)
-//                .getResultList();
-//    }
 
     //학교에 속하는 과목 목록
     public List<Major> findMajors(String name) {

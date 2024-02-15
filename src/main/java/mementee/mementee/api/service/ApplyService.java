@@ -1,9 +1,9 @@
 package mementee.mementee.api.service;
 
 import lombok.RequiredArgsConstructor;
-import mementee.mementee.api.controller.applicationDTO.ApplicationRequest;
+import mementee.mementee.api.controller.applyDTO.ApplyRequest;
 import mementee.mementee.api.domain.*;
-import mementee.mementee.api.repository.ApplicationRepository;
+import mementee.mementee.api.repository.ApplyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +13,15 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class ApplicationService {
+public class ApplyService {
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplyRepository applicationRepository;
     private final MemberService memberService;
     private final BoardService boardService;
 
     //멘토 or 멘티 신청 하기
     @Transactional
-    public void sendApply(String authorizationHeader, Long boardId, ApplicationRequest request){
+    public void sendApply(String authorizationHeader, Long boardId, ApplyRequest request){
         Board board = boardService.findBoard(boardId);
 
         Member sendMember = memberService.getMemberByToken(authorizationHeader);
@@ -29,22 +29,18 @@ public class ApplicationService {
 
         isCheckMyBoard(sendMember,board);
         isDuplicateApply(sendMember.getId(), receiveMember.getId(), board.getId());
-        Application application = new Application(sendMember, receiveMember, board, request.getContent());
+        Apply apply = new Apply(request.getDate(), request.getTime(), sendMember, receiveMember, board, request.getContent());
 
-        sendMember.getSendApplications().add(application);
-        board.getMember().getReceiveApplications().add(application);
-        board.getApplications().add(application);
+        sendMember.getSendApplies().add(apply);
+        board.getMember().getReceiveApplies().add(apply);
+        board.getApplies().add(apply);
 
-        applicationRepository.saveApplication(application);
-    }
-
-    public Application findApplication(Long applicationId){
-        return applicationRepository.findApplication(applicationId);
+        applicationRepository.saveApplication(apply);
     }
 
     //신청 중복 체크
     public void isDuplicateApply(Long sendMemberId, Long receiveMemberId, Long boardId){
-        Optional<Application> duplicateApply = applicationRepository.isDuplicateApply(sendMemberId, receiveMemberId, boardId);
+        Optional<Apply> duplicateApply = applicationRepository.isDuplicateApply(sendMemberId, receiveMemberId, boardId);
         if(duplicateApply.isPresent()){
             throw new IllegalArgumentException("이미 신청한 글 입니다.");
         }
@@ -57,19 +53,23 @@ public class ApplicationService {
     }
 
     //자신이 신청한 지원글을 조회 할때
-    public Application isCheckMyApplication(String authorizationHeader, Long applyId){
+    public Apply isCheckMyApply(String authorizationHeader, Long applyId){
         Member member = memberService.getMemberByToken(authorizationHeader);
-        Application application = applicationRepository.findApplication(applyId);
-        if(member != application.getSendMember() || member != application.getReceiveMember())
+        Apply apply = applicationRepository.findApplication(applyId);
+        if(member != apply.getSendMember() || member != apply.getReceiveMember())
             throw new IllegalArgumentException("나에게 해당하는 지원 글이 아닙니다.");
-        return application;
+        return apply;
     }
 
-    public List<Application> findApplicationBySendMember(Long memberId){
+    public List<Apply> findApplyBySendMember(Long memberId){
         return applicationRepository.findApplicationBySendMember(memberId);
     }
 
-    public List<Application> findApplicationByReceiveMember(Long memberId){
+    public List<Apply> findApplyByReceiveMember(Long memberId){
         return applicationRepository.findApplicationByReceiveMember(memberId);
+    }
+
+    public Apply findApplication(Long applicationId){
+        return applicationRepository.findApplication(applicationId);
     }
 }
