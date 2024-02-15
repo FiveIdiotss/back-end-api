@@ -15,12 +15,15 @@ import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import mementee.mementee.api.domain.enumtype.BoardType;
+import mementee.mementee.api.domain.subdomain.ScheduleTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -28,19 +31,16 @@ import java.util.List;
 public class WriteBoardRequest {
     private String title;
     private String content;
+    private int consultTime;
     private BoardType boardType;
 
     @DateTimeFormat(pattern = "HH:mm:ss")
     @JsonSerialize(using = LocalTimeSerializer.class)
     @JsonDeserialize(using = LocalTimeDeserializer.class)
-    private LocalTime startTime;                // 예약 가능한 시작 시간
+    private List<ScheduleTime> times;
 
-    @DateTimeFormat(pattern = "HH:mm:ss")
-    @JsonSerialize(using = LocalTimeSerializer.class)
-    @JsonDeserialize(using = LocalTimeDeserializer.class)
-    private LocalTime lastTime;                 // 예약 가능한 종료 시간
-
-    private List<DayOfWeek> availableDays;    // 상담 가능한 요일
+   //private List<LocalDate> availableDays;    // 상담 가능한 날짜
+    private List<DayOfWeek> availableDays;
 
     public static class LocalTimeSerializer extends JsonSerializer<LocalTime> {
         @Override

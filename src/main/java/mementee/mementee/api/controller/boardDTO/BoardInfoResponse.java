@@ -1,13 +1,11 @@
 package mementee.mementee.api.controller.boardDTO;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import mementee.mementee.api.domain.subdomain.UnavailableTime;
+import mementee.mementee.api.domain.subdomain.ScheduleTime;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -15,7 +13,11 @@ import java.util.List;
 public class BoardInfoResponse {
     private BoardDTO boardDTO;
 
-    private LocalTime startTime;            // 예약 가능한 시작 시간
-    private LocalTime lastTime;              // 예약 가능한 종료 시간
-    private List<DayOfWeek> availableDays;  //상담 가능한 요일
+    private int consultTime;                          //상담 시간
+    private List<ScheduleTime> times;                 //예약 가능 시간
+    private List<DayOfWeek> availableDays;            //상감 가능한 요일
+
+    private List<UnavailableTime> unavailableTimes;   //예약 불가한 시간
+
+    //private List<LocalDate> availableDays;          //상담 가능한 요일
 }

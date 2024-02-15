@@ -1,22 +1,22 @@
 package mementee.mementee.api.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import mementee.mementee.api.domain.enumtype.ApplyState;
+import mementee.mementee.api.domain.enumtype.BoardType;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
-public class Application {
+public class Apply {
 
     @Id @GeneratedValue
-    @Column(name = "application_id")
+    @Column(name = "apply_id")
     private Long id;
 
     @Column(nullable = false)
@@ -26,7 +26,7 @@ public class Application {
     private LocalDate date;                     //예약 날짜
 
     @Column(nullable = false)
-    private LocalTime time;                     //예약 시작 시간 (30분 단위)
+    private LocalTime startTime;                //예약시간
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sendMember")
@@ -40,12 +40,23 @@ public class Application {
     @JoinColumn(name = "board_id")
     private Board board;
 
-    public Application(LocalDate date, LocalTime time, Member sendMember, Member receiveMember, Board board, String content) {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ApplyState applyState;              //수락 또는 거절을 눌렀을때 또는 아직 아무것도 누르지 않았을 경우
+
+    public Apply(LocalDate date, LocalTime startTime, Member sendMember, Member receiveMember, Board board, String content) {
         this.content = content;
         this.date = date;
-        this.time = time;
+        this.startTime = startTime;
         this.sendMember = sendMember;
         this.receiveMember = receiveMember;
         this.board = board;
+        this.applyState = ApplyState.HOLDING;
     }
+
+    //신청 상황 업데이트
+    public void updateState(){
+        this.applyState = ApplyState.COMPLETE;
+    }
+
 }

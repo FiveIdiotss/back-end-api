@@ -22,13 +22,14 @@ public class RefreshTokenController {
 
     private final RefreshService refreshService;
 
+    //refreshToken을 이용한 accessToken 재발급
     @GetMapping("/api/refresh")
     public ResponseEntity<String> refresh(@RequestHeader("Authorization") String authorizationHeader) {
         try {
             String newAccessToken = refreshService.getAccessKey(authorizationHeader);
             return ResponseEntity.ok().body(newAccessToken);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("재발급 실패");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }

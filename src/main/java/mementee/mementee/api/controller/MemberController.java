@@ -33,22 +33,7 @@ public class MemberController {
     private final SchoolService schoolService;
     private final MajorService majorService;
 
-
-    //회원 등록--------------------------------------
-//    @Operation(description = "사용 가능한 이메일 인지 체크")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "success", description = "등록 성공"),
-//            @ApiResponse(responseCode = "fail", description = "등록 실패")})
-//    @PostMapping("/api/member/check")
-//    public ResponseEntity<String> checkMember(@RequestBody @Valid CheckMemberRequest request){
-//        try {
-//            memberService.emailDuplicateCheck(request.getEmail());   //이메일 중복 체크
-//            return ResponseEntity.ok().body("사용 가능한 이메일");
-//        }catch (Exception e){
-//            return ResponseEntity.ok().body("이미 사용중인 이메일");
-//        }
-//    }
-
+    //회원가입--------------------------------------
     @Operation(description = "회원 등록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
@@ -59,7 +44,7 @@ public class MemberController {
            memberService.join(request);
            return ResponseEntity.ok().body("회원 등록 성공");
        }catch (Exception e){
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원 등록 실패");
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
        }
     }
 
@@ -78,6 +63,7 @@ public class MemberController {
         return collect;
     }
 
+    //학교 목록 조회 --------------------------------------
     @Operation(description = "검색으로 학교 목록 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
@@ -92,21 +78,7 @@ public class MemberController {
         return collect;
     }
 
-
-//    @Operation(description = "학교에 속한 전공 목록")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "success", description = "성공"),
-//            @ApiResponse(responseCode = "fail")})
-//    @GetMapping("/api/{schoolId}")
-//    public List<MajorDto> majorList(@PathVariable Long schoolId){
-//        List<Major> findMajors = majorService.findMajors(schoolId);
-//        List<MajorDto> collect = findMajors.stream()
-//                .map(m -> new MajorDto(m.getId(), m.getName()))
-//                .collect(Collectors.toList());
-//
-//        return collect;
-//    }
-
+    //해당 학교에 속하는 과 --------------------------------------
     @Operation(description = "학교에 속한 전공 목록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
@@ -121,6 +93,7 @@ public class MemberController {
         return collect;
     }
 
+    //회원등록이 되어 있는 모든 회원 조회--------------------------------------
     @Operation(description = "모든 회원 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
@@ -151,7 +124,7 @@ public class MemberController {
         }catch (EmptyResultDataAccessException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그인 실패");
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그인 실패");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
@@ -176,5 +149,4 @@ public class MemberController {
         }
     }
 
-    //친구 요청 기능------------
 }

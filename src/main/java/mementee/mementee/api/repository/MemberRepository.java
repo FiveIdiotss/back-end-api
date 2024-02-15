@@ -43,4 +43,15 @@ public class MemberRepository{
                 .setParameter("email", email)
                 .getResultList();
     }
+
+    //나의 멘토 매칭 목록
+
+
+
+    //나의 멘토 매칭 목록
+
+
+
+
+
 }
