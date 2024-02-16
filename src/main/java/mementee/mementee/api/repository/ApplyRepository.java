@@ -39,15 +39,28 @@ public class ApplyRepository {
     }
 
     //아직 처리하지 않은 나의 신청한 목록
+//    public List<Apply> findApplicationBySendMember(Long memberId){
+//        return em.createQuery("select a from Apply a where a.sendMember.id = :memberId and a.applyState = 'HOLDING'", Apply.class)
+//                .setParameter("memberId", memberId)
+//                .getResultList();
+//    }
+//
+//    //아직 처리하지 않은 나의 신청 받은 목록
+//    public List<Apply> findApplicationByReceiveMember(Long memberId){
+//        return em.createQuery("select a from Apply a where a.receiveMember.id = :memberId and a.applyState = 'HOLDING' ", Apply.class)
+//                .setParameter("memberId", memberId)
+//                .getResultList();
+//    }
+
     public List<Apply> findApplicationBySendMember(Long memberId){
-        return em.createQuery("select a from Apply a where a.sendMember.id = :memberId and a.applyState = 'HOLDING'", Apply.class)
+        return em.createQuery("select a from Apply a where a.sendMember.id = :memberId", Apply.class)
                 .setParameter("memberId", memberId)
                 .getResultList();
     }
 
     //아직 처리하지 않은 나의 신청 받은 목록
     public List<Apply> findApplicationByReceiveMember(Long memberId){
-        return em.createQuery("select a from Apply a where a.receiveMember.id = :memberId and a.applyState = 'HOLDING' ", Apply.class)
+        return em.createQuery("select a from Apply a where a.receiveMember.id = :memberId", Apply.class)
                 .setParameter("memberId", memberId)
                 .getResultList();
     }

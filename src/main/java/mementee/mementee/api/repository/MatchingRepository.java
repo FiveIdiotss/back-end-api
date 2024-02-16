@@ -3,6 +3,7 @@ package mementee.mementee.api.repository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import mementee.mementee.api.domain.Matching;
+import mementee.mementee.api.domain.Member;
 import mementee.mementee.api.domain.enumtype.BoardType;
 import org.springframework.stereotype.Repository;
 
@@ -24,9 +25,9 @@ public class MatchingRepository {
     }
 
     //내가 멘토/멘티 매칭 목록
-    public List<Matching> findMatching(BoardType boardType, Long memberId){
-        return em.createQuery("select m from Matching m where m.board.boardType =: boardType and m.mentor = :memberId ", Matching.class)
-                .setParameter("memberId", memberId)
+    public List<Matching> findMatching(BoardType boardType, Member member){
+        return em.createQuery("select m from Matching m where m.board.boardType =: boardType and m.mentor = :member ", Matching.class)
+                .setParameter("member", member)
                 .setParameter("boardType", boardType)
                 .getResultList();
     }

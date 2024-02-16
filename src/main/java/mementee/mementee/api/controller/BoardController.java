@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
 @Tag(name = "글 쓰기, 글 리스트, 글 조회")
-@Slf4j
 public class BoardController {
 
     private final BoardService boardService;
@@ -104,7 +103,7 @@ public class BoardController {
             "    private List<DayOfWeek> availableDays;  //상담 가능한 요일" +
             "    private List<UnavailableTime> unavailableTimes; //예약된 시간들" +
             " 이 BoardInfoResponse를 받아야함" +
-            "각 클래스틀 --> " +
+            "각 클래스들 --------------------------------------------------> " +
             " public class ScheduleTime {\n" +
             "    private LocalTime startTime;\n" +
             "    private LocalTime endTime; }" +
