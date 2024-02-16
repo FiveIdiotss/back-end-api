@@ -3,6 +3,7 @@ package mementee.mementee.api.service;
 import lombok.RequiredArgsConstructor;
 import mementee.mementee.api.controller.applyDTO.ApplyRequest;
 import mementee.mementee.api.domain.*;
+import mementee.mementee.api.domain.enumtype.SendReceive;
 import mementee.mementee.api.repository.ApplyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,13 +53,21 @@ public class ApplyService {
             throw new IllegalArgumentException("자신의 글에는 신청할 수 없습니다.");
     }
 
-    //자신이 신청한 지원글을 조회 할때
-    public Apply isCheckMyApply(String authorizationHeader, Long applyId){
-        Member member = memberService.getMemberByToken(authorizationHeader);
+    //자신이 신청하거나 신청받은 지원글을 조회 할때
+    public void isCheckApply(String authorizationHeader, Long applyId){
         Apply apply = applicationRepository.findApplication(applyId);
-        if(member != apply.getSendMember() || member != apply.getReceiveMember())
+
+        Member sendMember = memberService.getMemberByToken(authorizationHeader);            //현재 로그인한 멤버 (신청한 사람)
+
+        if(sendMember != apply.getSendMember() && sendMember != apply.getReceiveMember())
             throw new IllegalArgumentException("나에게 해당하는 지원 글이 아닙니다.");
-        return apply;
+    }
+
+    //보낸/받은 신청 목록
+    public List<Apply> findMyApply(Long memberId, SendReceive sendReceive){
+        if(sendReceive.equals(SendReceive.SEND))
+            return findApplyBySendMember(memberId);
+        return findApplyByReceiveMember(memberId);
     }
 
     public List<Apply> findApplyBySendMember(Long memberId){

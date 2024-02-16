@@ -11,9 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import mementee.mementee.api.controller.applyDTO.AcceptRequest;
 import mementee.mementee.api.controller.applyDTO.ApplyDTO;
 import mementee.mementee.api.controller.applyDTO.ApplyInfo;
-import mementee.mementee.api.controller.memberDTO.LoginMemberRequest;
 import mementee.mementee.api.domain.Apply;
-import mementee.mementee.api.domain.Member;
+import mementee.mementee.api.domain.enumtype.BoardType;
+import mementee.mementee.api.domain.enumtype.SendReceive;
 import mementee.mementee.api.service.ApplyService;
 import mementee.mementee.api.service.MatchingService;
 import mementee.mementee.api.service.MemberService;
@@ -35,34 +35,18 @@ public class ApplyController {
     private final MemberService memberService;
     private final MatchingService matchingService;
 
-    //신청 한 글인지 아닌지 체크하는 api 필요
-
-    @Operation(description = "내가 신청한 글 리스트  - (현재 코드는 내가 신청 할때 쓴 글이 리스트로 보이게)")
+    @Operation(description = "내가 신청 한/받은 글 리스트")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
-    @GetMapping("/api/sendApply/{memberId}")
-    public List<ApplyDTO> mySendApplyList(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId){
+    @GetMapping("/api/myApply/{memberId}")
+    public List<ApplyDTO> myReceiveApplyList(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId,
+                                             @RequestParam SendReceive sendReceive){
         memberService.isCheckMe(authorizationHeader, memberId);
 
-        List<Apply> list = applyService.findApplyBySendMember(memberService.getMemberByToken(authorizationHeader).getId());
+        List<Apply> list = applyService.findMyApply(memberService.getMemberByToken(authorizationHeader).getId(), sendReceive);
         List<ApplyDTO> collect = list.stream()
-                .map(a -> new ApplyDTO(a.getId(), a.getBoard().getId(), a.getContent()))
-                .toList();
-        return collect;
-    }
-
-    @Operation(description = "내가 신청 받은 글 리스트 - (현재 코드는 내가 신청 할때 쓴 글이 리스트로 보이게)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "성공"),
-            @ApiResponse(responseCode = "fail")})
-    @GetMapping("/api/receiveApply/{memberId}")
-    public List<ApplyDTO> myReceiveApplyList(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId){
-        memberService.isCheckMe(authorizationHeader , memberId);
-
-        List<Apply> list = applyService.findApplyByReceiveMember(memberService.getMemberByToken(authorizationHeader).getId());
-        List<ApplyDTO> collect = list.stream()
-                .map(a -> new ApplyDTO(a.getId(), a.getBoard().getId(), a.getContent()))
+                .map(a -> new ApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getApplyState()))
                 .toList();
         return collect;
     }
@@ -84,8 +68,22 @@ public class ApplyController {
         }
     }
 
+    //신청 거절
+    @Operation(description = "멘토/멘티 신청 거절")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "거절 성공"),
+            @ApiResponse(responseCode = "fail", description = "거절 실패")})
+    @PostMapping("/api/deny/{applyId}")
+    public ResponseEntity<String> boardDeny(@PathVariable Long applyId, @RequestHeader("Authorization") String authorizationHeader){
+        try {
+            matchingService.declineMatching(applyId, authorizationHeader);
+            return ResponseEntity.ok("신청 거절 성공");
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("신청 거절 실패");
+        }
+    }
 
-    //신청한 글 조회
+    //신청 글 조회
     @Operation(description = "신청 글 조회 - (여기서 신청한 글로 이동할 수 있게)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "지원 글 조회 성공"),
@@ -93,17 +91,17 @@ public class ApplyController {
     @GetMapping("/api/apply/{applyId}")
     public ResponseEntity<?> applyInfo(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long applyId){
         try {
-            Apply apply = applyService.isCheckMyApply(authorizationHeader, applyId);
+            applyService.isCheckApply(authorizationHeader, applyId);
+            Apply apply = applyService.findApplication(applyId);
 
             ApplyInfo response = new ApplyInfo(new ApplyDTO(apply.getId(), apply.getBoard().getId(),
-                    apply.getContent()));
+                    apply.getContent(), apply.getApplyState()));
+
             return ResponseEntity.ok(response);
-
         }catch (EmptyResultDataAccessException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("지원 글 조회 실패");
-
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("지원 글 조회 실패");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }
