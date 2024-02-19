@@ -128,6 +128,21 @@ public class MemberController {
         }
     }
 
+    //로그아웃-----------------
+    @Operation(description = "로그아웃")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "로그아웃 성공"),
+            @ApiResponse(responseCode = "fail", description = "로그아웃 실패")})
+    @PostMapping("/api/member/signOut")
+    public ResponseEntity<?> signOut(@RequestHeader("Authorization") String authorizationHeader){
+        try {
+            memberService.logout(authorizationHeader);
+            return ResponseEntity.ok("로그아웃 성공");
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     //회원 정보-----------------------------------
     //해당 멤버가 쓴 게시물 조회 추가?
     @Operation(description = "회원 정보")

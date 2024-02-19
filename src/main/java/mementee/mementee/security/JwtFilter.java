@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mementee.mementee.api.service.BlackListTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,8 @@ public class JwtFilter extends OncePerRequestFilter {
     @Value("${spring.jwt.secret}")
     private final String secretKey;
 
+    private final BlackListTokenService bt;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
@@ -40,6 +43,12 @@ public class JwtFilter extends OncePerRequestFilter {
             //Token 꺼내기 (access, refresh)
             String token = authorization.split(" ")[1];
 
+            //accessToken이 blackList에 있을 때
+            if(bt.isCheckBlackList(token)){
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             //Token Expired 되었는지 여부
             if (JwtUtil.isExpired(token, secretKey)) {
                 //System.out.println("Token 이 만료 되었습니다.");
@@ -47,9 +56,13 @@ public class JwtFilter extends OncePerRequestFilter {
                 return;
             }
 
-            //MemberName Token 에서 꺼내기
+            //MemberEmail Token 에서 꺼내기
             String memberEmail = JwtUtil.getMemberEmail(token, secretKey);
-            //System.out.println("memberEmail 확인 : " + memberEmail);
+            if(memberEmail == null){
+                //이 부분은 refreshToken 으로 accessToken 재발급시 refresh토큰에는 사용자 정보가 없기 때문에 return
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             //권한부여
             UsernamePasswordAuthenticationToken authenticationToken =

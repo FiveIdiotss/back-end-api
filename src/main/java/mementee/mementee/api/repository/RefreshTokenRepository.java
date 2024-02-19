@@ -4,7 +4,6 @@ package mementee.mementee.api.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
-import mementee.mementee.api.domain.Member;
 import mementee.mementee.api.domain.RefreshToken;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +18,7 @@ public class RefreshTokenRepository {
     public RefreshToken findOne(Long id) {
         return em.find(RefreshToken.class, id);
     }
+
     public void save(RefreshToken refreshToken){
         em.persist(refreshToken);
     }
@@ -31,6 +31,12 @@ public class RefreshTokenRepository {
         } catch (NoResultException e) {
             return Optional.empty();
         }
+    }
+
+    public void deleteRefreshToken(Optional<RefreshToken> refreshToken){
+        refreshToken.ifPresent(token -> em.createQuery("delete from RefreshToken r where r.id = :tokenId")
+                .setParameter("tokenId", token.getId())
+                .executeUpdate());
     }
 
     public Optional<RefreshToken> findRefreshTokenByRefreshToken(String token){

@@ -35,7 +35,7 @@ public class Board {
     private int consultTime;                //얼마나 상담할 건지
 
     @ElementCollection
-    @CollectionTable(name = "board_times", joinColumns = @JoinColumn(name = "board_id"))
+    @CollectionTable(name = "board_available_times", joinColumns = @JoinColumn(name = "board_id"))
     @Column(nullable = false)
     private List<ScheduleTime> times = new ArrayList<>();                  //상담 가능한 시간
 

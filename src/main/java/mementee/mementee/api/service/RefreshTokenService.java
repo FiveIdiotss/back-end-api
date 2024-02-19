@@ -13,7 +13,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class RefreshService {
+public class RefreshTokenService {
 
     @Value("${spring.jwt.secret}")
     private String secretKey;
@@ -35,5 +35,18 @@ public class RefreshService {
         // 리프레시 토큰이 유효하면 새로운 액세스 토큰 생성
         String email = storedRefreshToken.get().getEmail();
         return JwtUtil.createAccessToken(email, secretKey);
+    }
+
+    @Transactional
+    public void save(RefreshToken refreshToken){
+        refreshTokenRepository.save(refreshToken);
+    }
+
+    public Optional<RefreshToken> findRefreshTokenByEmail(String email){
+        return refreshTokenRepository.findRefreshTokenByEmail(email);
+    }
+
+    public void deleteRefreshToken(Optional<RefreshToken> refreshToken){
+        refreshTokenRepository.deleteRefreshToken(refreshToken);
     }
 }
