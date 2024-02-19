@@ -3,7 +3,7 @@ package mementee.mementee.api.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import mementee.mementee.api.service.RefreshService;
+import mementee.mementee.api.service.RefreshTokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Refresh Token을 이용하여 Access Token 재발급")
 public class RefreshTokenController {
 
-    private final RefreshService refreshService;
+    private final RefreshTokenService refreshService;
 
     //refreshToken을 이용한 accessToken 재발급
     @GetMapping("/api/refresh")

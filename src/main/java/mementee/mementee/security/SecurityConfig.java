@@ -1,6 +1,7 @@
 package mementee.mementee.security;
 
 import lombok.RequiredArgsConstructor;
+import mementee.mementee.api.service.BlackListTokenService;
 import mementee.mementee.api.service.MemberService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,7 @@ public class SecurityConfig {
 
     @Value("${spring.jwt.secret}")
     private String secretKey;
+    private final BlackListTokenService bf;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -38,11 +40,12 @@ public class SecurityConfig {
                                 .requestMatchers("/api/member/signUp","/api/member/signIn","/api/members",
                                         "/api/school/{schoolName}","/api/schools/{keyWord}","/api/schools","/api/member/check", "/login/**",
                                         "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**", "/swagger-resources/**").permitAll()     //나중에 회원가입과 로그인을 제외하고는 인증 필요
+
                                 //글 쓰기만
                                 .requestMatchers(HttpMethod.POST, "/api/board").authenticated().anyRequest().permitAll()
                     )
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtFilter(secretKey), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(secretKey, bf), UsernamePasswordAuthenticationFilter.class);
 
             return http.build();
         }

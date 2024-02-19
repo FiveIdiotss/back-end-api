@@ -24,10 +24,14 @@ public class MemberService {
     @Value("${spring.jwt.secret}")      //JWT에 필요한 Key
     private String secretKey;
     private final PasswordEncoder passwordEncoder;
+
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+
+    private final RefreshTokenService refreshTokenService;
     private final SchoolService schoolService;
     private final MajorService majorService;
+    private final BlackListTokenService blackListTokenService;
 
     public Member getMemberByToken(String authorizationHeader){
         String token = authorizationHeader.split(" ")[1];
@@ -112,15 +116,26 @@ public class MemberService {
 
         TokenDTO tokenDTO = getTokenDTO(member);
 
-        Optional<RefreshToken> token = refreshTokenRepository.findRefreshTokenByEmail(member.getEmail());
+        Optional<RefreshToken> token = refreshTokenService.findRefreshTokenByEmail(member.getEmail());
 
         if(token.isPresent()){
-            refreshTokenRepository.save((token.get().updateToken(tokenDTO.getRefreshToken())));
+            refreshTokenService.save((token.get().updateToken(tokenDTO.getRefreshToken())));
         }else {
             RefreshToken newToken = new RefreshToken(tokenDTO.getRefreshToken(), member.getEmail());
-            refreshTokenRepository.save(newToken);
+            refreshTokenService.save(newToken);
         }
 
         return new LoginMemberResponse(getMemberDTO(member), tokenDTO);
+    }
+
+    @Transactional
+    public void logout(String authorizationHeader){
+        String accessToken = authorizationHeader.split(" ")[1];
+
+        Member member = getMemberByToken(authorizationHeader);
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findRefreshTokenByEmail(member.getEmail());
+
+        blackListTokenService.addBlackList(accessToken);
+        refreshTokenService.deleteRefreshToken(refreshToken);
     }
 }
