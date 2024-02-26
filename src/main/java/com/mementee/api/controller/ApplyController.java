@@ -1,6 +1,6 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.controller.applyDTO.ApplyInfo;
+import com.mementee.api.controller.applyDTO.*;
 import com.mementee.api.domain.Apply;
 import com.mementee.api.service.ApplyService;
 import com.mementee.api.service.MatchingService;
@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.mementee.api.controller.applyDTO.AcceptRequest;
-import com.mementee.api.controller.applyDTO.ApplyDTO;
 import com.mementee.api.domain.enumtype.SendReceive;
 import com.mementee.api.service.MemberService;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -39,15 +37,24 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/myApply/{memberId}")
-    public List<ApplyDTO> myReceiveApplyList(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId,
-                                             @RequestParam SendReceive sendReceive){
+    public List<?> myReceiveApplyList(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId,
+                                                 @RequestParam SendReceive sendReceive){
         memberService.isCheckMe(authorizationHeader, memberId);
 
         List<Apply> list = applyService.findMyApply(memberService.getMemberByToken(authorizationHeader).getId(), sendReceive);
-        List<ApplyDTO> collect = list.stream()
-                .map(a -> new ApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getApplyState()))
+        if(sendReceive == SendReceive.RECEIVE) {
+            return list.stream()
+                    .map(a -> new ReceiveApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getBoard().getTitle(), a.getApplyState(),
+                            a.getSendMember().getId(), a.getSendMember().getName(),
+                            a.getDate(), a.getStartTime()))
+                    .toList();
+        }
+
+        return list.stream()
+                .map(a -> new SendApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getBoard().getTitle(), a.getApplyState(),
+                        a.getReceiveMember().getId(), a.getReceiveMember().getName(),
+                        a.getDate(), a.getStartTime()))
                 .toList();
-        return collect;
     }
 
     //신청 받기
@@ -56,10 +63,10 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "신청 성공"),
             @ApiResponse(responseCode = "fail", description = "신청 실패")})
     @PostMapping("/api/apply/{applyId}")
-    public ResponseEntity<String> boardApply(@Valid @RequestBody AcceptRequest request, @PathVariable Long applyId,
+    public ResponseEntity<String> boardApply(@PathVariable Long applyId,
                                              @RequestHeader("Authorization") String authorizationHeader){
         try {
-            matchingService.saveMatching(request, applyId, authorizationHeader);
+            matchingService.saveMatching(applyId, authorizationHeader);
 
             return ResponseEntity.ok("신청 수락 성공");
         }catch (Exception e){
@@ -72,7 +79,7 @@ public class ApplyController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "거절 성공"),
             @ApiResponse(responseCode = "fail", description = "거절 실패")})
-    @PostMapping("/api/deny/{applyId}")
+    @PostMapping("/api/reject/{applyId}")
     public ResponseEntity<String> boardDeny(@PathVariable Long applyId, @RequestHeader("Authorization") String authorizationHeader){
         try {
             matchingService.declineMatching(applyId, authorizationHeader);
@@ -93,8 +100,8 @@ public class ApplyController {
             applyService.isCheckApply(authorizationHeader, applyId);
             Apply apply = applyService.findApplication(applyId);
 
-            ApplyInfo response = new ApplyInfo(new ApplyDTO(apply.getId(), apply.getBoard().getId(),
-                    apply.getContent(), apply.getApplyState()));
+            ApplyInfo response = new ApplyInfo(apply.getId(), apply.getBoard().getId(),
+                    apply.getContent(), apply.getBoard().getTitle(), apply.getApplyState(), apply.getDate(), apply.getStartTime());
 
             return ResponseEntity.ok(response);
         }catch (EmptyResultDataAccessException e){

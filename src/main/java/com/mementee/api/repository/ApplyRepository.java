@@ -15,12 +15,12 @@ public class ApplyRepository {
 
     private final EntityManager em;
 
-    public void saveApplication(Apply apply){
+    public void saveApply(Apply apply){
         em.persist(apply);
     }
 
-    public Apply findApplication(Long applicationId){
-        return em.find(Apply.class, applicationId);
+    public Apply findApply(Long applyId){
+        return em.find(Apply.class, applyId);
     }
 
 
@@ -52,13 +52,14 @@ public class ApplyRepository {
 //                .getResultList();
 //    }
 
+    //나의 신청 한 목록
     public List<Apply> findApplicationBySendMember(Long memberId){
         return em.createQuery("select a from Apply a where a.sendMember.id = :memberId", Apply.class)
                 .setParameter("memberId", memberId)
                 .getResultList();
     }
 
-    //아직 처리하지 않은 나의 신청 받은 목록
+    //나의 신청 받은 목록
     public List<Apply> findApplicationByReceiveMember(Long memberId){
         return em.createQuery("select a from Apply a where a.receiveMember.id = :memberId", Apply.class)
                 .setParameter("memberId", memberId)

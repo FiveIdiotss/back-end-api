@@ -50,7 +50,7 @@ public class BoardService {
     }
 
     @Transactional
-    public String saveBoard(WriteBoardRequest request, String authorizationHeader) {
+    public Long saveBoard(WriteBoardRequest request, String authorizationHeader) {
         Member member = memberService.getMemberByToken(authorizationHeader);
 
         Board board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(), request.getBoardType(), member,
@@ -59,12 +59,12 @@ public class BoardService {
         member.getBoards().add(board);
 
         boardRepository.saveBoard(board);
-        return member.getName();
+        return board.getId();
     }
 
 
     @Transactional
-    public void modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId) {
+    public Long modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId) {
         Member member = memberService.getMemberByToken(authorizationHeader);
         Board board = findBoard(boardId);
 
@@ -74,6 +74,7 @@ public class BoardService {
                 request.getBoardType(), request.getTimes(), request.getAvailableDays());
 
         boardRepository.saveBoard(board);
+        return board.getId();
     }
 
     @Transactional
@@ -100,25 +101,5 @@ public class BoardService {
     //멘토, 멘티 학교 별로 게시물 조회(무한 스크롤 이용)
     public Slice<Board>findAllByBoardTypeAndSchoolName(BoardType boardType, String schoolName,Pageable pageable){
         return boardRepositorySub.findAllByBoardTypeAndSchoolName(boardType, schoolName, pageable);
-    }
-
-    //멘토 게시글 전체 조회
-    public List<Board> findMentorBoards() {
-        return boardRepository.findAllMentorBoards();
-    }
-
-    //멘티 게시글 전체 조회
-    public List<Board> findMenteeBoards() {
-        return boardRepository.findAllMenteeBoards();
-    }
-
-    //학교 별로 멘토 게시글 전체 조회
-    public List<Board> findSchoolMentorBoards(String schoolName) {
-        return boardRepository.findSchoolMentorBoards(schoolName);
-    }
-
-    //학교 별로 멘티 게시글 전체 조회
-    public List<Board> findSchoolMenteeBoards(String schoolName) {
-        return boardRepository.findSchoolMenteeBoards(schoolName);
     }
 }

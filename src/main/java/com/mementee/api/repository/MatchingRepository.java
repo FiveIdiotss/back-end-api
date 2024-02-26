@@ -25,10 +25,15 @@ public class MatchingRepository {
     }
 
     //내가 멘토/멘티 매칭 목록
-    public List<Matching> findMatching(BoardType boardType, Member member){
-        return em.createQuery("select m from Matching m where m.board.boardType =: boardType and m.mentor = :member ", Matching.class)
-                .setParameter("member", member)
-                .setParameter("boardType", boardType)
+    public List<Matching> findMyMentor(Long memberId){
+        return em.createQuery("select m from Matching m where m.mentee.id =: memberId ", Matching.class)
+                .setParameter("memberId", memberId)
+                .getResultList();
+    }
+
+    public List<Matching> findMyMentee(Long memberId){
+        return em.createQuery("select m from Matching m where m.mentor.id =: memberId ", Matching.class)
+                .setParameter("memberId", memberId)
                 .getResultList();
     }
 }

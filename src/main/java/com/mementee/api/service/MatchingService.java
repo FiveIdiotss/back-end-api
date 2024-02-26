@@ -6,7 +6,6 @@ import com.mementee.api.domain.Matching;
 import com.mementee.api.domain.enumtype.ApplyState;
 import com.mementee.api.repository.MatchingRepository;
 import lombok.RequiredArgsConstructor;
-import com.mementee.api.controller.applyDTO.AcceptRequest;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.BoardType;
 import org.springframework.stereotype.Service;
@@ -34,9 +33,9 @@ public class MatchingService {
 
     //수락 기능----------
     @Transactional
-    public void saveMatching(AcceptRequest request, Long applyId, String authorizationHeader) {
-        Board board = boardService.findBoard(request.getBoardId());
+    public void saveMatching(Long applyId, String authorizationHeader) {
         Apply apply = applyService.findApplication(applyId);
+        Board board = apply.getBoard();
 
         isCheckCompleteApply(apply);
 
@@ -75,6 +74,8 @@ public class MatchingService {
     public void declineMatching(Long applyId, String authorizationHeader){
         Apply apply = applyService.findApplication(applyId);
 
+        isCheckCompleteApply(apply);
+
         Long receiveMemberId = apply.getReceiveMember().getId();        //신청 받을(게시물 글쓴이) 사람의 Id
         memberService.isCheckMe(authorizationHeader, receiveMemberId);
 
@@ -85,10 +86,20 @@ public class MatchingService {
         return matchingRepository.findMatching(matchingId);
     }
 
-    //멘토/멘티로 매칭 목록
-    public List<Matching> findMyMatching(BoardType boardType, String authorizationHeader){
-        Member member = memberService.getMemberByToken(authorizationHeader);
-        return matchingRepository.findMatching(boardType, member);
+    //멘토/멘티 매칭 목록
+    public List<Matching> findMyMatching(BoardType boardType, Long memberId){
+        if(boardType == BoardType.MENTOR){
+            return findMyMentor(memberId);
+        }
+        return findMyMentee(memberId);
+    }
+
+    public List<Matching> findMyMentor(Long memberId){
+        return matchingRepository.findMyMentor(memberId);
+    }
+
+    public List<Matching> findMyMentee(Long memberId){
+        return matchingRepository.findMyMentee(memberId);
     }
 
 }

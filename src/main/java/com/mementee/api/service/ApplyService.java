@@ -22,25 +22,6 @@ public class ApplyService {
     private final MemberService memberService;
     private final BoardService boardService;
 
-    //멘토 or 멘티 신청 하기
-    @Transactional
-    public void sendApply(String authorizationHeader, Long boardId, ApplyRequest request){
-        Board board = boardService.findBoard(boardId);
-
-        Member sendMember = memberService.getMemberByToken(authorizationHeader);
-        Member receiveMember = board.getMember();
-
-        isCheckMyBoard(sendMember,board);
-        isDuplicateApply(sendMember.getId(), receiveMember.getId(), board.getId());
-        Apply apply = new Apply(request.getDate(), request.getTime(), sendMember, receiveMember, board, request.getContent());
-
-        sendMember.getSendApplies().add(apply);
-        board.getMember().getReceiveApplies().add(apply);
-        board.getApplies().add(apply);
-
-        applicationRepository.saveApplication(apply);
-    }
-
     //신청 중복 체크
     public void isDuplicateApply(Long sendMemberId, Long receiveMemberId, Long boardId){
         Optional<Apply> duplicateApply = applicationRepository.isDuplicateApply(sendMemberId, receiveMemberId, boardId);
@@ -57,12 +38,31 @@ public class ApplyService {
 
     //자신이 신청하거나 신청받은 지원글을 조회 할때
     public void isCheckApply(String authorizationHeader, Long applyId){
-        Apply apply = applicationRepository.findApplication(applyId);
+        Apply apply = applicationRepository.findApply(applyId);
 
         Member sendMember = memberService.getMemberByToken(authorizationHeader);            //현재 로그인한 멤버 (신청한 사람)
 
         if(sendMember != apply.getSendMember() && sendMember != apply.getReceiveMember())
             throw new IllegalArgumentException("나에게 해당하는 지원 글이 아닙니다.");
+    }
+
+    //멘토 or 멘티 신청 하기
+    @Transactional
+    public void sendApply(String authorizationHeader, Long boardId, ApplyRequest request){
+        Board board = boardService.findBoard(boardId);
+
+        Member sendMember = memberService.getMemberByToken(authorizationHeader);
+        Member receiveMember = board.getMember();
+
+        isCheckMyBoard(sendMember,board);
+        isDuplicateApply(sendMember.getId(), receiveMember.getId(), board.getId());
+        Apply apply = new Apply(request.getDate(), request.getTime(), sendMember, receiveMember, board, request.getContent());
+
+        sendMember.getSendApplies().add(apply);
+        board.getMember().getReceiveApplies().add(apply);
+        board.getApplies().add(apply);
+
+        applicationRepository.saveApply(apply);
     }
 
     //보낸/받은 신청 목록
@@ -81,6 +81,6 @@ public class ApplyService {
     }
 
     public Apply findApplication(Long applicationId){
-        return applicationRepository.findApplication(applicationId);
+        return applicationRepository.findApply(applicationId);
     }
 }
