@@ -92,7 +92,7 @@ public class MemberService {
     }
 
     //회원 조회
-    public Member findOne(Long memberId){
+    private Member findOne(Long memberId){
         return memberRepository.findOne(memberId);
     }
 
@@ -108,7 +108,6 @@ public class MemberService {
 
     @Transactional
     public LoginMemberResponse login(LoginMemberRequest request){
-        //인증 과정 추가
         Member member = findMemberByEmail(request.getEmail());
         matchPassWord(request.getPassword(), member.getPassword());
 

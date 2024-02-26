@@ -53,8 +53,8 @@ public class BoardController {
     @PostMapping("/api/board")
     public ResponseEntity<String> saveBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
         try {
-            String name = boardService.saveBoard(request, authorizationHeader);
-            return ResponseEntity.ok().body(name + "님 글 등록 성공");
+            boardService.saveBoard(request, authorizationHeader);
+            return ResponseEntity.ok().body("글 등록 성공");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

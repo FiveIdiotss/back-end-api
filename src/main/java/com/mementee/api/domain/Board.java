@@ -54,8 +54,8 @@ public class Board {
     @OneToMany(mappedBy = "board")
     private List<Matching> matchings = new ArrayList<>();
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private List<DayOfWeek> availableDays = new ArrayList<>();              //상담 가능한 요일
 
     @ElementCollection
@@ -66,7 +66,6 @@ public class Board {
     //이미 신청된 시간, 날짜는 예약 하지 못하 도록
     @ElementCollection
     @CollectionTable(name = "board_unavailable_times", joinColumns = @JoinColumn(name = "board_id"))
-    @Column(nullable = false)
     private List<UnavailableTime> unavailableTimes = new ArrayList<>();
 
     public Board(String title, String content, int consultTime, BoardType boardType,  Member member,
