@@ -10,4 +10,8 @@ class MementeeApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	void test() {
+	}
+
 }

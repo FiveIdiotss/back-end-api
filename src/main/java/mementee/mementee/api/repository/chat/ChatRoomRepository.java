@@ -2,8 +2,11 @@ package mementee.mementee.api.repository.chat;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import mementee.mementee.api.domain.chat.ChatMessage;
 import mementee.mementee.api.domain.chat.ChatRoom;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -11,12 +14,24 @@ public class ChatRoomRepository {
 
     private final EntityManager em;
 
+    // 채팅방 저장
     public void save(ChatRoom chatRoom) {
         em.persist(chatRoom);
     }
 
-    // 채팅방 이름으로 조회
-    public ChatRoom findChatRoomByRoomName(String roomName) {
-        return em.find(ChatRoom.class, roomName);
+    //Id로 채팅방 조회
+    public ChatRoom findChatRoomById(Long id) {
+        return em.find(ChatRoom.class, id);
     }
+
+    public List<ChatMessage> findAllMessagesInChatRoom(Long chatRoomId) {
+        return em.createQuery("SELECT cm FROM ChatMessage cm where cm.chatRoom.id = :chatRoomId", ChatMessage.class)
+                .setParameter("chatRoomId", chatRoomId)
+                .getResultList();
+    }
+
+    //채팅방 나가기
+
+
+
 }

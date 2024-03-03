@@ -1,25 +1,48 @@
 package mementee.mementee.api.domain.chat;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import mementee.mementee.api.domain.Member;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
+@Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ChatMessage {
 
     @Id @GeneratedValue
-    private Long id;
+    private Long chatMessageId;
 
-    private String sender;
-    private String receiver;
-    private LocalDateTime localDateTime;
+    @Column
+    private String content;
 
     @ManyToOne
-    @JoinColumn(name = "chatroom_id")
+    @JoinColumn(name = "sender_id")
+    private Member sender;
+
+    @ManyToOne
+    @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
+
+    @Column
+    private LocalDateTime localDateTime;
+
+    public void setSender(Member sender) {
+        this.sender = sender;
+    }
+
+    public void setChatRoom(ChatRoom chatRoom) {
+        this.chatRoom = chatRoom;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setLocalDateTime(LocalDateTime localDateTime) {
+        this.localDateTime = localDateTime;
+    }
 }
