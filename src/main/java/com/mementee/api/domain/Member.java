@@ -77,6 +77,14 @@ public class Member{
         this.major = major;
     }
 
+    public Member(String email, String name, String password, int year, Gender gender) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
+        this.year = year;
+        this.gender = gender;
+    }
+
     public void removeSendApplication(Apply apply) {        //보낸 신청 제거
         sendApplies.remove(apply);
     }

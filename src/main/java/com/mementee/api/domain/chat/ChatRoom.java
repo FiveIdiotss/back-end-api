@@ -1,24 +1,34 @@
 package com.mementee.api.domain.chat;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import com.mementee.api.domain.Member;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Getter @Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatRoom {
 
-    @Id @GeneratedValue
-    private Long id;
+    @Id
+    @GeneratedValue
+    private Long chatRoomId;
 
-    private String roomId;
+    @ManyToOne
+    @JoinColumn(name = "sender_id")
+    private Member sender;
 
-    @OneToMany(mappedBy = "chatRoom")
-    private List<ChatMessage> messages = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "receiver_id")
+    private Member receiver;
+
+    public void setSender(Member sender) {
+        this.sender = sender;
+    }
+
+    public void setReceiver(Member receiver) {
+        this.receiver = receiver;
+    }
 }
