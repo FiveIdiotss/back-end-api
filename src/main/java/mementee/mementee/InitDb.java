@@ -21,10 +21,10 @@
 //
 //    private final InitService initService;
 //
-////    @PostConstruct
-////    public void init() {
-////        initService.dbInit();
-////    }
+//    @PostConstruct
+//    public void init() {
+//        initService.dbInit();
+//    }
 //
 //
 //    @Component

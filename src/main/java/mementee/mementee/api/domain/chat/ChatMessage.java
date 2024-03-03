@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatMessage {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long chatMessageId;
 
     @Column
@@ -44,5 +45,14 @@ public class ChatMessage {
 
     public void setLocalDateTime(LocalDateTime localDateTime) {
         this.localDateTime = localDateTime;
+    }
+
+    public ChatMessage(String content) {
+        this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return content;
     }
 }
