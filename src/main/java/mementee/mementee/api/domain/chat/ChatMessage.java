@@ -55,4 +55,11 @@ public class ChatMessage {
     public String toString() {
         return content;
     }
+
+    public ChatMessage(String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime) {
+        this.content = content;
+        this.sender = sender;
+        this.chatRoom = chatRoom;
+        this.localDateTime = localDateTime;
+    }
 }

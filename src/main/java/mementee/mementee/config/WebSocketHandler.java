@@ -1,4 +1,4 @@
-package mementee.mementee.api.controller.chat;
+package mementee.mementee.config;
 
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
