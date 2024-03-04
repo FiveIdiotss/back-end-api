@@ -17,7 +17,8 @@ public class Apply {
     @Column(name = "apply_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Lob
+    @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
     private String content;
 
     @Column(nullable = false)

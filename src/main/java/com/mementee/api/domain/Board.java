@@ -83,7 +83,8 @@ public class Board {
         this.getUnavailableTimes().add(new UnavailableTime(date, startTime));
     }
 
-    public void modifyBoards(String title, String content, int consultTime, BoardType boardType, List<ScheduleTime> times, List<DayOfWeek> availableDays){
+    public void modifyBoards(String title, String content, int consultTime, BoardType boardType,
+                             List<ScheduleTime> times, List<DayOfWeek> availableDays){
         this.title = title;
         this.content = content;
         this.consultTime = consultTime;
