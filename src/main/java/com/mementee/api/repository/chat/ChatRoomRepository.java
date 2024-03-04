@@ -33,10 +33,8 @@ public class ChatRoomRepository {
                 .getResultList();
     }
 
-
-
     //채팅방 나가기
-
+    //optional로 반환하도록 수정.
     // 두 유저 사이에 채팅방이 존재하는지 확인 후 존재하면 채팅방 Id 반환, 아니면 null 반환.
     public Long findBySendAndReceiver(Member sender, Member receiver) {
         Long senderId = sender.getId();
@@ -59,7 +57,4 @@ public class ChatRoomRepository {
             return null; // 채팅방이 없을 경우 null을 반환합니다.
         }
     }
-
-
-
 }
