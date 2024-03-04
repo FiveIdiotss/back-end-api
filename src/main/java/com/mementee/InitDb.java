@@ -25,8 +25,8 @@ public class InitDb {
 
     @PostConstruct
     public void init() {
-        initService.dbInit();
-        initService.memberInit();
+//        initService.dbInit();
+//        initService.memberInit();
     }
 
     @Component
@@ -38,6 +38,8 @@ public class InitDb {
         private final SchoolService schoolService;
 
         public void memberInit() {
+            System.out.println("Init");
+
             Member member = new Member("email", "이종현", "pass", 2032, Gender.MALE);
             Member member1 = new Member("이메일", "현종이", "word", 1234, Gender.FEMALE);
             Member member2 = new Member("qwe", "asd", "zxc", 1234, Gender.FEMALE);
@@ -45,10 +47,6 @@ public class InitDb {
             em.persist(member1);
             em.persist(member);
             em.persist(member2);
-
-            ChatRoom chatRoom = new ChatRoom(member, member1);
-
-            em.persist(chatRoom);
         }
 
         public void dbInit() {
@@ -139,8 +137,8 @@ public class InitDb {
             Major major3 = new Major("컴퓨터공학과", 가야대학교);
             Major major4 = new Major("건축공학과", 가야대학교);
 
-            Major major5 = new Major("섹스학과", 서경대학교);
-            Major major6 = new Major("자위학과", 삼육대학교);
+            Major major5 = new Major("컴퓨터공학과", 서경대학교);
+            Major major6 = new Major("메카트로닉스학과", 삼육대학교);
 
             ICT폴리텍대학.getMajors().add(major1);
             ICT폴리텍대학.getMajors().add(major2);

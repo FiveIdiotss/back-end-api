@@ -21,4 +21,10 @@ class MemberRepositoryTest {
         Member email = memberService.findMemberByEmail("이메일");
         System.out.println(email.getName());
     }
+
+    @Test
+    void findOne() {
+        Member memberById = memberService.getMemberById(52L);
+        System.out.println(memberById.getName());
+    }
 }

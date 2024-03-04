@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +42,7 @@ public class ChatService {
     // 센더, 리시버로 찾기, 멤버는 id값으로 등록되어 있음.
 
     // If a chatRoom exists between two members, use it. Otherwise, create a new chatRoom;
+    @Transactional
     public ChatRoom findOrCreateChatRoom(Member sender, Member receiver) {
         ChatRoom chatRoom = chatRoomRepository.findBySendAndReceiver(sender, receiver);
 
@@ -49,11 +51,16 @@ public class ChatService {
             chatRoom = new ChatRoom(sender,receiver);
             this.saveChatRoom(chatRoom);
         }
-
-        System.out.println("use exist chatroom");
+        else {
+            System.out.println("use exist chatroom");
+        }
         return chatRoom;
     }
 
     // 두 유저 사이의 채팅방을 호출
+    public List<ChatMessage> findAllMessages(Member m1, Member m2) {
+        ChatRoom chatRoom = chatRoomRepository.findBySendAndReceiver(m1, m2);
+        return chatRoomRepository.findAllMessagesInChatRoom(chatRoom.getChatRoomId());
+    }
 
 }
