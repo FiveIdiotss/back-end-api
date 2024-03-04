@@ -1,5 +1,6 @@
 package com.mementee.api.service;
 
+import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.repository.chat.ChatMessageRepository;
@@ -8,14 +9,25 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
 
-    @Transactional
+    public void sendMessage(String content, Member member, ChatRoom chatRoom) {
+        ChatMessage chatMessage = new ChatMessage(content, member, chatRoom, LocalDateTime.now());
+        chatMessageRepository.save(chatMessage);
+    }
+
+    public void saveChatRoom(ChatRoom chatRoom) {
+        chatRoomRepository.save(chatRoom);
+    }
+
     public void assignMessageToChatRoom(Long messageId, Long chatRoomId) {
         // 메시지와 채팅방 가져오기
         ChatMessage chatMessage = chatMessageRepository.findMessageById(messageId);
@@ -25,4 +37,23 @@ public class ChatService {
         chatMessage.setChatRoom(chatRoom);
         chatMessageRepository.save(chatMessage);
     }
+
+    // 센더, 리시버로 찾기, 멤버는 id값으로 등록되어 있음.
+
+    // If a chatRoom exists between two members, use it. Otherwise, create a new chatRoom;
+    public ChatRoom findOrCreateChatRoom(Member sender, Member receiver) {
+        ChatRoom chatRoom = chatRoomRepository.findBySendAndReceiver(sender, receiver);
+
+        if (chatRoom == null) {
+            System.out.println("create a new chatroom");
+            chatRoom = new ChatRoom(sender,receiver);
+            this.saveChatRoom(chatRoom);
+        }
+
+        System.out.println("use exist chatroom");
+        return chatRoom;
+    }
+
+    // 두 유저 사이의 채팅방을 호출
+
 }

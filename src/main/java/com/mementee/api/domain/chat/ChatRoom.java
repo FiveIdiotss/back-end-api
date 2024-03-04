@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class ChatRoom {
 
     @Id
@@ -29,6 +28,11 @@ public class ChatRoom {
     }
 
     public void setReceiver(Member receiver) {
+        this.receiver = receiver;
+    }
+
+    public ChatRoom(Member sender, Member receiver) {
+        this.sender = sender;
         this.receiver = receiver;
     }
 }

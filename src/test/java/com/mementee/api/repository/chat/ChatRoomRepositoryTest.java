@@ -5,6 +5,7 @@ import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.domain.enumtype.Gender;
 import com.mementee.api.repository.MemberRepository;
+import com.mementee.api.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ class ChatRoomRepositoryTest {
 
     @Autowired private ChatRoomRepository chatRoomRepository;
     @Autowired private ChatMessageRepository chatMessageRepository;
+    @Autowired private MemberService memberService;
 
     @BeforeEach
     @Commit
@@ -32,6 +34,9 @@ class ChatRoomRepositoryTest {
 
         Member member1 = new Member("xqy9xn", "현종이", "qwer1234", 2123, Gender.FEMALE);
         memberRepository.save(member1);
+
+        ChatRoom chatRoom = new ChatRoom(member, member1);
+        chatRoomRepository.save(chatRoom);
     }
 
     @Test
@@ -74,5 +79,12 @@ class ChatRoomRepositoryTest {
         for (ChatMessage message : allMessagesInChatRoom) {
             System.out.println(message);
         }
+    }
+
+    @Test
+    void findBySendAndReceiver() {
+        ChatRoom bySendAndReceiver = chatRoomRepository.findBySendAndReceiver(memberService.findMemberByEmail("이메일"), memberService.findMemberByEmail("email"));
+        System.out.println(bySendAndReceiver.getReceiver());
+        System.out.println(bySendAndReceiver.getSender());
     }
 }

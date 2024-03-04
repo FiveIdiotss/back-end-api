@@ -35,7 +35,7 @@ public class Member{
     private Gender gender;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -77,6 +77,7 @@ public class Member{
         this.major = major;
     }
 
+    //임시
     public Member(String email, String name, String password, int year, Gender gender) {
         this.email = email;
         this.name = name;
