@@ -4,11 +4,10 @@ import com.mementee.api.controller.chatDTO.ChatMessageDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
-import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.service.ChatService;
 import com.mementee.api.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,7 @@ public class ChatController {
     }
 
     @Operation(description = "채팅 메시지 읽기")
-    @GetMapping("/create/message")
+    @PostMapping("/create/message")
     public void saveSentChatMessage(@RequestBody ChatMessageDTO request, @RequestHeader("Authorization") String authorizationHeader) {
         Member loginMember = memberService.getMemberByToken(authorizationHeader);
         log.info("loginMember={}", loginMember.getName());
@@ -59,18 +58,6 @@ public class ChatController {
 
         chatService.sendMessage(request.getContent(), loginMember, chatRoom);
     }
-
-//    @Operation(description = "채팅 메시지 저장")
-//    @PostMapping("/message")
-//    public void test(Long ) {
-//        Member receiver = memberService.getMemberById(52L);
-//        log.info("receiver={}", receiver.getName());
-//
-//        // If a chatRoom exists between two members, use it. Otherwise, create a new chatRoom;
-//        ChatRoom chatRoom = chatService.findOrCreateChatRoom(loginMember, receiver);
-//
-//        chatService.sendMessage(request.getContent(), loginMember, chatRoom);
-//    }
 
     @Operation(description = "채팅 메시지 조회")
     @GetMapping("/messages")
