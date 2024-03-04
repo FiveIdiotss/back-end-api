@@ -6,6 +6,7 @@ import com.mementee.api.domain.Member;
 import com.mementee.api.domain.RefreshToken;
 import com.mementee.api.domain.School;
 import com.mementee.api.repository.MemberRepository;
+import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import com.mementee.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -35,6 +37,14 @@ public class MemberService {
         String token = authorizationHeader.split(" ")[1];
         String email = JwtUtil.getMemberEmail(token, secretKey);
         return findMemberByEmail(email);
+    }
+
+    public Member getMemberById(Long id) {
+        try {
+            return memberRepository.findOne(id);
+        } catch (NoResultException e) {
+            throw new NoSuchElementException("특정 멤버가 존재하지 않습니다.");
+        }
     }
 
     //현재 로그인한 유저와 내 정보에 대한 일치 여부
