@@ -40,8 +40,8 @@ public class ChatController {
 
     }
 
-    @Operation(description = "채팅 메시지 저장")
-    @PostMapping("/create/message")
+    @Operation(description = "채팅 메시지 읽기")
+    @GetMapping("/create/message")
     public void saveSentChatMessage(@RequestBody ChatMessageDTO request, @RequestHeader("Authorization") String authorizationHeader) {
         Member loginMember = memberService.getMemberByToken(authorizationHeader);
         log.info("loginMember={}", loginMember.getName());
@@ -51,7 +51,7 @@ public class ChatController {
         System.out.println("receiverId = " + receiverId);
         System.out.println("content = " + content);
 
-        Member receiver = memberService.getMemberById(52L);
+        Member receiver = memberService.getMemberById(receiverId);
         log.info("receiver={}", receiver.getName());
 
         // If a chatRoom exists between two members, use it. Otherwise, create a new chatRoom;
@@ -59,6 +59,18 @@ public class ChatController {
 
         chatService.sendMessage(request.getContent(), loginMember, chatRoom);
     }
+
+//    @Operation(description = "채팅 메시지 저장")
+//    @PostMapping("/message")
+//    public void test(Long ) {
+//        Member receiver = memberService.getMemberById(52L);
+//        log.info("receiver={}", receiver.getName());
+//
+//        // If a chatRoom exists between two members, use it. Otherwise, create a new chatRoom;
+//        ChatRoom chatRoom = chatService.findOrCreateChatRoom(loginMember, receiver);
+//
+//        chatService.sendMessage(request.getContent(), loginMember, chatRoom);
+//    }
 
     @Operation(description = "채팅 메시지 조회")
     @GetMapping("/messages")
