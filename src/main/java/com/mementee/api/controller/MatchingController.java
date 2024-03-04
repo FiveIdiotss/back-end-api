@@ -32,7 +32,7 @@ public class MatchingController {
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/matching/{memberId}")
     public List<?> myMatchingList(@RequestHeader("Authorization") String authorizationHeader,
-                                                  @RequestParam BoardType boardType, @PathVariable("memberId") Long memberId){
+                                  @RequestParam BoardType boardType, @PathVariable("memberId") Long memberId){
         memberService.isCheckMe(authorizationHeader, memberId);
 
         List<Matching> list = matchingService.findMyMatching(boardType, memberId);
