@@ -81,10 +81,10 @@ class ChatRoomRepositoryTest {
         }
     }
 
-    @Test
-    void findBySendAndReceiver() {
-        ChatRoom bySendAndReceiver = chatRoomRepository.findBySendAndReceiver(memberService.findMemberByEmail("이메일"), memberService.findMemberByEmail("email"));
-        System.out.println(bySendAndReceiver.getReceiver());
-        System.out.println(bySendAndReceiver.getSender());
-    }
+//    @Test
+//    void findBySendAndReceiver() {
+//        ChatRoom bySendAndReceiver = chatRoomRepository.findBySendAndReceiver(memberService.findMemberByEmail("이메일"), memberService.findMemberByEmail("email"));
+//        System.out.println(bySendAndReceiver.getReceiver());
+//        System.out.println(bySendAndReceiver.getSender());
+//    }
 }

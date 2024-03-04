@@ -44,7 +44,8 @@ public class ChatService {
     // If a chatRoom exists between two members, use it. Otherwise, create a new chatRoom;
     @Transactional
     public ChatRoom findOrCreateChatRoom(Member sender, Member receiver) {
-        ChatRoom chatRoom = chatRoomRepository.findBySendAndReceiver(sender, receiver);
+        Long bySendAndReceiver = chatRoomRepository.findBySendAndReceiver(sender, receiver);
+        ChatRoom chatRoom = chatRoomRepository.findChatRoomById(bySendAndReceiver);
 
         if (chatRoom == null) {
             System.out.println("create a new chatroom");
@@ -59,8 +60,8 @@ public class ChatService {
 
     // 두 유저 사이의 채팅방을 호출
     public List<ChatMessage> findAllMessages(Member m1, Member m2) {
-        ChatRoom chatRoom = chatRoomRepository.findBySendAndReceiver(m1, m2);
-        return chatRoomRepository.findAllMessagesInChatRoom(chatRoom.getChatRoomId());
+        Long chatRoom = chatRoomRepository.findBySendAndReceiver(m1, m2);
+        return chatRoomRepository.findAllMessagesInChatRoom(chatRoom);
     }
 
 }
