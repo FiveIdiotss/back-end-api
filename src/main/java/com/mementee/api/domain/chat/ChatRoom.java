@@ -2,12 +2,12 @@ package com.mementee.api.domain.chat;
 
 import com.mementee.api.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 public class ChatRoom {
 

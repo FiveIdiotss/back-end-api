@@ -20,9 +20,12 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
 
-    public void sendMessage(String content, Member member, ChatRoom chatRoom) {
-        ChatMessage chatMessage = new ChatMessage(content, member, chatRoom, LocalDateTime.now());
-        chatMessageRepository.save(chatMessage);
+    public ChatMessage createMessage(String content, Member member, ChatRoom chatRoom) {
+        return new ChatMessage(content, member, chatRoom, LocalDateTime.now());
+    }
+
+    public void saveMessage(ChatMessage message) {
+        chatMessageRepository.save(message);
     }
 
     public void saveChatRoom(ChatRoom chatRoom) {
@@ -45,17 +48,16 @@ public class ChatService {
     @Transactional
     public ChatRoom findOrCreateChatRoom(Member sender, Member receiver) {
         Long bySendAndReceiver = chatRoomRepository.findBySendAndReceiver(sender, receiver);
-        ChatRoom chatRoom = chatRoomRepository.findChatRoomById(bySendAndReceiver);
 
-        if (chatRoom == null) {
+        if (bySendAndReceiver == null) {
             System.out.println("create a new chatroom");
-            chatRoom = new ChatRoom(sender,receiver);
-            this.saveChatRoom(chatRoom);
+            ChatRoom newChatroom = new ChatRoom(sender,receiver);
+            this.saveChatRoom(newChatroom);
+            return newChatroom;
         }
-        else {
-            System.out.println("use exist chatroom");
-        }
-        return chatRoom;
+
+        System.out.println("use exist chatroom");
+        return chatRoomRepository.findChatRoomById(bySendAndReceiver);
     }
 
     // 두 유저 사이의 채팅방을 호출

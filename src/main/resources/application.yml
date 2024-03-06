@@ -1,22 +1,27 @@
 spring:
 
+  data:
+    redis:
+      host: localhost
+      port: 6739
+
   jwt:
     secret: 795a494eb4ca40d62227cc695a41e69d1e13fa5da2263727c28ba073fdbdd2f2
 
   datasource:
-#    url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
-#    username : admin
+    #    url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
+    #    username : admin
 
     #url: jdbc:mysql://localhost:3306/kdy
     url: jdbc:mysql://localhost:3306/member
     username: root
     password: asd990810
-#    password: ehd5765613
+    #    password: ehd5765613
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-#      ddl-auto: create
+      #      ddl-auto: create
       ddl-auto: update
     properties:
       hibernate:
