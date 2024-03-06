@@ -66,4 +66,10 @@ public class ChatService {
         return chatRoomRepository.findAllMessagesInChatRoom(chatRoom);
     }
 
+    // 특정 멤버가 속한 모든 채팅방 조회
+    public List<ChatRoom> findAllChatRoomByMember(Member member) {
+        Long id = member.getId();
+        return chatRoomRepository.findAllChatRoomsByMemberId(id);
+    }
+
 }
