@@ -18,6 +18,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,11 +37,6 @@ public class ChatController {
     // 로그인 멤버가 리시버에서 메시지를 보낼 때 만약 서로가 등록 되어있는 채팅방이 존재하지 않으면 새로 만듦
     // 존재한다면 그 채팅방을 가져와서 사용
     // 센더, 리시버 상관없음, 두 유저가 연동된지만 확인하면 된다.
-    @Operation(description = "채팅방 생성")
-    @PostMapping("/create/chatRoom")
-    public void createChatRoom() {
-
-    }
 
     @Operation(description = "채팅 메시지 읽기")
     @PostMapping("/create/message")
@@ -75,5 +71,22 @@ public class ChatController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(responseDTOs);
+    }
+
+    @Operation(description = "멤버 별 채팅방 리스트 조회")
+    @GetMapping("/chatRooms")
+    public ResponseEntity<List<ChatRoomDTO>> findAllChatRoomsByMemberId(@RequestHeader("Authorization") String authorizationHeader) {
+        Member loginMember = memberService.getMemberByToken(authorizationHeader);
+
+        List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMember(loginMember);
+
+        List<ChatRoomDTO> chatRoomDTOs = new ArrayList<>();
+
+        for (ChatRoom chatRoom : allChatRooms) {
+            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getChatRoomId(), chatRoom.getSender().getName(), chatRoom.getReceiver().getName());
+            chatRoomDTOs.add(chatRoomDTO);
+        }
+
+        return ResponseEntity.ok(chatRoomDTOs);
     }
 }

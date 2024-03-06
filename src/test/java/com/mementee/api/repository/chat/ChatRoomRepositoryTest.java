@@ -26,18 +26,18 @@ class ChatRoomRepositoryTest {
     @Autowired private ChatMessageRepository chatMessageRepository;
     @Autowired private MemberService memberService;
 
-    @BeforeEach
-    @Commit
-    void beforeEach() {
-        Member member = new Member("dlwhdugs4147@gmail.com", "이종현", "qwer1234", 2025, Gender.MALE);
-        memberRepository.save(member);
-
-        Member member1 = new Member("xqy9xn", "현종이", "qwer1234", 2123, Gender.FEMALE);
-        memberRepository.save(member1);
-
-        ChatRoom chatRoom = new ChatRoom(member, member1);
-        chatRoomRepository.save(chatRoom);
-    }
+//    @BeforeEach
+//    @Commit
+//    void beforeEach() {
+//        Member member = new Member("dlwhdugs4147@gmail.com", "이종현", "qwer1234", 2025, Gender.MALE);
+//        memberRepository.save(member);
+//
+//        Member member1 = new Member("xqy9xn", "현종이", "qwer1234", 2123, Gender.FEMALE);
+//        memberRepository.save(member1);
+//
+//        ChatRoom chatRoom = new ChatRoom(member, member1);
+//        chatRoomRepository.save(chatRoom);
+//    }
 
     @Test
     @Commit
@@ -78,6 +78,20 @@ class ChatRoomRepositoryTest {
 
         for (ChatMessage message : allMessagesInChatRoom) {
             System.out.println(message);
+        }
+    }
+
+    @Test
+    void findAllChatRoomsByMemberId() {
+        List<ChatRoom> allChatRoomsByMemberId = chatRoomRepository.findAllChatRoomsByMemberId(52L);
+
+        System.out.println("=================================================");
+
+        for (ChatRoom chatRoom : allChatRoomsByMemberId) {
+            System.out.println(chatRoom.getChatRoomId());
+            System.out.println(chatRoom.getSender().getName());
+            System.out.println(chatRoom.getReceiver().getName());
+            System.out.println("=================================================");
         }
     }
 

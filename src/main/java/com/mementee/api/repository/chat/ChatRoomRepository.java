@@ -57,4 +57,14 @@ public class ChatRoomRepository {
             return null; // 채팅방이 없을 경우 null을 반환합니다.
         }
     }
+
+    //
+    public List<ChatRoom> findAllChatRoomsByMemberId(Long memberId) {
+        String query = "SELECT cr FROM ChatRoom cr " +
+                "WHERE cr.sender.id = :memberId OR cr.receiver.id = :memberId";
+
+        return em.createQuery(query, ChatRoom.class)
+                .setParameter("memberId", memberId)
+                .getResultList();
+    }
 }
