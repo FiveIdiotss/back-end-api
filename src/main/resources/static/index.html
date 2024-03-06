@@ -3,29 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Login</title>
+    <title>WebSocket Test</title>
 </head>
 <body>
-<h2>Social Login</h2>
+<input type="text" id="messageInput">
+<button onclick="sendMessage()">Send</button>
+<div id="messages"></div>
 
-<!-- 카카오톡 소셜 로그인 링크 -->
-<a href="login/kakao" target="_blank">
-    <img src="카카오톡_로고_URL" alt="카카오톡 로그인" width="150" height="40">
-</a>
+<script>
+    const webSocket = new WebSocket("ws://localhost:8080/socket"); // 웹 소켓 연결 주소
 
-<br><br>
+    webSocket.onmessage = function(event) {
+        const message = event.data;
+        const messagesDiv = document.getElementById("messages");
+        messagesDiv.innerHTML += "<p>" + message + "</p>"; // 받은 메시지를 화면에 출력
+    };
 
-<!-- 네이버 소셜 로그인 링크 -->
-<a href="login/naver" target="_blank">
-    <img src="네이버_로고_URL" alt="네이버 로그인" width="150" height="40">
-</a>
-
-<br><br>
-
-<!-- 구글 소셜 로그인 링크 -->
-<a href="구글_소셜_로그인_URL" target="_blank">
-    <img src="구글_로고_URL" alt="구글 로그인" width="150" height="40">
-</a>
-
+    function sendMessage() {
+        const messageInput = document.getElementById("messageInput");
+        const message = messageInput.value;
+        webSocket.send(message); // 입력한 메시지를 서버로 전송
+        messageInput.value = ""; // 메시지 입력 필드 초기화
+    }
+</script>
 </body>
 </html>
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Social Login</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h2>Social Login</h2>-->
+
+<!--&lt;!&ndash; 카카오톡 소셜 로그인 링크 &ndash;&gt;-->
+<!--<a href="login/kakao" target="_blank">-->
+<!--    <img src="카카오톡_로고_URL" alt="카카오톡 로그인" width="150" height="40">-->
+<!--</a>-->
+
+<!--<br><br>-->
+
+<!--&lt;!&ndash; 네이버 소셜 로그인 링크 &ndash;&gt;-->
+<!--<a href="login/naver" target="_blank">-->
+<!--    <img src="네이버_로고_URL" alt="네이버 로그인" width="150" height="40">-->
+<!--</a>-->
+
+<!--<br><br>-->
+
+<!--&lt;!&ndash; 구글 소셜 로그인 링크 &ndash;&gt;-->
+<!--<a href="구글_소셜_로그인_URL" target="_blank">-->
+<!--    <img src="구글_로고_URL" alt="구글 로그인" width="150" height="40">-->
+<!--</a>-->
+
+<!--</body>-->
+<!--</html>-->
