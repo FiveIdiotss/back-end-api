@@ -1,6 +1,7 @@
 package com.mementee.api.controller;
 
 import com.mementee.api.controller.chatDTO.ChatMessageDTO;
+import com.mementee.api.controller.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
