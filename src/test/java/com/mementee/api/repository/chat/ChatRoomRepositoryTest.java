@@ -57,27 +57,9 @@ class ChatRoomRepositoryTest {
 
     @Test
     void findAllMessagesInChatRoom() {
-        ChatRoom chatRoomById = chatRoomRepository.findChatRoomById(52L);
-        ChatMessage chatMessage = new ChatMessage("Hello");
-        ChatMessage chatMessage1 = new ChatMessage("Hi");
-        ChatMessage chatMessage2 = new ChatMessage("wtf");
-        ChatMessage chatMessage3 = new ChatMessage("testtest");
-
-        chatMessageRepository.save(chatMessage);
-        chatMessageRepository.save(chatMessage1);
-        chatMessageRepository.save(chatMessage2);
-        chatMessageRepository.save(chatMessage3);
-
-        chatMessage.setChatRoom(chatRoomById);
-        chatMessage1.setChatRoom(chatRoomById);
-        chatMessage2.setChatRoom(chatRoomById);
-        chatMessage3.setChatRoom(chatRoomById);
-
-        List<ChatMessage> allMessagesInChatRoom = chatRoomRepository.findAllMessagesInChatRoom(chatRoomById.getChatRoomId());
-        System.out.println("여기");
-
+        List<ChatMessage> allMessagesInChatRoom = chatRoomRepository.findAllMessagesInChatRoom(52L);
         for (ChatMessage message : allMessagesInChatRoom) {
-            System.out.println(message);
+            System.out.println("Content: " + message.getContent() + " Time: " + message.getLocalDateTime());
         }
     }
 

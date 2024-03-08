@@ -3,6 +3,7 @@ package com.mementee.api.domain.chat;
 import com.mementee.api.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -29,11 +30,9 @@ public class ChatMessage {
     private ChatRoom chatRoom;
 
     @Column
+    @CreatedDate
     private LocalDateTime localDateTime;
 
-    public ChatMessage(String content) {
-        this.content = content;
-    }
 
     public ChatMessage(String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime) {
         this.content = content;
@@ -42,8 +41,4 @@ public class ChatMessage {
         this.localDateTime = localDateTime;
     }
 
-    public ChatMessage(String content, LocalDateTime localDateTime) {
-        this.content = content;
-        this.localDateTime = localDateTime;
-    }
 }

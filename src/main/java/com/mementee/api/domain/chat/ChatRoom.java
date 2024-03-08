@@ -23,14 +23,6 @@ public class ChatRoom {
     @JoinColumn(name = "receiver_id")
     private Member receiver;
 
-    public void setSender(Member sender) {
-        this.sender = sender;
-    }
-
-    public void setReceiver(Member receiver) {
-        this.receiver = receiver;
-    }
-
     public ChatRoom(Member sender, Member receiver) {
         this.sender = sender;
         this.receiver = receiver;

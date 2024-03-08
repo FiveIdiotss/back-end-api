@@ -1,11 +1,15 @@
 package com.mementee.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mementee.api.controller.chatDTO.ChatMessageDTO;
+import com.mementee.api.controller.chatDTO.ChatRoomDTO;
+import com.mementee.api.controller.redisDTO.RedisMessageSaveDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.service.ChatService;
 import com.mementee.api.service.MemberService;
+import com.mementee.config.chat.RedisPublisher;
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -13,9 +17,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -33,13 +42,20 @@ public class ChatController {
     private final ChatService chatService;
     private final MemberService memberService;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisPublisher redisPublisher;
+    private final SimpMessagingTemplate template;
 
-    // 로그인 멤버가 리시버에서 메시지를 보낼 때 만약 서로가 등록 되어있는 채팅방이 존재하지 않으면 새로 만듦
-    // 존재한다면 그 채팅방을 가져와서 사용
-    // 센더, 리시버 상관없음, 두 유저가 연동된지만 확인하면 된다.
+    @MessageMapping("/hello")
+    public void sendMessage(final String message) {
+        System.out.println("메시지가 도착했습니다: " + message);
+        template.convertAndSend("/sub/chats/52" , message);
 
-    @Operation(description = "채팅 메시지 읽기")
-    @PostMapping("/create/message")
+        //redis에 저장
+        redisTemplate.convertAndSend(message, message);
+    }
+
+    @Operation(description = "채팅 메시지 보내기")
+    @PostMapping("/message")
     public void saveSentChatMessage(@RequestBody ChatMessageDTO request, @RequestHeader("Authorization") String authorizationHeader) {
         Member loginMember = memberService.getMemberByToken(authorizationHeader);
         Member receiver = memberService.getMemberById(request.getReceiverId());
@@ -49,41 +65,60 @@ public class ChatController {
 
         // Create message with members and content and save.
         ChatMessage message = chatService.createMessage(request.getContent(), loginMember, chatRoom);
+
         chatService.saveMessage(message);
 
         System.out.println(message.getChatMessageId());
 
-//        redisService.setValues("chat", "helloTest");
-        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(String.valueOf(message.getChatMessageId()), message.getContent());
+        RedisMessageSaveDTO redisMessageSaveDTO = new RedisMessageSaveDTO(
+                message.getContent(),
+                loginMember.getName(),
+                message.getLocalDateTime());
+
+        log.info("Publishing");
+        redisPublisher.publish(new ChannelTopic("ChatRoom" + chatRoom.getChatRoomId()), redisMessageSaveDTO);
+
+
+        ListOperations<String, Object> stringObjectListOperations = redisTemplate.opsForList();
+        stringObjectListOperations.rightPush(("chatRoom" + chatRoom.getChatRoomId()), redisMessageSaveDTO);
     }
 
-    @Operation(description = "채팅 메시지 조회")
+    @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages")
-    public ResponseEntity<List<ChatMessage>> findAllMessagesByChatRoom(@RequestBody ChatMessageDTO request, @RequestHeader("Authorization") String authorizationHeader) {
-        Member loginMember = memberService.getMemberByToken(authorizationHeader);
-        Member receiver = memberService.getMemberById(request.getReceiverId());
+    public ResponseEntity<List<RedisMessageSaveDTO>> findAllMessagesByChatRoom(@RequestParam Long chatRoomId) {
+        log.info("chatRoomId={}", chatRoomId);
 
-        List<ChatMessage> allMessages = chatService.findAllMessages(loginMember, receiver);
+        List<ChatMessage> allMessages = chatService.findAllMessages(chatRoomId);
 
-        List<ChatMessage> responseDTOs = allMessages.stream()
-                .map(message -> new ChatMessage(message.getContent(), message.getLocalDateTime()))
-                .collect(Collectors.toList());
+        List<RedisMessageSaveDTO> redisMessageDTOs = new ArrayList<>();
 
-        return ResponseEntity.ok(responseDTOs);
+        for (ChatMessage message : allMessages) {
+            RedisMessageSaveDTO chatMessageDTO = new RedisMessageSaveDTO(message.getContent(), message.getSender().getName(), message.getLocalDateTime());
+            redisMessageDTOs.add(chatMessageDTO);
+        }
+
+        return ResponseEntity.ok(redisMessageDTOs);
     }
 
     @Operation(description = "멤버 별 채팅방 리스트 조회")
     @GetMapping("/chatRooms")
-    public ResponseEntity<List<ChatRoomDTO>> findAllChatRoomsByMemberId(@RequestHeader("Authorization") String authorizationHeader) {
-        Member loginMember = memberService.getMemberByToken(authorizationHeader);
+    public ResponseEntity<List<ChatRoomDTO>> findAllChatRoomsByMemberId(@RequestParam Long memberId) {
+        Member member = memberService.getMemberById(memberId);
 
-        List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMember(loginMember);
+        List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMember(member);
 
         List<ChatRoomDTO> chatRoomDTOs = new ArrayList<>();
 
         for (ChatRoom chatRoom : allChatRooms) {
-            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getChatRoomId(), chatRoom.getSender().getName(), chatRoom.getReceiver().getName());
+            String recipientName;
+
+            // When member is sender.
+            if (chatRoom.getSender().getId().equals(member.getId())) recipientName = chatRoom.getReceiver().getName();
+
+            // member is receiver.
+            else recipientName = chatRoom.getSender().getName();
+
+            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getChatRoomId(), recipientName);
             chatRoomDTOs.add(chatRoomDTO);
         }
 

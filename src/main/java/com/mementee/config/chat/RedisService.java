@@ -11,17 +11,17 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class RedisService {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public String getValues(String key){
+    public Object getValues(String key){
         //opsForValue : Strings를 쉽게 Serialize / Deserialize 해주는 Interface
-        ValueOperations<String, String> values = redisTemplate.opsForValue();
+        ValueOperations<String, Object> values = redisTemplate.opsForValue();
         return values.get(key);
     }
 
-    public void setValues(String key, String value){
-        System.out.println("setVlaue");
-        ValueOperations<String, String> values = redisTemplate.opsForValue();
+    public void setValues(String key, Object value){
+        System.out.println("setValue");
+        ValueOperations<String, Object> values = redisTemplate.opsForValue();
         values.set(key,value);
     }
 

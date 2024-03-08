@@ -27,6 +27,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'io.lettuce:lettuce-core'
 
+	// Jackson Datatype JSR310: Java 8의 날짜 및 시간 형식을 처리하기 위한 Jackson 모듈
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 	// Gson
 	implementation 'com.google.code.gson:gson'
 
