@@ -1,6 +1,5 @@
 package com.mementee.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mementee.api.controller.chatDTO.ChatMessageDTO;
 import com.mementee.api.controller.chatDTO.ChatRoomDTO;
 import com.mementee.api.controller.redisDTO.RedisMessageSaveDTO;
@@ -19,17 +18,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -46,12 +42,14 @@ public class ChatController {
     private final SimpMessagingTemplate template;
 
     @MessageMapping("/hello")
-    public void sendMessage(final String message) {
+    public void sendMessage(final ChatMessageDTO message) {
         System.out.println("메시지가 도착했습니다: " + message);
-        template.convertAndSend("/sub/chats/52" , message);
 
-        //redis에 저장
-        redisTemplate.convertAndSend(message, message);
+        //websocket에 보내기
+        template.convertAndSend("/sub/chats/52" , message.getContent());
+
+        //redis에 Publish
+        redisTemplate.convertAndSend("chatRoom" + message.getReceiverId(), message);
     }
 
     @Operation(description = "채팅 메시지 보내기")
