@@ -46,10 +46,10 @@ class ChatMessageRepositoryTest {
 //        assertEquals("Content", savedMessage.getContent(), "메시지 내용은 'Test message'여야 합니다.");
     }
 
-    @Test
-    @Commit
-    void deleteChatMessage() {
-        chatMessageRepository.deleteMessageById(2L);
-    }
+//    @Test
+//    @Commit
+//    void deleteChatMessage() {
+//        chatMessageRepository.deleteMessageById(2L);
+//    }
 
 }

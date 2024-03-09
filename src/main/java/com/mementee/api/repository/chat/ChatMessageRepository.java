@@ -3,6 +3,10 @@ package com.mementee.api.repository.chat;
 import com.mementee.api.domain.chat.ChatMessage;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -25,6 +29,10 @@ public class ChatMessageRepository {
     public void deleteMessageById(Long id) {
         ChatMessage message = findMessageById(id);
         em.remove(message);
+    }
+
+    public void findMessageWithQuanity(Long chatRoomId, int quantity) {
+
     }
 
 

@@ -24,6 +24,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class ChatController {
     private final SimpMessagingTemplate template;
 
     @MessageMapping("/hello")
-    public void sendMessage(final ChatMessageDTO message) {
+    public void sendMessage(final ChatMessageDTO message, Principal principal) {
         System.out.println("메시지가 도착했습니다: " + message);
 
         //websocket에 보내기
@@ -122,4 +123,21 @@ public class ChatController {
 
         return ResponseEntity.ok(chatRoomDTOs);
     }
+
+//    @Operation(description = "무한 스크롤 처리")
+//    @GetMapping("/infiniteScroll")
+//    public ResponseEntity<List<RedisMessageSaveDTO>> findMessagesWithQuantity(@RequestParam Long chatRoomId, int quantity) {
+//        log.info("chatRoomId={}", chatRoomId);
+//
+//        List<ChatMessage> allMessages = chatService.findAllMessages(chatRoomId);
+//
+//        List<RedisMessageSaveDTO> redisMessageDTOs = new ArrayList<>();
+//
+//        for (ChatMessage message : allMessages) {
+//            RedisMessageSaveDTO chatMessageDTO = new RedisMessageSaveDTO(message.getContent(), message.getSender().getName(), message.getLocalDateTime());
+//            redisMessageDTOs.add(chatMessageDTO);
+//        }
+//
+//        return ResponseEntity.ok(redisMessageDTOs);
+//    }
 }

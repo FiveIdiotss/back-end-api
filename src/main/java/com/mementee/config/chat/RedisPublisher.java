@@ -1,7 +1,6 @@
 package com.mementee.config.chat;
 
 import com.mementee.api.controller.redisDTO.RedisMessageSaveDTO;
-import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
