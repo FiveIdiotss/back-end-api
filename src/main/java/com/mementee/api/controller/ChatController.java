@@ -124,20 +124,4 @@ public class ChatController {
         return ResponseEntity.ok(chatRoomDTOs);
     }
 
-//    @Operation(description = "무한 스크롤 처리")
-//    @GetMapping("/infiniteScroll")
-//    public ResponseEntity<List<RedisMessageSaveDTO>> findMessagesWithQuantity(@RequestParam Long chatRoomId, int quantity) {
-//        log.info("chatRoomId={}", chatRoomId);
-//
-//        List<ChatMessage> allMessages = chatService.findAllMessages(chatRoomId);
-//
-//        List<RedisMessageSaveDTO> redisMessageDTOs = new ArrayList<>();
-//
-//        for (ChatMessage message : allMessages) {
-//            RedisMessageSaveDTO chatMessageDTO = new RedisMessageSaveDTO(message.getContent(), message.getSender().getName(), message.getLocalDateTime());
-//            redisMessageDTOs.add(chatMessageDTO);
-//        }
-//
-//        return ResponseEntity.ok(redisMessageDTOs);
-//    }
 }
