@@ -7,7 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class ChatRoomDTO {
 
-    private Long id;
-    private String senderName;
-    private String receiverName;
+    private Long chatRoomId;
+    private String recipientName;
 }

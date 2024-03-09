@@ -1,33 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Test</title>
+    <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script type="text/javascript">
+        window.onload = function() {
+            var ws = new WebSocket('ws://localhost:8080/ws');
+            var stompClient = Stomp.over(ws);
+
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/sub/chats/52', function(messageOutput) {
+                    console.log('Received: ' + messageOutput.body);
+                    var messageDisplay = document.querySelector('#messageDisplay');
+                    messageDisplay.innerHTML += messageOutput.body + '<br>'; // 메시지를 div에 추가합니다.
+                });
+            });
+
+            document.querySelector('#send').onclick = function() {
+                var message = document.querySelector('#message').value;
+                var receiverId = 52; // 상대방 아이디를 얻는 코드를 작성하세요.
+                stompClient.send("/pub/hello", {}, JSON.stringify({ content: message, receiverId: receiverId }));
+            };
+
+        }
+    </script>
 </head>
 <body>
-<input type="text" id="messageInput">
-<button onclick="sendMessage()">Send</button>
-<div id="messages"></div>
-
-<script>
-    const webSocket = new WebSocket("ws://localhost:8080/socket"); // 웹 소켓 연결 주소
-
-    webSocket.onmessage = function(event) {
-        const message = event.data;
-        const messagesDiv = document.getElementById("messages");
-        messagesDiv.innerHTML += "<p>" + message + "</p>"; // 받은 메시지를 화면에 출력
-    };
-
-    function sendMessage() {
-        const messageInput = document.getElementById("messageInput");
-        const message = messageInput.value;
-        webSocket.send(message); // 입력한 메시지를 서버로 전송
-        messageInput.value = ""; // 메시지 입력 필드 초기화
-    }
-</script>
+<h1>WebSocket 연결 테스트 페이지입니다.</h1>
+<input type="text" id="message" placeholder="메시지를 입력하세요">
+<button id="send">전송</button>
+<div id="messageDisplay"></div>
 </body>
 </html>
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>WebSocket Test</title>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>-->
+<!--    <script type="text/javascript">-->
+<!--        window.onload = function() {-->
+<!--            var socket = new SockJS('http://localhost:8080/ws');-->
+<!--            var stompClient = Stomp.over(socket);-->
+
+<!--            stompClient.connect({}, function(frame) {-->
+<!--                console.log('Connected: ' + frame);-->
+<!--                stompClient.subscribe('/sub/chats/52', function(messageOutput) {-->
+<!--                    console.log('Received: ' + messageOutput.body);-->
+<!--                });-->
+<!--            });-->
+
+<!--            document.querySelector('#send').onclick = function() {-->
+<!--                var message = document.querySelector('#message').value;-->
+<!--                stompClient.send("/pub/hello", {}, message);-->
+<!--            };-->
+<!--        }-->
+<!--    </script>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>WebSocket 연결 테스트 페이지입니다.</h1>-->
+<!--<input type="text" id="message" placeholder="메시지를 입력하세요">-->
+<!--<button id="send">전송</button>-->
+<!--</body>-->
+<!--</html>-->
+
 <!--<!DOCTYPE html>-->
 <!--<html lang="en">-->
 <!--<head>-->

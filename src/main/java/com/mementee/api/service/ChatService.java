@@ -61,9 +61,8 @@ public class ChatService {
     }
 
     // 두 유저 사이의 채팅방을 호출
-    public List<ChatMessage> findAllMessages(Member m1, Member m2) {
-        Long chatRoom = chatRoomRepository.findBySendAndReceiver(m1, m2);
-        return chatRoomRepository.findAllMessagesInChatRoom(chatRoom);
+    public List<ChatMessage> findAllMessages(Long chatRoomId) {
+        return chatRoomRepository.findAllMessagesInChatRoom(chatRoomId);
     }
 
     // 특정 멤버가 속한 모든 채팅방 조회
