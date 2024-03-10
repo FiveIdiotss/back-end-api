@@ -1,3 +1,4 @@
+
 package com.mementee.api.repository.chat;
 
 import com.mementee.api.domain.chat.ChatMessage;
@@ -46,10 +47,13 @@ class ChatMessageRepositoryTest {
 //        assertEquals("Content", savedMessage.getContent(), "메시지 내용은 'Test message'여야 합니다.");
     }
 
+
 //    @Test
 //    @Commit
 //    void deleteChatMessage() {
 //        chatMessageRepository.deleteMessageById(2L);
 //    }
 
+
 }
+

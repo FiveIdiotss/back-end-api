@@ -19,6 +19,7 @@ public class BlackListToken {
     @Column(name = "blacklist_token_id")
     private Long id;
 
+
     @Column(nullable = false, name = "blacklist_token")
     private String blackListToken;
 
