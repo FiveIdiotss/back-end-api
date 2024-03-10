@@ -38,18 +38,18 @@ public class ChatController {
 
     private final ChatService chatService;
     private final MemberService memberService;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate; // Redis에 전달하는 핸들러
     private final RedisPublisher redisPublisher;
-    private final SimpMessagingTemplate template;
+    private final SimpMessagingTemplate template; //websocket에 전달하는 핸들러
 
     @MessageMapping("/hello")
     public void sendMessage(final ChatMessageDTO message, Principal principal) {
-        System.out.println("메시지가 도착했습니다: " + message);
+        log.info("Controller(MessageMapping)={}", message);
 
         //websocket에 보내기
         template.convertAndSend("/sub/chats/52" , message.getContent());
 
-        //redis에 Publish
+        //redis에 Publish, redis에서 구독?
         redisTemplate.convertAndSend("chatRoom" + message.getReceiverId(), message);
     }
 
@@ -58,6 +58,7 @@ public class ChatController {
     public void saveSentChatMessage(@RequestBody ChatMessageDTO request, @RequestHeader("Authorization") String authorizationHeader) {
         Member loginMember = memberService.getMemberByToken(authorizationHeader);
         Member receiver = memberService.getMemberById(request.getReceiverId());
+        System.out.println(receiver);
 
         // If a chatRoom exists between two members, use it. Otherwise, create a new chatRoom;
         ChatRoom chatRoom = chatService.findOrCreateChatRoom(loginMember, receiver);
@@ -75,8 +76,7 @@ public class ChatController {
                 message.getLocalDateTime());
 
         log.info("Publishing");
-        redisPublisher.publish(new ChannelTopic("ChatRoom" + chatRoom.getChatRoomId()), redisMessageSaveDTO);
-
+//        redisPublisher.publish(new ChannelTopic("ChatRoom" + chatRoom.getChatRoomId()), redisMessageSaveDTO);
 
         ListOperations<String, Object> stringObjectListOperations = redisTemplate.opsForList();
         stringObjectListOperations.rightPush(("chatRoom" + chatRoom.getChatRoomId()), redisMessageSaveDTO);
@@ -109,15 +109,22 @@ public class ChatController {
         List<ChatRoomDTO> chatRoomDTOs = new ArrayList<>();
 
         for (ChatRoom chatRoom : allChatRooms) {
-            String recipientName;
+            Long receiverId;
+            String receiverName;
 
             // When member is sender.
-            if (chatRoom.getSender().getId().equals(member.getId())) recipientName = chatRoom.getReceiver().getName();
+            if (chatRoom.getSender().getId().equals(member.getId())) {
+                receiverId = chatRoom.getReceiver().getId();
+                receiverName = chatRoom.getReceiver().getName();
+            }
 
             // member is receiver.
-            else recipientName = chatRoom.getSender().getName();
+            else {
+                receiverId = chatRoom.getSender().getId();
+                receiverName = chatRoom.getSender().getName();
+            }
 
-            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getChatRoomId(), recipientName);
+            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getChatRoomId(), receiverId, receiverName);
             chatRoomDTOs.add(chatRoomDTO);
         }
 

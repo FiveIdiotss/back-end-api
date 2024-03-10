@@ -8,5 +8,6 @@ import lombok.Data;
 public class ChatRoomDTO {
 
     private Long chatRoomId;
-    private String recipientName;
+    private Long receiverId;
+    private String receiverName;
 }

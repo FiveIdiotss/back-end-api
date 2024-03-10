@@ -6,6 +6,7 @@ import com.mementee.api.domain.chat.ChatRoom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,12 +14,16 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class ChatRoomRepository {
 
     private final EntityManager em;
 
     // 채팅방 저장
     public void save(ChatRoom chatRoom) {
+        log.info("새로운 채팅방이 데이터베이스에 저장되었습니다.");
+        log.info("senderId={}, receiverId={}", chatRoom.getSender().getId(), chatRoom.getReceiver().getId());
+
         em.persist(chatRoom);
     }
 
@@ -36,10 +41,7 @@ public class ChatRoomRepository {
     //채팅방 나가기
     //optional로 반환하도록 수정.
     // 두 유저 사이에 채팅방이 존재하는지 확인 후 존재하면 채팅방 Id 반환, 아니면 null 반환.
-    public Long findBySendAndReceiver(Member sender, Member receiver) {
-        Long senderId = sender.getId();
-        Long receiverId = receiver.getId();
-
+    public Optional<Long> findChatRoomBySenderAndReceiver(Long senderId, Long receiverId) {
         // sender가 senderId이고 receiver가 receiverId인 채팅방을 찾거나,
         // sender가 receiverId이고 receiver가 senderId인 채팅방을 찾음.
         String query = "SELECT cm.chatRoomId FROM ChatRoom cm " +
@@ -47,14 +49,15 @@ public class ChatRoomRepository {
                 "OR (cm.sender.id = :receiverId AND cm.receiver.id = :senderId)";
 
         try {
-            return em.createQuery(query, Long.class)
+            Long chatroomId = em.createQuery(query, Long.class)
                     .setParameter("senderId", senderId)
                     .setParameter("receiverId", receiverId)
                     .getSingleResult();
 
+            return Optional.of(chatroomId);
         } catch (NoResultException e) {
             System.out.println("두 사람 사이에 채팅방이 존재하지 않습니다.");
-            return null; // 채팅방이 없을 경우 null을 반환합니다.
+            return Optional.empty(); // 채팅방이 없을 경우 null을 반환합니다.
         }
     }
 

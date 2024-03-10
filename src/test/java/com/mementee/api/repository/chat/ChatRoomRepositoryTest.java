@@ -12,6 +12,7 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 @Transactional
@@ -81,4 +82,10 @@ class ChatRoomRepositoryTest {
 //        System.out.println(bySendAndReceiver.getReceiver());
 //        System.out.println(bySendAndReceiver.getSender());
 //    }
+
+    @Test
+    void findChatRoomBySenderAndReceiver() {
+        Optional<Long> chatRoomBySenderAndReceiver = chatRoomRepository.findChatRoomBySenderAndReceiver(2L, 3L);
+        System.out.println(chatRoomBySenderAndReceiver.get());
+    }
 }
