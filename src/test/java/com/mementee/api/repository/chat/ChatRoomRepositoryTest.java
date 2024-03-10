@@ -3,10 +3,8 @@ package com.mementee.api.repository.chat;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
-import com.mementee.api.domain.enumtype.Gender;
 import com.mementee.api.repository.MemberRepository;
 import com.mementee.api.service.MemberService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +12,7 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 @Transactional
@@ -83,4 +82,10 @@ class ChatRoomRepositoryTest {
 //        System.out.println(bySendAndReceiver.getReceiver());
 //        System.out.println(bySendAndReceiver.getSender());
 //    }
+
+    @Test
+    void findChatRoomBySenderAndReceiver() {
+        Optional<Long> chatRoomBySenderAndReceiver = chatRoomRepository.findChatRoomBySenderAndReceiver(2L, 3L);
+        System.out.println(chatRoomBySenderAndReceiver.get());
+    }
 }

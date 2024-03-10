@@ -1,5 +1,6 @@
 package com.mementee.config.chat;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +14,9 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-@EnableCaching
 @Configuration
+@EnableCaching
+@Slf4j
 public class RedisConfig {
 
     @Bean
@@ -47,7 +49,7 @@ public class RedisConfig {
         // 특정 채널을 RedisSubscriber에게 연결
         container.addMessageListener(redisSubscriber, new ChannelTopic("chatRoom52"));
 
-        System.out.println("실행댐");
+        log.info("Redis Config");
 
         return container;
     }

@@ -22,7 +22,7 @@ public class RedisSubscriber implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
-            log.info("Subscribed Message");
+            log.info("Redis Subscriber");
 
             String publishMessage = (String) redisTemplate.getStringSerializer().deserialize(message.getBody());
 
