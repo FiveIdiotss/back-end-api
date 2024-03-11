@@ -32,6 +32,7 @@ public class ChatRoomRepository {
         return em.find(ChatRoom.class, id);
     }
 
+
     public List<ChatMessage> findAllMessagesInChatRoom(Long chatRoomId) {
         return em.createQuery("SELECT cm FROM ChatMessage cm where cm.chatRoom.id = :chatRoomId", ChatMessage.class)
                 .setParameter("chatRoomId", chatRoomId)
@@ -69,5 +70,25 @@ public class ChatRoomRepository {
         return em.createQuery(query, ChatRoom.class)
                 .setParameter("memberId", memberId)
                 .getResultList();
+    }
+
+    public ChatRoom findOrCreateChatRoomById(Member loginMember, Member receiver) {
+        Long id = receiver.getId();
+
+        try {
+            String query = "SELECT cr FROM ChatRoom cr " +
+                    "WHERE cr.sender.id = :id OR cr.receiver.id = :id";
+
+            return em.createQuery(query, ChatRoom.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+
+        } catch (NoResultException e) {
+            // 채팅방이 없으면 새로운 채팅방을 생성
+            ChatRoom newChatRoom = new ChatRoom(loginMember, receiver);
+            // 설정 필요: newChatRoom.setSender(...); newChatRoom.setReceiver(...);
+            em.persist(newChatRoom);
+            return newChatRoom;
+        }
     }
 }
