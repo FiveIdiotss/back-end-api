@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -47,7 +46,7 @@ public class ChatController {
         log.info("Controller(MessageMapping)={}", message);
 
         //websocket에 보내기
-        template.convertAndSend("/sub/chats/52" , message.getContent());
+        template.convertAndSend("/sub/chats/52", message.getContent());
 
         //redis에 Publish, redis에서 구독?
         redisTemplate.convertAndSend("chatRoom" + message.getReceiverId(), message);
@@ -97,6 +96,19 @@ public class ChatController {
         }
 
         return ResponseEntity.ok(redisMessageDTOs);
+    }
+
+    @Operation(description = "상대방 ID로 해당 채팅방 조회 (채팅방이 존재하지 않으면 새로 만듦)")
+    @GetMapping("/chatRoom")
+    public ResponseEntity<ChatRoomDTO> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
+        log.info("receiverID={}", receiverId);
+
+        Member loginMember = memberService.getMemberByToken(authorizationHeader);
+        Member receiver = memberService.getMemberById(receiverId);
+        ChatRoom chatRoom = chatService.findChatRoomOrCreate(loginMember, receiver);
+
+        ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getChatRoomId(), receiverId, receiver.getName());
+        return ResponseEntity.ok(chatRoomDTO);
     }
 
     @Operation(description = "멤버 별 채팅방 리스트 조회")
