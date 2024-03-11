@@ -51,7 +51,7 @@ public class ChatService {
 
         if (bySendAndReceiver.isEmpty()) {
             System.out.println("create a new chatroom");
-            ChatRoom newChatroom = new ChatRoom(sender,receiver);
+            ChatRoom newChatroom = new ChatRoom(sender, receiver);
             this.saveChatRoom(newChatroom);
             return newChatroom;
         }
@@ -69,6 +69,11 @@ public class ChatService {
     public List<ChatRoom> findAllChatRoomByMember(Member member) {
         Long id = member.getId();
         return chatRoomRepository.findAllChatRoomsByMemberId(id);
+    }
+
+    // 상대방 아이디로 해당 채팅방 조회
+    public ChatRoom findChatRoomOrCreate(Member loginMember, Member receiver) {
+        return chatRoomRepository.findOrCreateChatRoomById(loginMember, receiver);
     }
 
 }
