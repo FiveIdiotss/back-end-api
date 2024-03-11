@@ -73,16 +73,18 @@ public class ChatRoomRepository {
     }
 
     public ChatRoom findOrCreateChatRoomById(Member loginMember, Member receiver) {
-        Long id = receiver.getId();
+        Long senderId = loginMember.getId();
+        Long receiverId = receiver.getId();
+
+        String query = "SELECT cr FROM ChatRoom cr " +
+                "WHERE (cr.sender.id = :senderId AND cr.receiver.id = :receiverId) " +
+                "OR (cr.sender.id = :receiverId AND cr.receiver.id = :senderId)";
 
         try {
-            String query = "SELECT cr FROM ChatRoom cr " +
-                    "WHERE cr.sender.id = :id OR cr.receiver.id = :id";
-
             return em.createQuery(query, ChatRoom.class)
-                    .setParameter("id", id)
+                    .setParameter("senderId", senderId)
+                    .setParameter("receiverId", receiverId)
                     .getSingleResult();
-
         } catch (NoResultException e) {
             // 채팅방이 없으면 새로운 채팅방을 생성
             ChatRoom newChatRoom = new ChatRoom(loginMember, receiver);
