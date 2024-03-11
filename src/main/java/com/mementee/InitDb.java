@@ -21,11 +21,10 @@ public class InitDb {
 
     private final InitService initService;
 
-    @PostConstruct
-    public void init() {
+//    @PostConstruct
+//    public void init() {
 //        initService.dbInit();
-//        initService.memberInit();
-    }
+//    }
 
     @Component
     @Transactional
@@ -34,18 +33,6 @@ public class InitDb {
 
         private final EntityManager em;
         private final SchoolService schoolService;
-
-        public void memberInit() {
-            System.out.println("Init");
-
-            Member member = new Member("email", "이종현", "pass", 2032, Gender.MALE);
-            Member member1 = new Member("이메일", "현종이", "word", 1234, Gender.FEMALE);
-            Member member2 = new Member("qwe", "asd", "zxc", 1234, Gender.FEMALE);
-
-            em.persist(member1);
-            em.persist(member);
-            em.persist(member2);
-        }
 
         public void dbInit() {
             System.out.println("Init1" + this.getClass());
