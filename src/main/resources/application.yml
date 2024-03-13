@@ -2,7 +2,8 @@ spring:
 
   data:
     redis:
-      host: localhost
+#      host: localhost
+      host: menteetor.site
       port: 6739
 
   jwt:
