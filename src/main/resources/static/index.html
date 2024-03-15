@@ -7,13 +7,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script type="text/javascript">
         window.onload = function () {
-            var ws = new WebSocket('ws://localhost:8080/ws');
+            var ws = new WebSocket('ws://menteetor.site:8080/ws');
             var stompClient = Stomp.over(ws);
 
             // 메시지 전송
             document.querySelector('#send').onclick = function () {
                 var message = document.querySelector('#message').value;
-                var receiverId = 52; // 상대방 아이디를 얻는 코드를 작성하세요.
+                var receiverId = 2; // 상대방 아이디를 얻는 코드를 작성하세요.
                 stompClient.send("/pub/hello", {}, JSON.stringify({content: message, receiverId: receiverId}));
             };
 

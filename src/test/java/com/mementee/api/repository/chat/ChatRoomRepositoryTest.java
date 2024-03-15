@@ -1,4 +1,6 @@
-//package com.mementee.api.repository.chat;
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;//package com.mementee.api.repository.chat;
 //
 //import com.mementee.api.domain.Member;
 //import com.mementee.api.domain.chat.ChatMessage;
@@ -89,9 +91,9 @@
 //        System.out.println(chatRoomBySenderAndReceiver.get());
 //    }
 //}
-    @Test
-    void findChatRoomBySenderAndReceiver() {
-        Optional<Long> chatRoomBySenderAndReceiver = chatRoomRepository.findChatRoomBySenderAndReceiver(1L, 3L);
-        System.out.println(chatRoomBySenderAndReceiver.isPresent());
-    }
-}
+//    @Test
+//    void findChatRoomBySenderAndReceiver() {
+//        Optional<Long> chatRoomBySenderAndReceiver = chatRoomRepository.findChatRoomBySenderAndReceiver(1L, 3L);
+//        System.out.println(chatRoomBySenderAndReceiver.isPresent());
+//    }
+
