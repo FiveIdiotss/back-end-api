@@ -28,7 +28,7 @@ public class RedisSubscriber implements MessageListener {
 
             ChatMessageDTO chatMessage = objectMapper.readValue(publishMessage, ChatMessageDTO.class);
 
-            messagingTemplate.convertAndSend("/sub/chats/" + chatMessage.getReceiverId(), chatMessage);
+            messagingTemplate.convertAndSend("/sub/chats/" + chatMessage.getSenderId(), chatMessage);
 
         } catch (Exception e) {
             log.error(e.getMessage());

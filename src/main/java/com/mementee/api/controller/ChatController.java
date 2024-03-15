@@ -23,7 +23,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,21 +41,21 @@ public class ChatController {
     private final SimpMessagingTemplate template; //websocket에 전달하는 핸들러
 
     @MessageMapping("/hello")
-    public void sendMessage(final ChatMessageDTO message, Principal principal) {
+    public void sendMessage(final ChatMessageDTO message) {
         log.info("Controller(MessageMapping)={}", message);
 
         //websocket에 보내기
-        template.convertAndSend("/sub/chats/52", message.getContent());
+        template.convertAndSend("/sub/chats/web", message);
 
         //redis에 Publish, redis에서 구독?
-        redisTemplate.convertAndSend("chatRoom" + message.getReceiverId(), message);
+        redisTemplate.convertAndSend("chatRoom" + message.getSenderId(), message);
     }
 
     @Operation(description = "채팅 메시지 보내기")
     @PostMapping("/message")
     public void saveSentChatMessage(@RequestBody ChatMessageDTO request, @RequestHeader("Authorization") String authorizationHeader) {
         Member loginMember = memberService.getMemberByToken(authorizationHeader);
-        Member receiver = memberService.getMemberById(request.getReceiverId());
+        Member receiver = memberService.getMemberById(request.getSenderId());
         System.out.println(receiver);
 
         // If a chatRoom exists between two members, use it. Otherwise, create a new chatRoom;
@@ -117,7 +116,6 @@ public class ChatController {
         Member member = memberService.getMemberById(memberId);
 
         List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMember(member);
-
         List<ChatRoomDTO> chatRoomDTOs = new ArrayList<>();
 
         for (ChatRoom chatRoom : allChatRooms) {
@@ -136,7 +134,9 @@ public class ChatController {
                 receiverName = chatRoom.getSender().getName();
             }
 
-            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getChatRoomId(), receiverId, receiverName);
+            ChatMessage latestChatMessage = chatService.findLatestChatMessage(chatRoom.getChatRoomId());
+
+            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getChatRoomId(), receiverId, receiverName, latestChatMessage.getLocalDateTime());
             chatRoomDTOs.add(chatRoomDTO);
         }
 

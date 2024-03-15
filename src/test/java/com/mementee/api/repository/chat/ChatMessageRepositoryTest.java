@@ -1,30 +1,37 @@
-//
-//package com.mementee.api.repository.chat;
-//
-//import com.mementee.api.domain.chat.ChatMessage;
-//import jakarta.persistence.EntityManager;
-//import jakarta.persistence.PersistenceContext;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.test.annotation.Commit;
-//import org.springframework.transaction.annotation.Transactional;
-//
-//import java.time.LocalDateTime;
-//
-//import static org.junit.jupiter.api.Assertions.assertNotNull;
-//
-//@SpringBootTest
-//@Transactional
-//class ChatMessageRepositoryTest {
-//
-//    @Autowired
-//    private ChatMessageRepository chatMessageRepository;
-//
-//    @PersistenceContext
-//    private EntityManager em;
-//
+
+package com.mementee.api.repository.chat;
+
+import com.mementee.api.domain.chat.ChatMessage;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@SpringBootTest
+@Transactional
+class ChatMessageRepositoryTest {
+
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
+
+    @PersistenceContext
+    private EntityManager em;
+
 //    @Test
+//    void findAllMessagesInChatRoom() {
+//        List<ChatMessage> messages = chatMessageRepository.findAllMessagesInChatRoom(52L);
+//        System.out.println(messages);
+//    }
+
+    //    @Test
 //    @Commit
 //    void saveChatMessage() {
 //        // given
@@ -46,14 +53,14 @@
 ////        assertEquals("Receiver1", savedMessage.getContent(), "수신자는 Receiver여야 합니다.");
 ////        assertEquals("Content", savedMessage.getContent(), "메시지 내용은 'Test message'여야 합니다.");
 //    }
-//
-//
-////    @Test
-////    @Commit
-////    void deleteChatMessage() {
-////        chatMessageRepository.deleteMessageById(2L);
-////    }
-//
-//
-//}
-//
+
+
+//    @Test
+//    @Commit
+//    void deleteChatMessage() {
+//        chatMessageRepository.deleteMessageById(2L);
+//    }
+
+
+}
+

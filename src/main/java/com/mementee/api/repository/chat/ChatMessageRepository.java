@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class ChatMessageRepository {
@@ -35,5 +37,12 @@ public class ChatMessageRepository {
 
     }
 
+    //
+    public List<ChatMessage> findAllMessagesInChatRoom(Long chatRoomId) {
+        String query = "SELECT cm FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId";
+        return em.createQuery(query, ChatMessage.class)
+                .setParameter("chatRoomId", chatRoomId)
+                .getResultList();
+    }
 
 }
