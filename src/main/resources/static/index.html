@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            var ws = new WebSocket('ws://menteetor.site:8080/ws');
+
+            var stompClient = Stomp.over(ws);
+
+            // 메시지 전송
+            document.querySelector('#send').onclick = function () {
+                var message = document.querySelector('#message').value;
+                var senderId = 2; // 상대방 아이디를 얻는 코드를 작성하세요.
+                stompClient.send("/pub/hello", {}, JSON.stringify({content: message, senderId: senderId}));
+            };
+
+            // 메시지 수신
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/sub/chats/web', function (messageOutput) {
+                    console.log('Received: ' + messageOutput.body);
+                    var messageDisplay = document.querySelector('#messageDisplay');
+                    messageDisplay.innerHTML += messageOutput.body + '<br>'; // 메시지를 div에 추가합니다.
+                });
+            });
+
+        }
+    </script>
+</head>
+<body>
+<h1>WebSocket 연결 테스트 페이지입니다.</h1>
+<input type="text" id="message" placeholder="메시지를 입력하세요">
+<button id="send">전송</button>
+<div id="messageDisplay"></div>
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>WebSocket Test</title>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>-->
+<!--    <script type="text/javascript">-->
+<!--        window.onload = function() {-->
+<!--            var socket = new SockJS('http://localhost:8080/ws');-->
+<!--            var stompClient = Stomp.over(socket);-->
+
+<!--            stompClient.connect({}, function(frame) {-->
+<!--                console.log('Connected: ' + frame);-->
+<!--                stompClient.subscribe('/sub/chats/52', function(messageOutput) {-->
+<!--                    console.log('Received: ' + messageOutput.body);-->
+<!--                });-->
+<!--            });-->
+
+<!--            document.querySelector('#send').onclick = function() {-->
+<!--                var message = document.querySelector('#message').value;-->
+<!--                stompClient.send("/pub/hello", {}, message);-->
+<!--            };-->
+<!--        }-->
+<!--    </script>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>WebSocket 연결 테스트 페이지입니다.</h1>-->
+<!--<input type="text" id="message" placeholder="메시지를 입력하세요">-->
+<!--<button id="send">전송</button>-->
+<!--</body>-->
+<!--</html>-->
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Social Login</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h2>Social Login</h2>-->
+
+<!--&lt;!&ndash; 카카오톡 소셜 로그인 링크 &ndash;&gt;-->
+<!--<a href="login/kakao" target="_blank">-->
+<!--    <img src="카카오톡_로고_URL" alt="카카오톡 로그인" width="150" height="40">-->
+<!--</a>-->
+
+<!--<br><br>-->
+
+<!--&lt;!&ndash; 네이버 소셜 로그인 링크 &ndash;&gt;-->
+<!--<a href="login/naver" target="_blank">-->
+<!--    <img src="네이버_로고_URL" alt="네이버 로그인" width="150" height="40">-->
+<!--</a>-->
+
+<!--<br><br>-->
+
+<!--&lt;!&ndash; 구글 소셜 로그인 링크 &ndash;&gt;-->
+<!--<a href="구글_소셜_로그인_URL" target="_blank">-->
+<!--    <img src="구글_로고_URL" alt="구글 로그인" width="150" height="40">-->
+<!--</a>-->
+
+<!--</body>-->
+<!--</html>-->
