@@ -82,6 +82,7 @@ class ChatRoomRepositoryTest {
 //        System.out.println(bySendAndReceiver.getSender());
 //    }
 
+
     @Test
     void findChatRoomBySenderAndReceiver() {
         Optional<Long> chatRoomBySenderAndReceiver = chatRoomRepository.findChatRoomBySenderAndReceiver(2L, 3L);

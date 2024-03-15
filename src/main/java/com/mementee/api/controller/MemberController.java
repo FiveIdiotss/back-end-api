@@ -152,7 +152,8 @@ public class MemberController {
     @GetMapping("/api/member/{memberId}")
     public ResponseEntity<?> memberInfo(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId){
         try {
-            Member member = memberService.isCheckMe(authorizationHeader, memberId);
+            //Member member = memberService.isCheckMe(authorizationHeader, memberId);
+            Member member = memberService.getMemberById(memberId);
             MemberInfoResponse response = new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(),
                     member.getYear(), member.getGender(), member.getSchool().getName(), member.getMajor().getName());
             return ResponseEntity.ok(response);

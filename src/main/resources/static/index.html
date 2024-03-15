@@ -7,7 +7,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script type="text/javascript">
         window.onload = function () {
-            var ws = new WebSocket('ws://menteetor.site:6379/ws');
+            var ws = new WebSocket('ws://menteetor.site:8080/ws');
+
             var stompClient = Stomp.over(ws);
 
             // 메시지 전송
