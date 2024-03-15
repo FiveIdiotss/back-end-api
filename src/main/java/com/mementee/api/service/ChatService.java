@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -74,6 +76,16 @@ public class ChatService {
     // 상대방 아이디로 해당 채팅방 조회
     public ChatRoom findChatRoomOrCreate(Member loginMember, Member receiver) {
         return chatRoomRepository.findOrCreateChatRoomById(loginMember, receiver);
+    }
+
+    public ChatMessage findLatestChatMessage(Long chatRoomId) {
+        List<ChatMessage> messages = chatRoomRepository.findAllMessagesInChatRoom(chatRoomId);
+        if (!messages.isEmpty()) {
+            messages.sort(Comparator.comparing(ChatMessage::getLocalDateTime).reversed());
+            return messages.get(0);
+        } else {
+            throw new NoSuchElementException("No chat message exits");
+        }
     }
 
 }
