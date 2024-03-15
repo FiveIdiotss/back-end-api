@@ -40,5 +40,4 @@ public class ChatMessage {
         this.chatRoom = chatRoom;
         this.localDateTime = localDateTime;
     }
-
 }

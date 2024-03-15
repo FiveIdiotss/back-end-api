@@ -7,21 +7,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script type="text/javascript">
         window.onload = function () {
-            var ws = new WebSocket('ws://menteetor:6739/ws');
+            var ws = new WebSocket('ws://menteetor.site:6379/ws');
             var stompClient = Stomp.over(ws);
 
             // 메시지 전송
             document.querySelector('#send').onclick = function () {
                 var message = document.querySelector('#message').value;
-                var receiverId = 2; // 상대방 아이디를 얻는 코드를 작성하세요.
-                stompClient.send("/pub/hello", {}, JSON.stringify({content: message, receiverId: receiverId}));
+                var senderId = 2; // 상대방 아이디를 얻는 코드를 작성하세요.
+                stompClient.send("/pub/hello", {}, JSON.stringify({content: message, senderId: senderId}));
             };
 
             // 메시지 수신
             stompClient.connect({}, function (frame) {
                 console.log('Connected: ' + frame);
-                stompClient.subscribe('/sub/chats/1' +
-                    '', function (messageOutput) {
+                stompClient.subscribe('/sub/chats/1', function (messageOutput) {
                     console.log('Received: ' + messageOutput.body);
                     var messageDisplay = document.querySelector('#messageDisplay');
                     messageDisplay.innerHTML += messageOutput.body + '<br>'; // 메시지를 div에 추가합니다.

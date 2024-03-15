@@ -22,9 +22,9 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandConfig = new RedisStandaloneConfiguration();
-        redisStandConfig.setHostName("menteetor.site");
-//        redisStandConfig.setHostName("localhost");
-//        redisStandConfig.setPort(6379);
+//        redisStandConfig.setHostName("menteetor.site");
+        redisStandConfig.setHostName("localhost");
+        redisStandConfig.setPort(6379);
         return new LettuceConnectionFactory(redisStandConfig);
     }
 
@@ -48,7 +48,7 @@ public class RedisConfig {
         container.setConnectionFactory(connectionFactory);
 
         // 특정 채널을 RedisSubscriber에게 연결
-        container.addMessageListener(redisSubscriber, new ChannelTopic("chatRoom52"));
+        container.addMessageListener(redisSubscriber, new ChannelTopic("chatRoom1"));
 
         log.info("Redis Config");
 
