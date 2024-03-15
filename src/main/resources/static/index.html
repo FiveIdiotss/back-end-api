@@ -21,7 +21,7 @@
             // 메시지 수신
             stompClient.connect({}, function (frame) {
                 console.log('Connected: ' + frame);
-                stompClient.subscribe('/sub/chats/1', function (messageOutput) {
+                stompClient.subscribe('/sub/chats/web', function (messageOutput) {
                     console.log('Received: ' + messageOutput.body);
                     var messageDisplay = document.querySelector('#messageDisplay');
                     messageDisplay.innerHTML += messageOutput.body + '<br>'; // 메시지를 div에 추가합니다.
