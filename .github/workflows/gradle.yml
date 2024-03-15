@@ -53,10 +53,10 @@ jobs:
 
     - name: Code Deploy To EC2 instance
       run: aws deploy create-deployment 
-            --application-name $five_cicd_spring_boot
-            --deployment-config-name CodeDeployDefault.AllAtOnce
-            --deployment-group-name $five_spring_boot
-            --s3-location bucket=$spring-boot-five-bucket,bundleType=zip,key=$mementee/$GITHUB_SHA.zip
+           --application-name $five_cicd_spring_boot
+           --deployment-config-name CodeDeployDefault.AllAtOnce
+           --deployment-group-name $five_spring_boot
+           --s3-location bucket=$spring-boot-five-bucket,bundleType=zip,key=$mementee/$GITHUB_SHA.zip
 # --------------------------추가
 
 
