@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class ChatMessageDTO {
     private String content;
     private Long senderId;
+    private Long chatRoomId;
     private String localDateTime;
 }

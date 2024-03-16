@@ -45,7 +45,7 @@ public class ChatController {
 //        log.info("Controller(MessageMapping)={}", message);
 
         //websocket에 보내기
-        template.convertAndSend("/sub/chats/web", message.getContent());
+        template.convertAndSend("/sub/chats/" + message.getChatRoomId(), message);
 
         //redis에 Publish, redis에서 구독?
         redisTemplate.convertAndSend("chatRoom" + message.getSenderId(), message);
