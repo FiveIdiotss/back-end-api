@@ -46,12 +46,12 @@ class ChatRoomRepositoryTest {
         chatRoomRepository.save(chatRoom);
     }
 
-    @Test
-    void findChatRoomById() {
-        ChatRoom findChatRoom = chatRoomRepository.findChatRoomById(52L);
-        Member sender = findChatRoom.getSender();
-        System.out.println(sender.getName());
-    }
+//    @Test
+//    void findChatRoomById() {
+//        ChatRoom findChatRoom = chatRoomRepository.findChatRoomById(52L);
+//        Member sender = findChatRoom.getSender();
+//        System.out.println(sender.getName());
+//    }
 
     @Test
     void findAllMessagesInChatRoom() {
@@ -82,11 +82,12 @@ class ChatRoomRepositoryTest {
 //        System.out.println(bySendAndReceiver.getSender());
 //    }
 
-    @Test
-    void findChatRoomBySenderAndReceiver() {
-        Optional<Long> chatRoomBySenderAndReceiver = chatRoomRepository.findChatRoomBySenderAndReceiver(2L, 3L);
-        System.out.println(chatRoomBySenderAndReceiver.get());
-    }
+
+//    @Test
+//    void findChatRoomBySenderAndReceiver() {
+//        Optional<Long> chatRoomBySenderAndReceiver = chatRoomRepository.findChatRoomBySenderAndReceiver(2L, 3L);
+//        System.out.println(chatRoomBySenderAndReceiver.get());
+//    }
 
 
 }

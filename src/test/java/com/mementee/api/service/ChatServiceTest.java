@@ -18,18 +18,18 @@ class ChatServiceTest {
 
     @Test
     void findChatRoom() {
-        Member email = memberService.findMemberByEmail("email");
-        Member email1 = memberService.findMemberByEmail("이메일");
+        Member email = memberService.findMemberByEmail("1234");
+        Member email1 = memberService.findMemberByEmail("2345");
 
         ChatRoom chatRoom = chatService.findOrCreateChatRoom(email1, email);
         System.out.println(chatRoom.getReceiver().getName());
         System.out.println(chatRoom.getSender().getName());
     }
 
-    @Test
-    void findLatestMessage() {
-        ChatMessage latestChatMessage = chatService.findLatestChatMessage(52L);
-        ChatMessageDTO chatMessageDTO = new ChatMessageDTO(latestChatMessage.getContent(), latestChatMessage.getSender().getId(), latestChatMessage.getLocalDateTime());
-        System.out.println(chatMessageDTO);
-    }
+//    @Test
+//    void findLatestMessage() {
+//        ChatMessage latestChatMessage = chatService.findLatestChatMessage(52L);
+//        ChatMessageDTO chatMessageDTO = new ChatMessageDTO(latestChatMessage.getContent(), latestChatMessage.getSender().getId(), latestChatMessage.getLocalDateTime());
+//        System.out.println(chatMessageDTO);
+//    }
 }

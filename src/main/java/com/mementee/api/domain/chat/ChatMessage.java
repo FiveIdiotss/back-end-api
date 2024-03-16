@@ -29,15 +29,12 @@ public class ChatMessage {
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
 
-    @Column
-    @CreatedDate
     private LocalDateTime localDateTime;
 
-
-    public ChatMessage(String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime) {
+    public ChatMessage(String content, Member sender, ChatRoom chatRoom) {
         this.content = content;
         this.sender = sender;
         this.chatRoom = chatRoom;
-        this.localDateTime = localDateTime;
+        this.localDateTime = LocalDateTime.now();
     }
 }
