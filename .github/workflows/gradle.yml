@@ -15,6 +15,7 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,6 +35,33 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build
+
+    # --------------------------추가      
+    - name: Make Zip File
+      run: zip -qq -r ./$GITHUB_SHA.zip .
+      shell: bash
+        
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_PRIVATE_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+      
+    - name: Upload to S3
+      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://five-spring-boot/back-end-api/$GITHUB_SHA.zip
+      
+    - name: Code Deploy To EC2 instance
+      run: aws deploy create-deployment 
+           --application-name five_spring_boot
+           --deployment-config-name CodeDeployDefault.AllAtOnce
+           --deployment-group-name five_spring_boot
+           --s3-location bucket=five-spring-boot,bundleType=zip,key=back-end-api/$GITHUB_SHA.zip
+# --------------------------추가
+
+
+
+      
 
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
     # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
