@@ -42,10 +42,10 @@ public class ChatController {
 
     @MessageMapping("/hello")
     public void sendMessage(final ChatMessageDTO message) {
-        log.info("Controller(MessageMapping)={}", message);
+//        log.info("Controller(MessageMapping)={}", message);
 
         //websocket에 보내기
-        template.convertAndSend("/sub/chats/web", message);
+        template.convertAndSend("/sub/chats/web", message.getContent());
 
         //redis에 Publish, redis에서 구독?
         redisTemplate.convertAndSend("chatRoom" + message.getSenderId(), message);
