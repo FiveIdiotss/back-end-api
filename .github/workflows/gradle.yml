@@ -49,14 +49,14 @@ jobs:
         aws-region: ap-northeast-2
       
     - name: Upload to S3
-      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$kdy-pet/$five/$GITHUB_SHA.zip
+      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$five-spring-boot/$five/$GITHUB_SHA.zip
       
     - name: Code Deploy To EC2 instance
       run: aws deploy create-deployment 
            --application-name $five_spring_boot
            --deployment-config-name CodeDeployDefault.AllAtOnce
            --deployment-group-name $five_spring_boot
-           --s3-location bucket=$kdy-pet,bundleType=zip,key=$five/$GITHUB_SHA.zip
+           --s3-location bucket=$five-spring-boot,bundleType=zip,key=$five/$GITHUB_SHA.zip
 # --------------------------추가
 
 
