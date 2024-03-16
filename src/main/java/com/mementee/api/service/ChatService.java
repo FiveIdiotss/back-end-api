@@ -24,7 +24,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
 
     public ChatMessage createMessage(String content, Member member, ChatRoom chatRoom) {
-        return new ChatMessage(content, member, chatRoom, LocalDateTime.now());
+        return new ChatMessage(content, member, chatRoom);
     }
 
     public void saveMessage(ChatMessage message) {

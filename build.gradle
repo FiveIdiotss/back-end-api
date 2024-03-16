@@ -26,6 +26,7 @@ dependencies {
 	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'io.lettuce:lettuce-core'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
 	// Jackson Datatype JSR310: Java 8의 날짜 및 시간 형식을 처리하기 위한 Jackson 모듈
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
