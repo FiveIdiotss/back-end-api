@@ -18,10 +18,12 @@
                 var message = messageInput.value.trim(); // 입력된 메시지를 가져옵니다. 앞뒤 공백은 제거합니다.
                 if (message !== '') { // 메시지가 비어 있지 않은 경우에만 전송합니다.
                     var senderId = 2; // 상대방 아이디를 얻는 코드를 작성하세요.
+                    var chatRoomId = 1;
                     var time = new Date().toISOString();
                     stompClient.send("/pub/hello", {}, JSON.stringify({
                         content: message,
                         senderId: senderId,
+                        chatRoomId: chatRoomId,
                         localDateTime: time
                     }));
                     messageInput.value = ''; // 메시지 입력 필드를 비웁니다.
@@ -39,11 +41,10 @@
             // 전송 버튼 클릭으로 메시지 전송
             document.querySelector('#send').onclick = sendMessage;
 
-
             // 메시지 수신
             stompClient.connect({}, function (frame) {
                 console.log('Connected: ' + frame);
-                stompClient.subscribe('/sub/chats/web', function (messageOutput) {
+                stompClient.subscribe('/sub/chats/1', function (messageOutput) {
                     console.log('Received: ' + messageOutput.body);
                     var messageDisplay = document.querySelector('#messageDisplay');
                     messageDisplay.innerHTML += messageOutput.body + '<br>'; // 메시지를 div에 추가합니다.
