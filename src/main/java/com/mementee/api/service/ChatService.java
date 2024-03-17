@@ -34,6 +34,7 @@ public class ChatService {
         return new ChatMessage(content, member, chatRoom);
     }
 
+    @Transactional
     public void saveMessage(ChatMessage message) {
         chatMessageRepository.save(message);
     }
