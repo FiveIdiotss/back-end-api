@@ -1,12 +1,17 @@
 package com.mementee.api.service;
 
+import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
+import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
+import com.mementee.api.repository.chat.ChatRoomRepositorySub;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,6 +27,11 @@ public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatRoomRepositorySub chatRoomRepositorySub;
+
+    public ChatRoom findChatRoom(Long chatRoomId){
+        return chatRoomRepository.findChatRoomById(chatRoomId);
+    }
 
     public ChatMessage createMessage(String content, Member member, ChatRoom chatRoom) {
         return new ChatMessage(content, member, chatRoom);
@@ -34,6 +44,7 @@ public class ChatService {
     public void saveChatRoom(ChatRoom chatRoom) {
         chatRoomRepository.save(chatRoom);
     }
+
 
     public void assignMessageToChatRoom(Long messageId, Long chatRoomId) {
         // 메시지와 채팅방 가져오기
@@ -63,8 +74,8 @@ public class ChatService {
     }
 
     // 두 유저 사이의 채팅방을 호출
-    public List<ChatMessage> findAllMessages(Long chatRoomId) {
-        return chatRoomRepository.findAllMessagesInChatRoom(chatRoomId);
+    public Slice<ChatMessage> findAllMessages(Long chatRoomId, Pageable pageable){
+        return chatRoomRepositorySub.findAllMessagesInChatRoom(chatRoomId, pageable);
     }
 
     // 특정 멤버가 속한 모든 채팅방 조회

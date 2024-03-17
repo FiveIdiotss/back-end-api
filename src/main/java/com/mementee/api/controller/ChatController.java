@@ -1,8 +1,10 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.controller.boardDTO.BoardDTO;
 import com.mementee.api.controller.chatDTO.ChatMessageDTO;
 import com.mementee.api.controller.chatDTO.ChatRoomDTO;
 import com.mementee.api.controller.redisDTO.RedisMessageSaveDTO;
+import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
@@ -16,6 +18,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +55,13 @@ public class ChatController {
 
         //redis에 Publish, redis에서 구독?
         redisTemplate.convertAndSend("chatRoom" + message.getChatRoomId(), message);
+
+        //채팅 db에 저장하기위해 이부분 추가했음
+        Member member = memberService.getMemberById(message.getSenderId());
+        ChatRoom chatRoom = chatService.findChatRoom(message.getChatRoomId());
+
+        ChatMessage chatMessage = chatService.createMessage(message.getContent(), member, chatRoom);
+        chatService.saveMessage(chatMessage);
     }
 
     @Operation(description = "채팅 메시지 보내기")
@@ -83,19 +96,15 @@ public class ChatController {
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages")
-    public ResponseEntity<List<RedisMessageSaveDTO>> findAllMessagesByChatRoom(@RequestParam Long chatRoomId) {
+    public ResponseEntity<Slice<RedisMessageSaveDTO>> findAllMessagesByChatRoom(@RequestParam Long chatRoomId, @RequestParam int page, @RequestParam int size) {
         log.info("chatRoomId={}", chatRoomId);
 
-        List<ChatMessage> allMessages = chatService.findAllMessages(chatRoomId);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
-        List<RedisMessageSaveDTO> redisMessageDTOs = new ArrayList<>();
+        Slice<ChatMessage> allMessages = chatService.findAllMessages(chatRoomId, pageable);
+        Slice<RedisMessageSaveDTO> slice = allMessages.map(m -> new RedisMessageSaveDTO(m.getContent(), m.getSender().getName(), m.getSender().getId(), m.getLocalDateTime()));
 
-        for (ChatMessage message : allMessages) {
-            RedisMessageSaveDTO chatMessageDTO = new RedisMessageSaveDTO(message.getContent(), message.getSender().getName(), message.getSender().getId(), message.getLocalDateTime());
-            redisMessageDTOs.add(chatMessageDTO);
-        }
-
-        return ResponseEntity.ok(redisMessageDTOs);
+        return ResponseEntity.ok(slice);
     }
 
 
