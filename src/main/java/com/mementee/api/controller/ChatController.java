@@ -56,12 +56,12 @@ public class ChatController {
         //redis에 Publish, redis에서 구독?
         redisTemplate.convertAndSend("chatRoom" + message.getChatRoomId(), message);
 
-        //채팅 db에 저장하기위해 이부분 추가했음
-        Member member = memberService.getMemberById(message.getSenderId());
-        ChatRoom chatRoom = chatService.findChatRoom(message.getChatRoomId());
-
-        ChatMessage chatMessage = chatService.createMessage(message.getContent(), member, chatRoom);
-        chatService.saveMessage(chatMessage);
+//        //채팅 db에 저장하기위해 이부분 추가했음
+//        Member member = memberService.getMemberById(message.getSenderId());
+//        ChatRoom chatRoom = chatService.findChatRoom(message.getChatRoomId());
+//
+//        ChatMessage chatMessage = chatService.createMessage(message.getContent(), member, chatRoom);
+//        chatService.saveMessage(chatMessage);
     }
 
     @Operation(description = "채팅 메시지 보내기")
@@ -79,7 +79,7 @@ public class ChatController {
 
         chatService.saveMessage(message);
 
-        System.out.println(message.getChatMessageId());
+        System.out.println(message.getId());
 
         RedisMessageSaveDTO redisMessageSaveDTO = new RedisMessageSaveDTO(
                 message.getContent(),
@@ -91,20 +91,22 @@ public class ChatController {
 //        redisPublisher.publish(new ChannelTopic("ChatRoom" + chatRoom.getChatRoomId()), redisMessageSaveDTO);
 
         ListOperations<String, Object> stringObjectListOperations = redisTemplate.opsForList();
-        stringObjectListOperations.rightPush(("chatRoom" + chatRoom.getChatRoomId()), redisMessageSaveDTO);
+        stringObjectListOperations.rightPush(("chatRoom" + chatRoom.getId()), redisMessageSaveDTO);
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages")
-    public ResponseEntity<Slice<RedisMessageSaveDTO>> findAllMessagesByChatRoom(@RequestParam Long chatRoomId, @RequestParam int page, @RequestParam int size) {
+    public Slice<RedisMessageSaveDTO> findAllMessagesByChatRoom(@RequestParam Long chatRoomId,
+                                                                @RequestParam int page, @RequestParam int size) {
         log.info("chatRoomId={}", chatRoomId);
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
-        Slice<ChatMessage> allMessages = chatService.findAllMessages(chatRoomId, pageable);
-        Slice<RedisMessageSaveDTO> slice = allMessages.map(m -> new RedisMessageSaveDTO(m.getContent(), m.getSender().getName(), m.getSender().getId(), m.getLocalDateTime()));
+        Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
+        Slice<RedisMessageSaveDTO> slice = allMessages.map(m -> new RedisMessageSaveDTO(m.getContent(), m.getSender().getName(),
+                m.getSender().getId(), m.getLocalDateTime()));
 
-        return ResponseEntity.ok(slice);
+        return slice;
     }
 
 
@@ -117,7 +119,7 @@ public class ChatController {
         Member receiver = memberService.getMemberById(receiverId);
         ChatRoom chatRoom = chatService.findChatRoomOrCreate(loginMember, receiver);
 
-        ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getChatRoomId(), receiverId, receiver.getName());
+        ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getId(), receiverId, receiver.getName());
         return ResponseEntity.ok(chatRoomDTO);
     }
 
@@ -145,9 +147,9 @@ public class ChatController {
                 receiverName = chatRoom.getSender().getName();
             }
 
-            ChatMessage latestChatMessage = chatService.findLatestChatMessage(chatRoom.getChatRoomId());
+            ChatMessage latestChatMessage = chatService.findLatestChatMessage(chatRoom.getId());
 
-            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getChatRoomId(), receiverId, receiverName, latestChatMessage.getLocalDateTime());
+            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestChatMessage.getLocalDateTime());
             chatRoomDTOs.add(chatRoomDTO);
         }
 

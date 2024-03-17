@@ -2,6 +2,7 @@ package com.mementee.api.domain.chat;
 
 import com.mementee.api.domain.Member;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,11 +10,13 @@ import lombok.Setter;
 @Entity
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class ChatRoom {
 
     @Id
     @GeneratedValue
-    private Long chatRoomId;
+    @Column(name = "chatroom_id")
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "sender_id")

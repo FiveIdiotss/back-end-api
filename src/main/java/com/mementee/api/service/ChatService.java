@@ -1,10 +1,8 @@
 package com.mementee.api.service;
 
-import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
-import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
@@ -14,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -73,9 +70,10 @@ public class ChatService {
         return chatRoomRepository.findChatRoomById(bySendAndReceiver.get());
     }
 
-    // 두 유저 사이의 채팅방을 호출
-    public Slice<ChatMessage> findAllMessages(Long chatRoomId, Pageable pageable){
-        return chatRoomRepositorySub.findAllMessagesInChatRoom(chatRoomId, pageable);
+    // 채팅방 ID로 채팅방 메세지 조회
+    public Slice<ChatMessage> findAllMessagesByChatRoomId(Long chatRoomId, Pageable pageable){
+        ChatRoom chatRoom = chatRoomRepository.findChatRoomById(chatRoomId);
+        return chatRoomRepositorySub.findAllMessagesByChatRoomId(chatRoomId, pageable);
     }
 
     // 특정 멤버가 속한 모든 채팅방 조회
