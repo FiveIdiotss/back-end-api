@@ -68,7 +68,7 @@ class ChatRoomRepositoryTest {
         System.out.println("=================================================");
 
         for (ChatRoom chatRoom : allChatRoomsByMemberId) {
-            System.out.println(chatRoom.getChatRoomId());
+            System.out.println(chatRoom.getId());
             System.out.println(chatRoom.getSender().getName());
             System.out.println(chatRoom.getReceiver().getName());
             System.out.println("=================================================");
