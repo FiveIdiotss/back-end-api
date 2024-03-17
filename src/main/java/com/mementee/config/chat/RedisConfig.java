@@ -24,7 +24,7 @@ public class RedisConfig {
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandConfig = new RedisStandaloneConfiguration();
         redisStandConfig.setHostName("menteetor.site");
-//        redisStandConfig.setHostName("localhost");
+        //redisStandConfig.setHostName("localhost");
         redisStandConfig.setPort(6379);
         return new LettuceConnectionFactory(redisStandConfig);
     }

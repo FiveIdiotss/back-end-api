@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
-public class JwtUtil {
+public abstract class JwtUtil {
 
     private static final long ACCESS_TIME = 60 * 60 * 1000L;
     private static final long REFRESH_TIME = 7 * 24 * 60 * 60 * 1000L;        //일주일 168 시간

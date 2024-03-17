@@ -8,7 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -16,7 +16,8 @@ public class ChatMessage {
 
     @Id
     @GeneratedValue
-    private Long chatMessageId;
+    @Column(name = "chat_message_id")
+    private Long id;
 
     @Column
     private String content;
