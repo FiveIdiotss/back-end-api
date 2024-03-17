@@ -16,6 +16,7 @@ public class RedisMessageSaveDTO {
 
     private String content;
     private String senderName;
+    private Long senderId;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

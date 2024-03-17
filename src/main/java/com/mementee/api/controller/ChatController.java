@@ -71,6 +71,7 @@ public class ChatController {
         RedisMessageSaveDTO redisMessageSaveDTO = new RedisMessageSaveDTO(
                 message.getContent(),
                 loginMember.getName(),
+                loginMember.getId(),
                 message.getLocalDateTime());
 
         log.info("Publishing");
@@ -90,12 +91,13 @@ public class ChatController {
         List<RedisMessageSaveDTO> redisMessageDTOs = new ArrayList<>();
 
         for (ChatMessage message : allMessages) {
-            RedisMessageSaveDTO chatMessageDTO = new RedisMessageSaveDTO(message.getContent(), message.getSender().getName(), message.getLocalDateTime());
+            RedisMessageSaveDTO chatMessageDTO = new RedisMessageSaveDTO(message.getContent(), message.getSender().getName(), message.getSender().getId(), message.getLocalDateTime());
             redisMessageDTOs.add(chatMessageDTO);
         }
 
         return ResponseEntity.ok(redisMessageDTOs);
     }
+
 
     @Operation(description = "상대방 ID로 해당 채팅방 조회 (채팅방이 존재하지 않으면 새로 만듦)")
     @GetMapping("/chatRoom")
