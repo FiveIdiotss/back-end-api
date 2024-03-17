@@ -13,22 +13,22 @@
             var stompClient = Stomp.over(ws);
 
             // 엔터 키 또는 전송 버튼 클릭으로 메시지 전송
-            function sendMessage() {
-                var messageInput = document.querySelector('#message');
-                var message = messageInput.value.trim(); // 입력된 메시지를 가져옵니다. 앞뒤 공백은 제거합니다.
-                if (message !== '') { // 메시지가 비어 있지 않은 경우에만 전송합니다.
-                    var senderId = 2; // 상대방 아이디를 얻는 코드를 작성하세요.
-                    var chatRoomId = 1;
-                    var time = new Date().toISOString();
-                    stompClient.send("/pub/hello", {}, JSON.stringify({
-                        content: message,
-                        senderId: senderId,
-                        chatRoomId: chatRoomId,
-                        localDateTime: time
-                    }));
-                    messageInput.value = ''; // 메시지 입력 필드를 비웁니다.
-                }
-            }
+            // function sendMessage() {
+            //     var messageInput = document.querySelector('#message');
+            //     var message = messageInput.value.trim(); // 입력된 메시지를 가져옵니다. 앞뒤 공백은 제거합니다.
+            //     if (message !== '') { // 메시지가 비어 있지 않은 경우에만 전송합니다.
+            //         var senderId = 2; // 상대방 아이디를 얻는 코드를 작성하세요.
+            //         var chatRoomId = 1;
+            //         var time = new Date().toISOString();
+            //         stompClient.send("/pub/hello", {}, JSON.stringify({
+            //             content: message,
+            //             senderId: senderId,
+            //             chatRoomId: chatRoomId,
+            //             localDateTime: time
+            //         }));
+            //         messageInput.value = ''; // 메시지 입력 필드를 비웁니다.
+            //     }
+            // }
 
             // 엔터 키로 메시지 전송
             document.querySelector('#message').addEventListener('keypress', function (e) {
