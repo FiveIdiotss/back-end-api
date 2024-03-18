@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -142,9 +143,9 @@ public class ChatController {
                 receiverName = chatRoom.getSender().getName();
             }
 
-            ChatMessage latestChatMessage = chatService.findLatestChatMessage(chatRoom.getId());
+            Optional<ChatMessage> latestChatMessage = chatService.findLatestChatMessage(chatRoom.getId());
 
-            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestChatMessage.getLocalDateTime());
+            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestChatMessage.get().getLocalDateTime());
             chatRoomDTOs.add(chatRoomDTO);
         }
 
