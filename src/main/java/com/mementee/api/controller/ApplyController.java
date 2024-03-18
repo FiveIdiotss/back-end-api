@@ -1,7 +1,9 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.controller.applyDTO.*;
 import com.mementee.api.domain.Apply;
+import com.mementee.api.dto.applyDTO.ApplyInfo;
+import com.mementee.api.dto.applyDTO.ReceiveApplyDTO;
+import com.mementee.api.dto.applyDTO.SendApplyDTO;
 import com.mementee.api.service.ApplyService;
 import com.mementee.api.service.MatchingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.mementee.api.domain.enumtype.SendReceive;

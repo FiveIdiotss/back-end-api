@@ -2,9 +2,9 @@ package com.mementee.api.service.social;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mementee.api.controller.emailDTO.CodeVerificationDTO;
-import com.mementee.api.controller.emailDTO.EmailVerificationRequest;
-import com.mementee.api.controller.emailDTO.SendVerificationCodeRequest;
+import com.mementee.api.dto.emailDTO.CodeVerificationDTO;
+import com.mementee.api.dto.emailDTO.EmailVerificationRequest;
+import com.mementee.api.dto.emailDTO.SendVerificationCodeRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

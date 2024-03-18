@@ -5,7 +5,7 @@ import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
 import com.mementee.api.repository.ApplyRepository;
 import lombok.RequiredArgsConstructor;
-import com.mementee.api.controller.applyDTO.ApplyRequest;
+import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.domain.enumtype.SendReceive;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
