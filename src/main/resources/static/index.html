@@ -8,8 +8,9 @@
     <script type="text/javascript">
         window.onload = function () {
           
-            var ws = new WebSocket('ws://localhost:8080/ws');
-            // var ws = new WebSocket('ws://menteetor.site:8080/ws');
+            
+            //var ws = new WebSocket('ws://localhost:8080/ws');
+            var ws = new WebSocket('ws://menteetor.site:8080/ws');
             var stompClient = Stomp.over(ws);
 
             // 엔터 키 또는 전송 버튼 클릭으로 메시지 전송
