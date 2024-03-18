@@ -73,7 +73,6 @@ public class ChatService {
 
     // 채팅방 ID로 채팅방 메세지 조회
     public Slice<ChatMessage> findAllMessagesByChatRoomId(Long chatRoomId, Pageable pageable){
-        ChatRoom chatRoom = chatRoomRepository.findChatRoomById(chatRoomId);
         return chatRoomRepositorySub.findAllMessagesByChatRoomId(chatRoomId, pageable);
     }
 
