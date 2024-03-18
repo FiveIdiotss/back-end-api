@@ -53,15 +53,12 @@ public class ChatController {
         //websocket에 보내기
         template.convertAndSend("/sub/chats/" + message.getChatRoomId(), message);
 
-        //redis에 Publish, redis에서 구독?
-        redisTemplate.convertAndSend("chatRoom" + message.getChatRoomId(), message);
+        //채팅 db에 저장하기위해 이부분 추가했음
+        Member member = memberService.getMemberById(message.getSenderId());
+        ChatRoom chatRoom = chatService.findChatRoom(message.getChatRoomId());
 
-//        //채팅 db에 저장하기위해 이부분 추가했음
-//        Member member = memberService.getMemberById(message.getSenderId());
-//        ChatRoom chatRoom = chatService.findChatRoom(message.getChatRoomId());
-//
-//        ChatMessage chatMessage = chatService.createMessage(message.getContent(), member, chatRoom);
-//        chatService.saveMessage(chatMessage);
+        ChatMessage chatMessage = chatService.createMessage(message.getContent(), member, chatRoom);
+        chatService.saveMessage(chatMessage);
     }
 
     @Operation(description = "채팅 메시지 보내기")
