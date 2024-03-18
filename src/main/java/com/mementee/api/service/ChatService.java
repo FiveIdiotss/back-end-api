@@ -8,6 +8,7 @@ import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
@@ -87,13 +89,15 @@ public class ChatService {
         return chatRoomRepository.findOrCreateChatRoomById(loginMember, receiver);
     }
 
-    public ChatMessage findLatestChatMessage(Long chatRoomId) {
+
+    public Optional<ChatMessage> findLatestChatMessage(Long chatRoomId) {
         List<ChatMessage> messages = chatRoomRepository.findAllMessagesInChatRoom(chatRoomId);
         if (!messages.isEmpty()) {
             messages.sort(Comparator.comparing(ChatMessage::getLocalDateTime).reversed());
-            return messages.get(0);
+            return Optional.of(messages.get(0));
         } else {
-            throw new NoSuchElementException("No chat message exits");
+            log.info("No chatMessage exists in ChatRoom");
+            return Optional.empty();
         }
     }
 
