@@ -1,6 +1,6 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.controller.memberDTO.*;
+import com.mementee.api.dto.memberDTO.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

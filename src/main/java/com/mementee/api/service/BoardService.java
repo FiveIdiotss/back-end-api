@@ -1,6 +1,6 @@
 package com.mementee.api.service;
 
-import com.mementee.api.controller.boardDTO.WriteBoardRequest;
+import com.mementee.api.dto.boardDTO.WriteBoardRequest;
 import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.BoardType;

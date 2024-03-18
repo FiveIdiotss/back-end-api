@@ -1,7 +1,7 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.controller.emailDTO.EmailVerificationRequest;
-import com.mementee.api.controller.emailDTO.SendVerificationCodeRequest;
+import com.mementee.api.dto.emailDTO.EmailVerificationRequest;
+import com.mementee.api.dto.emailDTO.SendVerificationCodeRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

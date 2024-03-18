@@ -1,6 +1,6 @@
 package com.mementee.config.chat;
 
-import com.mementee.api.controller.chatDTO.ChatMessageDTO;
+import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.EnableCaching;
@@ -23,8 +23,8 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandConfig = new RedisStandaloneConfiguration();
-        redisStandConfig.setHostName("menteetor.site");
-//        redisStandConfig.setHostName("localhost");
+//        redisStandConfig.setHostName("menteetor.site");
+        redisStandConfig.setHostName("localhost");
         redisStandConfig.setPort(6379);
         return new LettuceConnectionFactory(redisStandConfig);
     }

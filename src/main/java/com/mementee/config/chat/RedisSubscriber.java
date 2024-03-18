@@ -1,7 +1,7 @@
 package com.mementee.config.chat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mementee.api.controller.chatDTO.ChatMessageDTO;
+import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
