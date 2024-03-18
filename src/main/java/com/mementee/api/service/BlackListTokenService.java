@@ -15,7 +15,6 @@ public class BlackListTokenService {
 
     private final BlackListTokenRepository blackListTokenRepository;
 
-
     //로그아웃시 accessToken을 blackList에 추가 (토큰 탈취 방지)
     @Transactional
     public void addBlackList(String accessToken){

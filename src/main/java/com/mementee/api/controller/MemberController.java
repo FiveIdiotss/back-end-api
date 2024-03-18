@@ -39,13 +39,13 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping("/api/member/signUp")
-    public ResponseEntity<String> joinMember(@RequestBody @Valid CreateMemberRequest request){
-       try {
-           memberService.join(request);
-           return ResponseEntity.ok().body("회원 등록 성공");
-       }catch (Exception e){
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-       }
+    public ResponseEntity<String> joinMember(@RequestBody @Valid CreateMemberRequest request) {
+        try {
+            memberService.join(request);
+            return ResponseEntity.ok().body("회원 등록 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     //목록 조회--------------------------------------
@@ -54,7 +54,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/schools")
-    public List<SchoolDTO> schoolList(){
+    public List<SchoolDTO> schoolList() {
         List<School> findSchools = schoolService.findSchools();
         List<SchoolDTO> collect = findSchools.stream()
                 .map(s -> new SchoolDTO(s.getId(), s.getName()))
@@ -69,7 +69,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/schools/{keyWord}")
-    public List<SchoolDTO> schoolListByKeyWord(@PathVariable String keyWord){
+    public List<SchoolDTO> schoolListByKeyWord(@PathVariable String keyWord) {
         List<School> findSchools = schoolService.findSchoolsByKeyWord(keyWord);
         List<SchoolDTO> collect = findSchools.stream()
                 .map(s -> new SchoolDTO(s.getId(), s.getName()))
@@ -84,7 +84,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/school/{schoolName}")
-    public List<MajorDTO> majorList(@PathVariable String schoolName){
+    public List<MajorDTO> majorList(@PathVariable String schoolName) {
         List<Major> findMajors = majorService.findMajors(schoolName);
         List<MajorDTO> collect = findMajors.stream()
                 .map(m -> new MajorDTO(m.getId(), m.getName()))
@@ -99,7 +99,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/members")
-    public List<MemberDTO> memberList(){
+    public List<MemberDTO> memberList() {
         List<Member> findMembers = memberService.findMembers();
         List<MemberDTO> collect = findMembers.stream()
                 .map(m -> new MemberDTO(m.getId(), m.getEmail(), m.getName(), m.getYear(), m.getGender(), m.getSchool().getName(), m.getMajor().getName())) //Member entity에서 꺼내와 dto에 넣음
@@ -114,16 +114,16 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "로그인 성공"),
             @ApiResponse(responseCode = "fail", description = "로그인 실패")})
     @PostMapping("/api/member/signIn")
-    public ResponseEntity<?> signIn(@Valid @RequestBody LoginMemberRequest request, BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
+    public ResponseEntity<?> signIn(@Valid @RequestBody LoginMemberRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         try {
             LoginMemberResponse response = memberService.login(request);
             return ResponseEntity.ok(response);
-        }catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그인 실패");
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -134,11 +134,11 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "로그아웃 성공"),
             @ApiResponse(responseCode = "fail", description = "로그아웃 실패")})
     @PostMapping("/api/member/signOut")
-    public ResponseEntity<?> signOut(@RequestHeader("Authorization") String authorizationHeader){
+    public ResponseEntity<?> signOut(@RequestHeader("Authorization") String authorizationHeader) {
         try {
             memberService.logout(authorizationHeader);
             return ResponseEntity.ok("로그아웃 성공");
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -150,7 +150,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "회원 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "회원 조회 실패")})
     @GetMapping("/api/member/{memberId}")
-    public ResponseEntity<?> memberInfo(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId){
+    public ResponseEntity<?> memberInfo(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId) {
         try {
             //Member member = memberService.isCheckMe(authorizationHeader, memberId);
             Member member = memberService.getMemberById(memberId);
@@ -158,10 +158,10 @@ public class MemberController {
                     member.getYear(), member.getGender(), member.getSchool().getName(), member.getMajor().getName());
             return ResponseEntity.ok(response);
 
-        }catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("조회 실패");
-        }catch (Exception e){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("조회 실패");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("조회 실패");
         }
     }
 
