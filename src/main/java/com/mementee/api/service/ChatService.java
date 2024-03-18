@@ -1,5 +1,7 @@
 package com.mementee.api.service;
 
+import com.mementee.api.dto.chatDTO.ChatMessageDTO;
+import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
@@ -13,9 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -27,50 +29,22 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomRepositorySub chatRoomRepositorySub;
+    private final MemberService memberService;
 
     public ChatRoom findChatRoom(Long chatRoomId){
         return chatRoomRepository.findChatRoomById(chatRoomId);
     }
 
-    public ChatMessage createMessage(String content, Member member, ChatRoom chatRoom) {
-        return new ChatMessage(content, member, chatRoom);
+    public ChatMessage createMessageByDTO(ChatMessageDTO messageDTO) {
+        Member sender = memberService.getMemberById(messageDTO.getSenderId());
+        ChatRoom chatRoom = findChatRoom(messageDTO.getChatRoomId());
+
+        return new ChatMessage(messageDTO.getContent(), sender, chatRoom);
     }
 
     @Transactional
-    public void saveMessage(ChatMessage message) {
-        chatMessageRepository.save(message);
-    }
-
-    public void saveChatRoom(ChatRoom chatRoom) {
-        chatRoomRepository.save(chatRoom);
-    }
-
-
-    public void assignMessageToChatRoom(Long messageId, Long chatRoomId) {
-        // 메시지와 채팅방 가져오기
-        ChatMessage chatMessage = chatMessageRepository.findMessageById(messageId);
-        ChatRoom chatRoom = chatRoomRepository.findChatRoomById(chatRoomId);
-
-        // 채팅 메시지를 채팅방에 할당
-        chatMessage.setChatRoom(chatRoom);
+    public void saveMessage(ChatMessage chatMessage) {
         chatMessageRepository.save(chatMessage);
-    }
-
-    // 센더, 리시버로 찾기, 멤버는 id값으로 등록되어 있음.
-    // If a chatRoom exists between two members, use it. Otherwise, create a new chatRoom;
-    @Transactional
-    public ChatRoom findOrCreateChatRoom(Member sender, Member receiver) {
-        Optional<Long> bySendAndReceiver = chatRoomRepository.findChatRoomBySenderAndReceiver(sender.getId(), receiver.getId());
-
-        if (bySendAndReceiver.isEmpty()) {
-            System.out.println("create a new chatroom");
-            ChatRoom newChatroom = new ChatRoom(sender, receiver);
-            this.saveChatRoom(newChatroom);
-            return newChatroom;
-        }
-
-        System.out.println("use exist chatroom");
-        return chatRoomRepository.findChatRoomById(bySendAndReceiver.get());
     }
 
     // 채팅방 ID로 채팅방 메세지 조회
@@ -79,16 +53,14 @@ public class ChatService {
     }
 
     // 특정 멤버가 속한 모든 채팅방 조회
-    public List<ChatRoom> findAllChatRoomByMember(Member member) {
-        Long id = member.getId();
-        return chatRoomRepository.findAllChatRoomsByMemberId(id);
+    public List<ChatRoom> findAllChatRoomByMemberId(Long memberId) {
+        return chatRoomRepository.findAllChatRoomsByMemberId(memberId);
     }
 
     // 상대방 아이디로 해당 채팅방 조회
     public ChatRoom findChatRoomOrCreate(Member loginMember, Member receiver) {
         return chatRoomRepository.findOrCreateChatRoomById(loginMember, receiver);
     }
-
 
     public Optional<ChatMessage> findLatestChatMessage(Long chatRoomId) {
         List<ChatMessage> messages = chatRoomRepository.findAllMessagesInChatRoom(chatRoomId);
@@ -101,4 +73,13 @@ public class ChatService {
         }
     }
 
+    public ChatRoomDTO createChatRoomDTO(Long memberId, ChatRoom chatRoom) {
+        Long receiverId = chatRoom.getReceiver().getId().equals(memberId) ? chatRoom.getSender().getId() : chatRoom.getReceiver().getId();
+        String receiverName = chatRoom.getReceiver().getId().equals(memberId) ? chatRoom.getSender().getName() : chatRoom.getReceiver().getName();
+
+        Optional<ChatMessage> latestChatMessage = findLatestChatMessage(chatRoom.getId());
+        LocalDateTime latestMessageTime = latestChatMessage.map(ChatMessage::getLocalDateTime).orElse(null);
+
+        return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageTime);
+    }
 }

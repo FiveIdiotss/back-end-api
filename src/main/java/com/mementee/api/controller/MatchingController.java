@@ -1,6 +1,6 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.controller.matchingDTO.MenTeeMatchingDTO;
+import com.mementee.api.dto.matchingDTO.MenTeeMatchingDTO;
 import com.mementee.api.domain.Matching;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import com.mementee.api.controller.matchingDTO.MentorMatchingDTO;
+import com.mementee.api.dto.matchingDTO.MentorMatchingDTO;
 import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.service.MatchingService;
 import com.mementee.api.service.MemberService;

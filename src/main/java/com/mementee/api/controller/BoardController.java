@@ -1,7 +1,7 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.controller.applyDTO.ApplyRequest;
-import com.mementee.api.controller.boardDTO.BoardDTO;
+import com.mementee.api.dto.applyDTO.ApplyRequest;
+import com.mementee.api.dto.boardDTO.BoardDTO;
 import com.mementee.api.domain.Board;
 import com.mementee.api.service.ApplyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,8 +11,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import com.mementee.api.controller.boardDTO.BoardInfoResponse;
-import com.mementee.api.controller.boardDTO.WriteBoardRequest;
+import com.mementee.api.dto.boardDTO.BoardInfoResponse;
+import com.mementee.api.dto.boardDTO.WriteBoardRequest;
 import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.service.BoardService;
 import org.springframework.dao.EmptyResultDataAccessException;

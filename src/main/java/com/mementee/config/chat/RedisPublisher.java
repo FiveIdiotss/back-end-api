@@ -1,6 +1,6 @@
 package com.mementee.config.chat;
 
-import com.mementee.api.controller.redisDTO.RedisMessageSaveDTO;
+import com.mementee.api.dto.redisDTO.RedisMessageSaveDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
