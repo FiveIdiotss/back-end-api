@@ -17,7 +17,7 @@
                 var messageInput = document.querySelector('#message');
                 var message = messageInput.value.trim(); // 입력된 메시지를 가져옵니다. 앞뒤 공백은 제거합니다.
                 if (message !== '') { // 메시지가 비어 있지 않은 경우에만 전송합니다.
-                    var senderId = 3202; // 상대방 아이디를 얻는 코드를 작성하세요.
+                    var senderId = 1; // 상대방 아이디를 얻는 코드를 작성하세요.
                     var chatRoomId = 1;
                     var time = new Date().toISOString();
                     stompClient.send("/pub/hello", {}, JSON.stringify({
