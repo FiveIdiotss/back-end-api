@@ -1,5 +1,6 @@
 package com.mementee.api.dto.chatDTO;
 
+import com.mementee.api.domain.chat.ChatMessage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ public class ChatRoomDTO {
     private Long chatRoomId;
     private Long receiverId;
     private String receiverName;
-    private LocalDateTime latestMessageSentTime;
+    private LatestMessageDTO latestMessageDTO;
 
     public ChatRoomDTO(Long chatRoomId, Long receiverId, String receiverName) {
         this.chatRoomId = chatRoomId;

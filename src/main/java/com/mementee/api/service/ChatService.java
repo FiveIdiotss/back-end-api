@@ -5,6 +5,7 @@ import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
+import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
@@ -77,9 +78,9 @@ public class ChatService {
         Long receiverId = chatRoom.getReceiver().getId().equals(memberId) ? chatRoom.getSender().getId() : chatRoom.getReceiver().getId();
         String receiverName = chatRoom.getReceiver().getId().equals(memberId) ? chatRoom.getSender().getName() : chatRoom.getReceiver().getName();
 
-        Optional<ChatMessage> latestChatMessage = findLatestChatMessage(chatRoom.getId());
-        LocalDateTime latestMessageTime = latestChatMessage.map(ChatMessage::getLocalDateTime).orElse(null);
+        ChatMessage latestMessage = findLatestChatMessage(chatRoom.getId()).get();
+        LatestMessageDTO latestMessageDTO = new LatestMessageDTO(latestMessage.getContent(), latestMessage.getLocalDateTime());
 
-        return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageTime);
+        return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO);
     }
 }
