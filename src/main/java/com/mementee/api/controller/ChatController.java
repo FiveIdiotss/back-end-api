@@ -64,6 +64,7 @@ public class ChatController {
                 message.getChatRoom().getId(),
                 message.getLocalDateTime()
         ));
+
         return slice;
     }
 
