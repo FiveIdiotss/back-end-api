@@ -1,6 +1,5 @@
 //package com.mementee.api.service;
 //
-//import com.mementee.api.controller.chatDTO.ChatMessageDTO;
 //import com.mementee.api.domain.Member;
 //import com.mementee.api.domain.chat.ChatMessage;
 //import com.mementee.api.domain.chat.ChatRoom;
@@ -8,6 +7,8 @@
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;
 //import org.springframework.transaction.annotation.Transactional;
+//
+//import java.util.Optional;
 //
 //@SpringBootTest
 //@Transactional
@@ -21,9 +22,6 @@
 //        Member email = memberService.findMemberByEmail("1234");
 //        Member email1 = memberService.findMemberByEmail("2345");
 //
-//        ChatRoom chatRoom = chatService.findOrCreateChatRoom(email1, email);
-//        System.out.println(chatRoom.getReceiver().getName());
-//        System.out.println(chatRoom.getSender().getName());
 //    }
 //
 ////    @Test
@@ -32,4 +30,10 @@
 ////        ChatMessageDTO chatMessageDTO = new ChatMessageDTO(latestChatMessage.getContent(), latestChatMessage.getSender().getId(), latestChatMessage.getLocalDateTime());
 ////        System.out.println(chatMessageDTO);
 ////    }
+//    @Test
+//    void findLatestChatMessage() {
+//        ChatMessage latestChatMessage = chatService.findLatestChatMessage(1L).get();
+//        System.out.println(latestChatMessage);
+//    }
+//
 //}
