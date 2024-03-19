@@ -9,6 +9,7 @@
         window.onload = function () {
           
 
+
             //var ws = new WebSocket('ws://localhost:8080/ws');
             var ws = new WebSocket('ws://menteetor.site:8080/ws');
             var stompClient = Stomp.over(ws);
@@ -20,9 +21,11 @@
                 if (message !== '') { // 메시지가 비어 있지 않은 경우에만 전송합니다.
                     var senderId = 1; // 상대방 아이디를 얻는 코드를 작성하세요.
                     var chatRoomId = 1;
+                    var senderName = "이종현"
                     var time = new Date().toISOString();
                     stompClient.send("/pub/hello", {}, JSON.stringify({
                         content: message,
+                        senderName: senderName,
                         senderId: senderId,
                         chatRoomId: chatRoomId,
                         localDateTime: time

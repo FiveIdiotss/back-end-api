@@ -78,8 +78,8 @@ public class ChatService {
         Long receiverId = chatRoom.getReceiver().getId().equals(memberId) ? chatRoom.getSender().getId() : chatRoom.getReceiver().getId();
         String receiverName = chatRoom.getReceiver().getId().equals(memberId) ? chatRoom.getSender().getName() : chatRoom.getReceiver().getName();
 
-        ChatMessage latestMessage = findLatestChatMessage(chatRoom.getId()).get();
-        LatestMessageDTO latestMessageDTO = new LatestMessageDTO(latestMessage.getContent(), latestMessage.getLocalDateTime());
+        Optional<ChatMessage> latestChatMessage = findLatestChatMessage(chatRoom.getId());
+        LatestMessageDTO latestMessageDTO = new LatestMessageDTO(latestChatMessage.get().getContent(), latestChatMessage.get().getLocalDateTime());
 
         return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO);
     }
