@@ -103,7 +103,7 @@ public class MemberController {
         List<Member> findMembers = memberService.findMembers();
         List<MemberDTO> collect = findMembers.stream()
                 .map(m -> new MemberDTO(m.getId(), m.getEmail(), m.getName(), m.getYear(), m.getGender(),
-                        m.getSchool().getName(), m.getMajor().getName(), m.getMemberImage().getPhotoUrl())) //Member entity에서 꺼내와 dto에 넣음
+                        m.getSchool().getName(), m.getMajor().getName(), m.getMemberImage().getMemberImageUrl())) //Member entity에서 꺼내와 dto에 넣음
                 .collect(Collectors.toList());
 
         return collect;
