@@ -1,5 +1,6 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.dto.memberDTO.TokenDTO;
 import com.mementee.api.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,10 +19,10 @@ public class RefreshTokenController {
 
     //refreshToken을 이용한 accessToken 재발급
     @GetMapping("/api/refresh")
-    public ResponseEntity<String> refresh(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> refresh(@RequestHeader("Authorization") String authorizationHeader) {
         try {
-            String newAccessToken = refreshService.getAccessKey(authorizationHeader);
-            return ResponseEntity.ok().body(newAccessToken);
+            TokenDTO tokenDTO = refreshService.getAccessKey(authorizationHeader);
+            return ResponseEntity.ok().body(tokenDTO);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

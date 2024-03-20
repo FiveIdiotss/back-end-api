@@ -42,11 +42,10 @@ public class SecurityConfig {
 
                                 //글 쓰기만
                                 .requestMatchers(HttpMethod.POST, "/api/board").authenticated().anyRequest().permitAll()
-                    )
+                )
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JwtFilter(secretKey, bf), UsernamePasswordAuthenticationFilter.class);
 
-            return http.build();
-        }
+        return http.build();
+    }
 }
-
