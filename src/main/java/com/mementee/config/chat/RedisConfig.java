@@ -40,19 +40,19 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(
-            RedisConnectionFactory connectionFactory,
-            @Qualifier("redisSubscriber") RedisSubscriber redisSubscriber) {
-
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-
-        // 특정 채널을 RedisSubscriber에게 연결
-        container.addMessageListener(redisSubscriber, new ChannelTopic("chatRoom1"));
-
-        log.info("Redis Config");
-
-        return container;
-    }
+//    @Bean
+//    public RedisMessageListenerContainer redisMessageListenerContainer(
+//            RedisConnectionFactory connectionFactory,
+//            @Qualifier("redisSubscriber") RedisSubscriber redisSubscriber) {
+//
+//        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+//        container.setConnectionFactory(connectionFactory);
+//
+//        // 특정 채널을 RedisSubscriber에게 연결
+//        container.addMessageListener(redisSubscriber, new ChannelTopic("chatRoom1"));
+//
+//        log.info("Redis Config");
+//
+//        return container;
+//    }
 }
