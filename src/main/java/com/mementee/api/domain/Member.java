@@ -35,7 +35,7 @@ public class Member{
     private Gender gender;
 
     @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)
+    @Column(nullable = false)
     private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -66,7 +66,12 @@ public class Member{
     @Column(name = "mentee")
     private List<Matching> myMenteeMatching = new ArrayList<>();
 
-    public Member(String email, String name, String password, int year, Gender gender, School school, Major major) {
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_image_id")
+    private MemberImage memberImage;
+
+    public Member(String email, String name, String password, int year, Gender gender,
+                  School school, Major major, MemberImage memberImage) {
         this.email = email;
         this.name = name;
         this.password = password;
@@ -75,6 +80,7 @@ public class Member{
         this.role = Role.USER;
         this.school = school;
         this.major = major;
+        this.memberImage = memberImage;
     }
 
     //임시

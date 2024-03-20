@@ -2,9 +2,11 @@ package com.mementee;
 
 import com.mementee.api.domain.Major;
 import com.mementee.api.domain.Member;
+import com.mementee.api.domain.MemberImage;
 import com.mementee.api.domain.School;
 import com.mementee.api.domain.enumtype.Gender;
 import com.mementee.api.service.SchoolService;
+import com.mementee.s3.S3Service;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -33,6 +35,8 @@ public class InitDb {
 
         private final EntityManager em;
         private final SchoolService schoolService;
+        private final S3Service s3Service;
+
 
         public void dbInit() {
             System.out.println("Init1" + this.getClass());
