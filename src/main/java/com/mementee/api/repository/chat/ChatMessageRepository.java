@@ -33,11 +33,6 @@ public class ChatMessageRepository {
         em.remove(message);
     }
 
-    public void findMessageWithQuanity(Long chatRoomId, int quantity) {
-
-    }
-
-    //
     public List<ChatMessage> findAllMessagesInChatRoom(Long chatRoomId) {
         String query = "SELECT cm FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId";
         return em.createQuery(query, ChatMessage.class)

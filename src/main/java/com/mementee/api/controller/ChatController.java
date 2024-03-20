@@ -1,6 +1,7 @@
 package com.mementee.api.controller;
 
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
+import com.mementee.api.dto.chatDTO.ChatMessageRequestDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
@@ -51,12 +52,10 @@ public class ChatController {
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages")
-    public Slice<ChatMessageDTO> findAllMessagesByChatRoom(@RequestParam Long chatRoomId,
-                                                           @RequestParam int page,
-                                                           @RequestParam int size)
+    public Slice<ChatMessageDTO> findAllMessagesByChatRoom(@RequestBody ChatMessageRequestDTO request)
     {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차순(최신순)
-        Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
+        Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by("id").descending()); //내림차순(최신순)
+        Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(request.getChatRoomId(), pageable);
         Slice<ChatMessageDTO> slice = allMessages.map(message -> new ChatMessageDTO(
                 message.getContent(),
                 message.getSender().getName(),
