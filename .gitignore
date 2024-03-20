@@ -37,4 +37,6 @@ out/
 .vscode/
 
 ###My Key###
-*.yml
+src/main/resources/application.yml
+application.yml
+
