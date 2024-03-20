@@ -8,7 +8,7 @@ spring:
 
   jpa:
     hibernate:
-      #dl-auto: create
+      #ddl-auto: create
       ddl-auto: update
     properties:
       hibernate:
@@ -96,3 +96,16 @@ api:
   univcert:
 #    key: ce6dc2f8-3d83-44ca-923a-7143022e5f3d
     key: fc3b5c45-85eb-4fd6-8309-a5725170a2c8
+
+cloud:
+  aws:
+    s3:
+      bucket: five-image
+    credentials:
+      access-key: AKIAXYAFCWJQBQ46DBPJ
+      secret-key: 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
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false

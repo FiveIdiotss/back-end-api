@@ -1,6 +1,7 @@
 package com.mementee.api.repository;
 
 import com.mementee.api.domain.Member;
+import com.mementee.api.domain.MemberImage;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -43,14 +44,10 @@ public class MemberRepository{
                 .getResultList();
     }
 
-    //나의 멘토 매칭 목록
+    //------------------------------
 
-
-
-    //나의 멘토 매칭 목록
-
-
-
-
-
+    //멤버 프로필 사진
+    public void saveMemberImage(MemberImage memberImage){
+        em.persist(memberImage);
+    }
 }

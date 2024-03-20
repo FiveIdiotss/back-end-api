@@ -1,11 +1,9 @@
 package com.mementee.api.service;
 
-import com.mementee.api.domain.Major;
-import com.mementee.api.domain.Member;
-import com.mementee.api.domain.RefreshToken;
-import com.mementee.api.domain.School;
+import com.mementee.api.domain.*;
 import com.mementee.api.dto.memberDTO.*;
 import com.mementee.api.repository.MemberRepository;
+import com.mementee.s3.S3Service;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import com.mementee.security.JwtUtil;
@@ -32,6 +30,7 @@ public class MemberService {
     private final SchoolService schoolService;
     private final MajorService majorService;
     private final BlackListTokenService blackListTokenService;
+    private final S3Service s3Service;
 
     public Member getMemberByToken(String authorizationHeader) {
         String token = authorizationHeader.split(" ")[1];
@@ -74,7 +73,7 @@ public class MemberService {
     //로그인 시 회원 정보
     public MemberDTO getMemberDTO(Member member) {
         return new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear()
-                , member.getGender(), member.getSchool().getName(), member.getMajor().getName());
+                , member.getGender(), member.getSchool().getName(), member.getMajor().getName(), member.getMemberImage().getMemberImageUrl());
     }
 
     //로그인 시 토큰
@@ -91,14 +90,19 @@ public class MemberService {
 
         emailDuplicateCheck(request.getEmail());
 
+        //회원가입시 기본 이미지로 설정
+        String defaultPhotoUrl = s3Service.getImageUrl("defaultImage.jpg");
+        MemberImage memberImage = new MemberImage(defaultPhotoUrl);
+
         String encodePw = passwordEncoder.encode(request.getPassword()); //비밀번호 암호화
         Member member = new Member(request.getEmail(), request.getName(), encodePw, request.getYear(),
-                request.getGender(), school, major);
+                request.getGender(), school, major, memberImage);
 
         school.getMembers().add(member);
         major.getMembers().add(member);
 
         memberRepository.save(member);
+        memberRepository.saveMemberImage(memberImage);
     }
 
     //회원 조회
@@ -126,7 +130,7 @@ public class MemberService {
         Optional<RefreshToken> token = refreshTokenService.findRefreshTokenByEmail(member.getEmail());
 
         if (token.isPresent()) {
-            refreshTokenService.save((token.get().updateToken(tokenDTO.getRefreshToken())));
+            token.get().updateToken(tokenDTO.getRefreshToken());
         } else {
             RefreshToken newToken = new RefreshToken(tokenDTO.getRefreshToken(), member.getEmail());
             refreshTokenService.save(newToken);
