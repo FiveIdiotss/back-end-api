@@ -1,5 +1,6 @@
 package com.mementee.api.service;
 
+import com.mementee.api.dto.memberDTO.TokenDTO;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.domain.RefreshToken;
 import com.mementee.api.repository.RefreshTokenRepository;
@@ -19,22 +20,25 @@ public class RefreshTokenService {
     private String secretKey;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public String getAccessKey(String authorizationHeader){
+    @Transactional
+    public TokenDTO getAccessKey(String authorizationHeader){
         String refreshToken = authorizationHeader.split(" ")[1];
 
         Optional<RefreshToken> storedRefreshToken = refreshTokenRepository.findRefreshTokenByRefreshToken(refreshToken);
 
-        if(storedRefreshToken.isPresent()){
-            if (!storedRefreshToken.get().checkMatchRefreshToken(refreshToken)) {
-                throw new IllegalArgumentException("잘못된 토큰");
-            }
-        }else {
+        if(storedRefreshToken.isEmpty()){
             throw new IllegalArgumentException("잘못된 접근");
         }
 
-        // 리프레시 토큰이 유효하면 새로운 액세스 토큰 생성
+        // 리프레시 토큰이 유효하면 새로운 액세스 토큰 생성, refreshToken 업데이트
         String email = storedRefreshToken.get().getEmail();
-        return JwtUtil.createAccessToken(email, secretKey);
+
+        String newAccessToken = JwtUtil.createAccessToken(email, secretKey);
+        String newRefreshToken =  JwtUtil.createRefreshToken(secretKey);
+
+        storedRefreshToken.get().updateToken(newRefreshToken);
+
+        return new TokenDTO(newAccessToken, newRefreshToken);
     }
 
     @Transactional

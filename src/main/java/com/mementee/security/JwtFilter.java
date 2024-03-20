@@ -2,6 +2,8 @@ package com.mementee.security;
 
 import com.mementee.api.service.BlackListTokenService;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,9 +34,9 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-            //System.out.println("authorization 상태: " + authorization);
 
-            if (authorization == null || !authorization.startsWith("Bearer ")) {       //토큰이 없거나 Bearer으로 시작 안할시
+            //토큰이 없거나 Bearer으로 시작 안할시
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
                 //System.out.println("authentication 을 잘 못 보냈습니다.");
                 filterChain.doFilter(request, response);
                 return;
@@ -43,23 +45,15 @@ public class JwtFilter extends OncePerRequestFilter {
             //Token 꺼내기 (access, refresh)
             String token = authorization.split(" ")[1];
 
-            //accessToken이 blackList에 있을 때
-            if(bt.isCheckBlackList(token)){
+            //AccessToken이 BlackList에 있을 때
+            if (bt.isCheckBlackList(token)) {
                 filterChain.doFilter(request, response);
                 return;
             }
-
-            //Token Expired 되었는지 여부
-            if (JwtUtil.isExpired(token, secretKey)) {
-                //System.out.println("Token 이 만료 되었습니다.");
-                filterChain.doFilter(request, response);
-                return;
-            }
-
             //MemberEmail Token 에서 꺼내기
             String memberEmail = JwtUtil.getMemberEmail(token, secretKey);
-            if(memberEmail == null){
-                //이 부분은 refreshToken 으로 accessToken 재발급시 refresh토큰에는 사용자 정보가 없기 때문에 return
+            if (memberEmail == null) {
+                //이 부분은 refreshToken 으로 accessToken 재발급시 refresh 토큰에는 사용자 정보가 없기 때문에 return
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -73,10 +67,18 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
             filterChain.doFilter(request, response);
-        }catch (ExpiredJwtException e){
-            System.out.println("만료됨");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT 만료됨");
+        } catch (ExpiredJwtException e) {
+            log.info("Token Expired");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token Expired");
+        } catch (SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT Token");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT Token");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unsupported JWT Token");
+        } catch (IllegalArgumentException e) {
+            log.info("JWT claims Empty");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT claims Empty");
         }
     }
-
 }

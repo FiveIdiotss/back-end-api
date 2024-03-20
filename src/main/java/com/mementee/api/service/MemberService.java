@@ -126,7 +126,7 @@ public class MemberService {
         Optional<RefreshToken> token = refreshTokenService.findRefreshTokenByEmail(member.getEmail());
 
         if (token.isPresent()) {
-            refreshTokenService.save((token.get().updateToken(tokenDTO.getRefreshToken())));
+            token.get().updateToken(tokenDTO.getRefreshToken());
         } else {
             RefreshToken newToken = new RefreshToken(tokenDTO.getRefreshToken(), member.getEmail());
             refreshTokenService.save(newToken);
