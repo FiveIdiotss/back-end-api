@@ -21,19 +21,19 @@ public class MemberImage {
 
     //이미지 url
     @Column(name = "member_image_url")
-    private String photoUrl;
+    private String memberImageUrl;
 
-    public MemberImage(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public MemberImage(String memberImageUrl) {
+        this.memberImageUrl = memberImageUrl;
     }
 
-    public MemberImage updateMemberImage(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public MemberImage updateMemberImage(String newMemberImageUrl) {
+        this.memberImageUrl = newMemberImageUrl;
         return this;
     }
 
     public MemberImage changeDefaultMemberImage(String defaultPhotoUrl) {
-        this.photoUrl = defaultPhotoUrl;
+        this.memberImageUrl = defaultPhotoUrl;
         return this;
     }
 }

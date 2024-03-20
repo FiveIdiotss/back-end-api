@@ -15,5 +15,5 @@ public class MemberDTO {
     private String schoolName;
     private String majorName;
 
-    private String photoUrl;        //프로필 사진
+    private String memberImageUrl;        //프로필 사진
 }
