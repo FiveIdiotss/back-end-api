@@ -50,6 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
+
             //MemberEmail Token 에서 꺼내기
             String memberEmail = JwtUtil.getMemberEmail(token, secretKey);
             if (memberEmail == null) {
