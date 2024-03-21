@@ -27,23 +27,6 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardRepositorySub boardRepositorySub;
 
-    //멘토가 자신의 스케줄을 입력시 중복되는 시간을 고를경우 ex) 01:00:00 ~ 03:00:00 와 02:00:00 ~ 05:00:00를 동시에 할수 없음
-    public void isDuplicateTime(List<ScheduleTime> times) {
-        Set<LocalTime> timeSet = new HashSet<>();
-        for (ScheduleTime time : times) {
-            LocalTime startTime = time.getStartTime();
-            LocalTime finishTime = time.getEndTime();
-            for (LocalTime existingTime : timeSet) {
-                if ((startTime.isAfter(existingTime) && startTime.isBefore(existingTime.plusHours(2))) ||
-                        (finishTime.isAfter(existingTime) && finishTime.isBefore(existingTime.plusHours(2)))) {
-                    throw new IllegalArgumentException("상담 시간이 중복됩니다.");
-                }
-            }
-            timeSet.add(startTime);
-            timeSet.add(finishTime);
-        }
-    }
-
     public void isCheckBoardMember(Member member, Board board){
         if(member != board.getMember())
             throw new IllegalArgumentException("권한이 없습니다.");        //작성자가 아닐경우
@@ -77,18 +60,6 @@ public class BoardService {
         return board.getId();
     }
 
-    @Transactional
-    public void deleteBoard(String authorizationHeader, Long boardId) {
-        Member member = memberService.getMemberByToken(authorizationHeader);
-        Board board = findBoard(boardId);
-
-        isCheckBoardMember(member, board);
-
-        board.getTimes().clear();
-        board.getUnavailableTimes().clear();
-
-        boardRepository.deleteBoard(board);
-    }
     public Board findBoard(Long boardId){
         return boardRepository.findBoard(boardId);
     }
