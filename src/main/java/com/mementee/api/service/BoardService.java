@@ -9,6 +9,7 @@ import com.mementee.api.domain.subdomain.ScheduleTime;
 import com.mementee.api.repository.BoardRepository;
 import com.mementee.api.repository.BoardRepositorySub;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.Set;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class BoardService {
 
     private final MemberService memberService;
@@ -38,8 +40,8 @@ public class BoardService {
     public Long saveBoard(WriteBoardRequest request, String authorizationHeader) {
         Member member = memberService.getMemberByToken(authorizationHeader);
 
-        Board board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(), request.getBoardType(), member,
-                request.getTimes(), request.getAvailableDays());
+        Board board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(),
+                request.getBoardType(), member, request.getTimes(), request.getAvailableDays());
 
         member.getBoards().add(board);
 

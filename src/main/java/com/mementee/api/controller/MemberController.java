@@ -184,4 +184,18 @@ public class MemberController {
         }
     }
 
+    @Operation(description = "프로필 기본 사진으로 변경")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
+            @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
+    @PostMapping("/api/member/defaultImage")
+    public ResponseEntity<String> updatedDefaultMemberImage(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            memberService.updatedDefaultMemberImage(authorizationHeader);
+            return ResponseEntity.ok("프로필 변경 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }

@@ -73,7 +73,6 @@ public class Member{
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Favorite> likes = new ArrayList<>();
 
-
     public Member(String email, String name, String password, int year, Gender gender,
                   School school, Major major, MemberImage memberImage) {
         this.email = email;
@@ -103,13 +102,4 @@ public class Member{
     public void removeFavoriteBoard(Favorite favorite){
         this.getLikes().remove(favorite);
     }
-
-    public void removeSendApplication(Apply apply) {        //보낸 신청 제거
-        sendApplies.remove(apply);
-    }
-
-    public void removeReceiveApplication(Apply apply) {     //받은 신청 제거
-        receiveApplies.remove(apply);
-    }
-
 }
