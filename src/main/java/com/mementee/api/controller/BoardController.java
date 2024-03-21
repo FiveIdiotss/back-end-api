@@ -1,8 +1,10 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.School;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.dto.boardDTO.BoardDTO;
 import com.mementee.api.domain.Board;
+import com.mementee.api.dto.memberDTO.SchoolDTO;
 import com.mementee.api.service.ApplyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,6 +22,9 @@ import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -170,4 +175,52 @@ public class BoardController {
         }
     }
 
+    //게시물 즐겨찾기
+    //즐겨찾기 추가 -------------------
+    @Operation(description = "즐겨찾기 추가")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "즐겨찾기 추가 성공"),
+            @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
+    @PostMapping("/api/board/favorite/{boardId}")
+    public ResponseEntity<String> addFavorite(@PathVariable Long boardId,
+                                             @RequestHeader("Authorization") String authorizationHeader){
+        try {
+            boardService.addFavoriteBoard(authorizationHeader, boardId);
+            return ResponseEntity.ok("추가 성공");
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    //즐겨찾기 삭제
+    @Operation(description = "즐겨찾기 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "즐겨찾기 삭제 성공"),
+            @ApiResponse(responseCode = "fail", description = "즐겨찾기 삭제 실패")})
+    @DeleteMapping("/api/board/favorite/{boardId}")
+    public ResponseEntity<String> removeFavorite(@PathVariable Long boardId,
+                                                 @RequestHeader("Authorization") String authorizationHeader){
+        try {
+            boardService.removeFavoriteBoard(authorizationHeader, boardId);
+            return ResponseEntity.ok("삭제 성공");
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    //내 즐겨찾기 목록
+    @Operation(description = "즐겨찾기 목록")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "즐겨찾기 추가 성공"),
+            @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
+    @GetMapping("/api/board/favorites")
+    public List<BoardDTO> findFavoriteBoards(@RequestParam BoardType boardType, @RequestHeader("Authorization") String authorizationHeader){
+        List<Board> list = boardService.findFavoriteBoards(authorizationHeader, boardType);
+        List<BoardDTO> collect = list.stream()
+                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
+                        b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
+                        b.getMember().getId(), b.getMember().getName()))
+                .collect(Collectors.toList());
+        return collect;
+    }
 }

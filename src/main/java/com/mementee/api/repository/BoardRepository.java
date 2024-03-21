@@ -1,11 +1,16 @@
 package com.mementee.api.repository;
 
 import com.mementee.api.domain.Board;
+import com.mementee.api.domain.Favorite;
+import com.mementee.api.domain.RefreshToken;
+import com.mementee.api.domain.enumtype.BoardType;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -49,8 +54,45 @@ public class BoardRepository {
                 .getResultList();
     }
 
-    //게시물 삭제
-    public void deleteBoard(Board board){
-       em.remove(board);
+    //------------------------------------
+
+    public Favorite findFavorite(Long favoriteId){
+        return em.find(Favorite.class, favoriteId);
     }
+
+    //게시물 즐겨찾기 삭제
+    public void deleteBoard(Favorite favorite){
+       em.remove(favorite);
+    }
+
+    //게시물 즐겨찾기
+    public void saveFavorite(Favorite favorite){
+        em.persist(favorite);
+    }
+
+    public void deleteFavorite(Favorite favorite){
+        em.remove(favorite);
+    }
+
+    public List<Board> findFavoriteBoards(Long memberId, BoardType boardType){
+        return em.createQuery("select f.board from Favorite f where f.member.id =: memberId and f.board.boardType = :boardType", Board.class)
+                .setParameter("memberId", memberId)
+                .setParameter("boardType", boardType)
+                .getResultList();
+    }
+
+    //즐겨찾기 중복 방지
+    public Optional<Favorite> findFavoriteByMemberIdAndBoardId(Long memberId, Long boardId){
+        try {
+            Favorite favorite = em.createQuery("select f from Favorite f where f.member.id = :memberId and f.board.id = : boardId" , Favorite.class)
+                    .setParameter("memberId", memberId)
+                    .setParameter("boardId", boardId)
+                    .getSingleResult();
+            return Optional.ofNullable(favorite);
+        }catch (NoResultException e){
+            return Optional.empty();
+        }
+    }
+
+
 }

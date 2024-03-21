@@ -34,6 +34,7 @@ public class MemberController {
     private final SchoolService schoolService;
     private final MajorService majorService;
 
+
     //회원가입--------------------------------------
     @Operation(description = "회원 등록")
     @ApiResponses(value = {

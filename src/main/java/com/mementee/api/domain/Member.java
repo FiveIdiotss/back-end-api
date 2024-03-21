@@ -70,6 +70,10 @@ public class Member{
     @JoinColumn(name = "member_image_id")
     private MemberImage memberImage;
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Favorite> likes = new ArrayList<>();
+
+
     public Member(String email, String name, String password, int year, Gender gender,
                   School school, Major major, MemberImage memberImage) {
         this.email = email;
@@ -90,6 +94,14 @@ public class Member{
         this.password = password;
         this.year = year;
         this.gender = gender;
+    }
+
+    public void addFavoriteBoard(Favorite favorite){
+        this.getLikes().add(favorite);
+    }
+
+    public void removeFavoriteBoard(Favorite favorite){
+        this.getLikes().remove(favorite);
     }
 
     public void removeSendApplication(Apply apply) {        //보낸 신청 제거
