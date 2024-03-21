@@ -74,6 +74,12 @@ public class MemberService {
         }
     }
 
+    //이미 기본 이미지 인지
+    public void isCheckDefaultImage(Member member, String imageUrl){
+        if(member.getMemberImage().getMemberImageUrl().equals(imageUrl))
+            throw new IllegalArgumentException("이미 기본이미지 입니다.");
+    }
+
     //로그인 시 회원 정보
     public MemberDTO getMemberDTO(Member member) {
         return new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear()
@@ -169,10 +175,11 @@ public class MemberService {
 
     //프로필 기본 이미지로 변경
     @Transactional
-    public void changeDefaultMemberImage(String authorizationHeader) throws IOException {
+    public void updatedDefaultMemberImage(String authorizationHeader) {
         Member member = getMemberByToken(authorizationHeader);
-
         String imageUrl = s3Service.getImageUrl("defaultImage.jpg");
+
+        isCheckDefaultImage(member, imageUrl);
         member.getMemberImage().updateMemberImage(imageUrl);
     }
 }

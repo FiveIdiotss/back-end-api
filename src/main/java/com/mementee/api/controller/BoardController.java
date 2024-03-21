@@ -39,7 +39,7 @@ public class BoardController {
     @Operation(description = "글 쓰기 - 글 작성시 상담 가능한 요일들, 상담 가능  같이 적으셈" +
             "  {\"title\": \"string\",\n" +
             "  \"content\": \"string\",\n" +
-            "  \"consultTIme\": 0,\n" +
+            "  \"consultTime\": 0,\n" +
             "  \"boardType\": \"MENTEE\",\n" +
             "  \"times\": [\n" +
             "    {  \"startTime\": \"09:00:00\",\n" +
