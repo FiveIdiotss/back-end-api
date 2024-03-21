@@ -94,5 +94,12 @@ public class BoardRepository {
         }
     }
 
+    //멤버가 쓴 글 목록
+    public List<Board> findMemberBoards(Long memberId, BoardType boardType){
+        return em.createQuery("select b from Board b where b.member.id =: memberId and b.boardType = :boardType", Board.class)
+                .setParameter("memberId", memberId)
+                .setParameter("boardType", boardType)
+                .getResultList();
+    }
 
 }

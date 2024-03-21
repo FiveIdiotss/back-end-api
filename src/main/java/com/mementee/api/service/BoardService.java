@@ -122,4 +122,9 @@ public class BoardService {
         Member member = memberService.getMemberByToken(authorizationHeader);
         return boardRepository.findFavoriteBoards(member.getId(), boardType);
     }
+
+    //멤버가 쓴 글목록
+    public List<Board> findMemberBoards(Long memberId, BoardType boardType){
+        return boardRepository.findMemberBoards(memberId, boardType);
+    }
 }
