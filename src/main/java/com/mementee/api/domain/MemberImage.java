@@ -31,9 +31,4 @@ public class MemberImage {
         this.memberImageUrl = newMemberImageUrl;
         return this;
     }
-
-    public MemberImage changeDefaultMemberImage(String defaultPhotoUrl) {
-        this.memberImageUrl = defaultPhotoUrl;
-        return this;
-    }
 }

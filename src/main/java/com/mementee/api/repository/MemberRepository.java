@@ -1,5 +1,6 @@
 package com.mementee.api.repository;
 
+import com.mementee.api.domain.Favorite;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.MemberImage;
 import jakarta.persistence.EntityManager;
@@ -50,4 +51,6 @@ public class MemberRepository{
     public void saveMemberImage(MemberImage memberImage){
         em.persist(memberImage);
     }
+
+    //---------------
 }

@@ -63,7 +63,7 @@ public class Board {
     @Column(nullable = false)
     private List<ScheduleTime> times = new ArrayList<>();                  //상담 가능한 시간
 
-    //이미 신청된 시간, 날짜는 예약 하지 못하 도록
+    //이미 신청된 시간, 날짜는 예약 하지 못하도록
     @ElementCollection
     @CollectionTable(name = "board_unavailable_times", joinColumns = @JoinColumn(name = "board_id"))
     private List<UnavailableTime> unavailableTimes = new ArrayList<>();
