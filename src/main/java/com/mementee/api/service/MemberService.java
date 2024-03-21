@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -32,6 +34,8 @@ public class MemberService {
     private final BlackListTokenService blackListTokenService;
     private final S3Service s3Service;
 
+
+    //검증, 확인, 편리 메소드--------------------
     public Member getMemberByToken(String authorizationHeader) {
         String token = authorizationHeader.split(" ")[1];
         String email = JwtUtil.getMemberEmail(token, secretKey);
@@ -83,6 +87,7 @@ public class MemberService {
         return new TokenDTO(newAccessToken, newRefreshToken);
     }
 
+    //구현 메소드 --------------------
     @Transactional
     public void join(CreateMemberRequest request) {
         School school = schoolService.findNameOne(request.getSchoolName());
@@ -148,5 +153,26 @@ public class MemberService {
 
         blackListTokenService.addBlackList(accessToken);
         refreshTokenService.deleteRefreshToken(refreshToken);
+    }
+
+
+    //프로필 사진-----------
+
+    //프로필 사진 변경
+    @Transactional
+    public void updatedMemberImage(String authorizationHeader, MultipartFile image) throws IOException {
+        Member member = getMemberByToken(authorizationHeader);
+
+        String imageUrl = s3Service.saveFile(image);
+        member.getMemberImage().updateMemberImage(imageUrl);
+    }
+
+    //프로필 기본 이미지로 변경
+    @Transactional
+    public void changeDefaultMemberImage(String authorizationHeader) throws IOException {
+        Member member = getMemberByToken(authorizationHeader);
+
+        String imageUrl = s3Service.getImageUrl("defaultImage.jpg");
+        member.getMemberImage().updateMemberImage(imageUrl);
     }
 }
