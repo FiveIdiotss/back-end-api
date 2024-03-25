@@ -19,6 +19,7 @@ public class ChatMessageDTO {
     private String senderName;
     private Long senderId;
     private Long chatRoomId;
+    private String image;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

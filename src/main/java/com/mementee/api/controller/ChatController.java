@@ -23,7 +23,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.bind.DatatypeConverter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,7 @@ public class ChatController {
     private final RedisTemplate<String, Object> redisTemplate; // Redis에 전달하는 핸들러
     private final SimpMessagingTemplate websocketPublisher; //websocket에 전달하는 핸들러
 
+
     @MessageMapping("/hello")
     public void sendMessage(final ChatMessageDTO messageDTO) {
         // websocket에 보내기
@@ -47,6 +50,15 @@ public class ChatController {
         // DB에 저장
         ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
         chatService.saveMessage(chatMessage);
+
+        String a = messageDTO.getImage();
+        byte[] bytes = DatatypeConverter.parseBase64Binary(a);
+    }
+
+    
+    @PostMapping("/image")
+    public void sendImage(@RequestParam("file") MultipartFile file) {
+
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
@@ -60,6 +72,7 @@ public class ChatController {
                 message.getSender().getName(),
                 message.getSender().getId(),
                 message.getChatRoom().getId(),
+                null,
                 message.getLocalDateTime()
         ));
 
