@@ -13,6 +13,7 @@ public class MemberInfoResponse {
     private int year;
     private Gender gender;
 
-    private String majorName;
     private String schoolName;
+    private String majorName;
+    private String memberImageUrl;
 }

@@ -1,10 +1,8 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.domain.School;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.dto.boardDTO.BoardDTO;
 import com.mementee.api.domain.Board;
-import com.mementee.api.dto.memberDTO.SchoolDTO;
 import com.mementee.api.service.ApplyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,8 +18,10 @@ import com.mementee.api.service.BoardService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,8 +55,9 @@ public class BoardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping("/api/board")
-    public ResponseEntity<String> saveBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
+    @PostMapping(value = "/api/board", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<String> saveBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
+                                            @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
         try {
             boardService.saveBoard(request, authorizationHeader);
             return ResponseEntity.ok().body("글 등록 성공");

@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -59,8 +58,12 @@ public class ChatService {
     }
 
     // 상대방 아이디로 해당 채팅방 조회
-    public ChatRoom findChatRoomOrCreate(Member loginMember, Member receiver) {
-        return chatRoomRepository.findOrCreateChatRoomById(loginMember, receiver);
+    public Optional<ChatRoom> findChatRoom(Member loginMember, Member receiver) {
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findChatRoomById(loginMember, receiver);
+        if(chatRoom.isPresent())
+            return chatRoom;
+
+        throw new IllegalArgumentException("채팅방이 존재하지 않습니다.");
     }
 
     public Optional<ChatMessage> findLatestChatMessage(Long chatRoomId) {
@@ -76,11 +79,19 @@ public class ChatService {
 
     public ChatRoomDTO createChatRoomDTO(Long memberId, ChatRoom chatRoom) {
         Long receiverId = chatRoom.getReceiver().getId().equals(memberId) ? chatRoom.getSender().getId() : chatRoom.getReceiver().getId();
-        String receiverName = chatRoom.getReceiver().getId().equals(memberId) ? chatRoom.getSender().getName() : chatRoom.getReceiver().getName();
+        Member member = memberService.getMemberById(receiverId);
+        String receiverName = member.getName();
 
         Optional<ChatMessage> latestChatMessage = findLatestChatMessage(chatRoom.getId());
-        LatestMessageDTO latestMessageDTO = new LatestMessageDTO(latestChatMessage.get().getContent(), latestChatMessage.get().getLocalDateTime());
+        LatestMessageDTO latestMessageDTO;
+        latestMessageDTO = latestChatMessage.map(chatMessage -> new LatestMessageDTO(chatMessage.getContent(),
+                chatMessage.getLocalDateTime())).orElseGet(()
+                -> new LatestMessageDTO(" ", null));
 
-        return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO);
+        return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO,
+                member.getMemberImage().getMemberImageUrl(),
+                chatRoom.getMatching().getBoard().getTitle(),
+                chatRoom.getMatching().getDate(),
+                chatRoom.getMatching().getStartTime());
     }
 }
