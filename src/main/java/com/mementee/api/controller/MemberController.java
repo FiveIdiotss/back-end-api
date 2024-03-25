@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class MemberController {
     private final MemberService memberService;
     private final SchoolService schoolService;
     private final MajorService majorService;
+
 
     //회원가입--------------------------------------
     @Operation(description = "회원 등록")
@@ -163,6 +165,36 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("조회 실패");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("조회 실패");
+        }
+    }
+
+    //프로필 변경
+    @Operation(description = "프로필 사진 변경")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
+            @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
+    @PostMapping("/api/member/image")
+    public ResponseEntity<String> updatedMemberImage(@RequestHeader("Authorization") String authorizationHeader,
+                                                     @RequestPart("imageFile")MultipartFile multipartFile) {
+        try {
+            memberService.updatedMemberImage(authorizationHeader, multipartFile);
+            return ResponseEntity.ok("프로필 변경 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @Operation(description = "프로필 기본 사진으로 변경")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
+            @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
+    @PostMapping("/api/member/defaultImage")
+    public ResponseEntity<String> updatedDefaultMemberImage(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            memberService.updatedDefaultMemberImage(authorizationHeader);
+            return ResponseEntity.ok("프로필 변경 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 

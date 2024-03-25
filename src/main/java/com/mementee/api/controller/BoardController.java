@@ -1,8 +1,10 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.School;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.dto.boardDTO.BoardDTO;
 import com.mementee.api.domain.Board;
+import com.mementee.api.dto.memberDTO.SchoolDTO;
 import com.mementee.api.service.ApplyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,6 +23,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
@@ -34,7 +39,7 @@ public class BoardController {
     @Operation(description = "글 쓰기 - 글 작성시 상담 가능한 요일들, 상담 가능  같이 적으셈" +
             "  {\"title\": \"string\",\n" +
             "  \"content\": \"string\",\n" +
-            "  \"consultTIme\": 0,\n" +
+            "  \"consultTime\": 0,\n" +
             "  \"boardType\": \"MENTEE\",\n" +
             "  \"times\": [\n" +
             "    {  \"startTime\": \"09:00:00\",\n" +
@@ -67,7 +72,8 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/boards")
-    public Slice<BoardDTO> boardListTest(@RequestParam BoardType boardType, @RequestParam int page, @RequestParam int size){
+    public Slice<BoardDTO> boardList(@RequestParam BoardType boardType,
+                                     @RequestParam int page, @RequestParam int size){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Slice<Board> findBoards = boardService.findAllByBoardType(boardType, pageable);
@@ -83,8 +89,9 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/boards/{schoolName}")
-    public Slice<BoardDTO> schoolBoardList(@RequestParam BoardType boardType,  @RequestParam int page, @RequestParam int size,
-                                           @PathVariable String schoolName){
+    public Slice<BoardDTO> boardListBySchoolName(@RequestParam BoardType boardType,
+                                                 @RequestParam int page, @RequestParam int size,
+                                                 @PathVariable String schoolName){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Slice<Board> findBoards = boardService.findAllByBoardTypeAndSchoolName(boardType, schoolName, pageable);
@@ -124,10 +131,7 @@ public class BoardController {
                     board.getAvailableDays(), board.getUnavailableTimes());
             return ResponseEntity.ok(response);
 
-        }catch (EmptyResultDataAccessException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("글 조회 실패");
-
-        }catch (Exception e){
+        }catch (EmptyResultDataAccessException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("글 조회 실패");
         }
     }
@@ -170,4 +174,69 @@ public class BoardController {
         }
     }
 
+    //게시물 즐겨찾기
+    //즐겨찾기 추가 -------------------
+    @Operation(description = "즐겨찾기 추가")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "즐겨찾기 추가 성공"),
+            @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
+    @PostMapping("/api/board/favorite/{boardId}")
+    public ResponseEntity<String> addFavorite(@PathVariable Long boardId,
+                                             @RequestHeader("Authorization") String authorizationHeader){
+        try {
+            boardService.addFavoriteBoard(authorizationHeader, boardId);
+            return ResponseEntity.ok("추가 성공");
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    //즐겨찾기 삭제
+    @Operation(description = "즐겨찾기 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "즐겨찾기 삭제 성공"),
+            @ApiResponse(responseCode = "fail", description = "즐겨찾기 삭제 실패")})
+    @DeleteMapping("/api/board/favorite/{boardId}")
+    public ResponseEntity<String> removeFavorite(@PathVariable Long boardId,
+                                                 @RequestHeader("Authorization") String authorizationHeader){
+        try {
+            boardService.removeFavoriteBoard(authorizationHeader, boardId);
+            return ResponseEntity.ok("삭제 성공");
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    //내 즐겨찾기 목록
+    @Operation(description = "즐겨찾기 목록")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "즐겨찾기 추가 성공"),
+            @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
+    @GetMapping("/api/boards/favorites")
+    public List<BoardDTO> findFavoriteBoards(@RequestParam BoardType boardType,
+                                             @RequestHeader("Authorization") String authorizationHeader){
+        List<Board> list = boardService.findFavoriteBoards(authorizationHeader, boardType);
+        return list.stream()
+                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
+                        b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
+                        b.getMember().getId(), b.getMember().getName()))
+                .collect(Collectors.toList());
+    }
+
+    //내가 쓴 글 목록
+    @Operation(description = "특정 멤버가 쓴 글 목록")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "글 리스트 조회 성공"),
+            @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
+    @GetMapping("/api/memberBoards/{memberId}")
+    public List<BoardDTO> myBoards(@RequestParam BoardType boardType,
+                                   //@RequestHeader("Authorization") String authorizationHeader,
+                                   @PathVariable("memberId") Long memberId){
+        List<Board> list = boardService.findMemberBoards(memberId, boardType);
+        return list.stream()
+                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
+                        b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
+                        b.getMember().getId(), b.getMember().getName()))
+                .collect(Collectors.toList());
+    }
 }

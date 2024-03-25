@@ -1,5 +1,6 @@
 package com.mementee.api.service;
 
+import com.mementee.api.domain.Favorite;
 import com.mementee.api.dto.boardDTO.WriteBoardRequest;
 import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
@@ -8,6 +9,7 @@ import com.mementee.api.domain.subdomain.ScheduleTime;
 import com.mementee.api.repository.BoardRepository;
 import com.mementee.api.repository.BoardRepositorySub;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -16,33 +18,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class BoardService {
 
     private final MemberService memberService;
     private final BoardRepository boardRepository;
     private final BoardRepositorySub boardRepositorySub;
-
-    //멘토가 자신의 스케줄을 입력시 중복되는 시간을 고를경우 ex) 01:00:00 ~ 03:00:00 와 02:00:00 ~ 05:00:00를 동시에 할수 없음
-    public void isDuplicateTime(List<ScheduleTime> times) {
-        Set<LocalTime> timeSet = new HashSet<>();
-        for (ScheduleTime time : times) {
-            LocalTime startTime = time.getStartTime();
-            LocalTime finishTime = time.getEndTime();
-            for (LocalTime existingTime : timeSet) {
-                if ((startTime.isAfter(existingTime) && startTime.isBefore(existingTime.plusHours(2))) ||
-                        (finishTime.isAfter(existingTime) && finishTime.isBefore(existingTime.plusHours(2)))) {
-                    throw new IllegalArgumentException("상담 시간이 중복됩니다.");
-                }
-            }
-            timeSet.add(startTime);
-            timeSet.add(finishTime);
-        }
-    }
 
     public void isCheckBoardMember(Member member, Board board){
         if(member != board.getMember())
@@ -53,8 +40,8 @@ public class BoardService {
     public Long saveBoard(WriteBoardRequest request, String authorizationHeader) {
         Member member = memberService.getMemberByToken(authorizationHeader);
 
-        Board board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(), request.getBoardType(), member,
-                request.getTimes(), request.getAvailableDays());
+        Board board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(),
+                request.getBoardType(), member, request.getTimes(), request.getAvailableDays());
 
         member.getBoards().add(board);
 
@@ -73,22 +60,9 @@ public class BoardService {
         board.modifyBoards(request.getTitle(), request.getContent(), request.getConsultTime(),
                 request.getBoardType(), request.getTimes(), request.getAvailableDays());
 
-        boardRepository.saveBoard(board);
         return board.getId();
     }
 
-    @Transactional
-    public void deleteBoard(String authorizationHeader, Long boardId) {
-        Member member = memberService.getMemberByToken(authorizationHeader);
-        Board board = findBoard(boardId);
-
-        isCheckBoardMember(member, board);
-
-        board.getTimes().clear();
-        board.getUnavailableTimes().clear();
-
-        boardRepository.deleteBoard(board);
-    }
     public Board findBoard(Long boardId){
         return boardRepository.findBoard(boardId);
     }
@@ -101,5 +75,58 @@ public class BoardService {
     //멘토, 멘티 학교 별로 게시물 조회(무한 스크롤 이용)
     public Slice<Board>findAllByBoardTypeAndSchoolName(BoardType boardType, String schoolName,Pageable pageable){
         return boardRepositorySub.findAllByBoardTypeAndSchoolName(boardType, schoolName, pageable);
+    }
+
+
+    //즐겨찾기
+
+    //즐겨찾기 검증
+    public void isCheckFavorite(Long memberId, Long boardId){
+        Optional<Favorite> favorite = boardRepository.findFavoriteByMemberIdAndBoardId(memberId, boardId);
+        if(favorite.isPresent())
+            throw new IllegalArgumentException("이미 즐겨찾기한 게시물 입니다.");
+    }
+
+    public Optional<Favorite> isCheckMyFavorite(Long memberId, Long boardId){
+        Optional<Favorite> favorite = boardRepository.findFavoriteByMemberIdAndBoardId(memberId, boardId);
+        if(favorite.isEmpty())
+            throw new IllegalArgumentException("즐겨찾기에 존재하지 않는 게시글입니다.");
+        return favorite;
+    }
+
+    //즐겨찾기 추가
+    @Transactional
+    public void addFavoriteBoard(String authorizationHeader, Long boardId){
+        Member member = memberService.getMemberByToken(authorizationHeader);
+        Board board = findBoard(boardId);
+
+        isCheckFavorite(member.getId(), boardId);
+
+        Favorite favorite = new Favorite(member, board);
+        member.addFavoriteBoard(favorite);
+
+        boardRepository.saveFavorite(favorite);
+    }
+
+    @Transactional
+    public void removeFavoriteBoard(String authorizationHeader, Long boardId){
+        Member member = memberService.getMemberByToken(authorizationHeader);
+
+        Optional<Favorite> favorite = isCheckMyFavorite(member.getId(), boardId);
+        Favorite myFavorite = boardRepository.findFavorite(favorite.get().getId());
+
+        member.removeFavoriteBoard(myFavorite);
+        boardRepository.deleteBoard(myFavorite);
+    }
+
+    //즐겨찾기 목록
+    public List<Board> findFavoriteBoards(String authorizationHeader, BoardType boardType){
+        Member member = memberService.getMemberByToken(authorizationHeader);
+        return boardRepository.findFavoriteBoards(member.getId(), boardType);
+    }
+
+    //멤버가 쓴 글목록
+    public List<Board> findMemberBoards(Long memberId, BoardType boardType){
+        return boardRepository.findMemberBoards(memberId, boardType);
     }
 }
