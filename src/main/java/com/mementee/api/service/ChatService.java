@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.DatatypeConverter;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -82,5 +83,15 @@ public class ChatService {
         LatestMessageDTO latestMessageDTO = new LatestMessageDTO(latestChatMessage.get().getContent(), latestChatMessage.get().getLocalDateTime());
 
         return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO);
+    }
+
+    public void test(String message) {
+        String extenstion;
+        String[] split = message.split(",");
+        if (split[0].equals("data:image/jpeg;base64")) extenstion = "jpeg";
+        else if (split[0].equals("data:image/png;base64")) extenstion = "png";
+        else extenstion = "jpg";
+
+        byte[] bytes = DatatypeConverter.parseBase64Binary(split[1]);
     }
 }
