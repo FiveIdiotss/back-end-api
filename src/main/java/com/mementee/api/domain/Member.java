@@ -95,6 +95,10 @@ public class Member{
         this.gender = gender;
     }
 
+    public void addBoard(Board board){
+        this.getBoards().add(board);
+    }
+
     public void addFavoriteBoard(Favorite favorite){
         this.getLikes().add(favorite);
     }

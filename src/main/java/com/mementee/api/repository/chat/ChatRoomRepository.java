@@ -1,6 +1,7 @@
 package com.mementee.api.repository.chat;
 
 import com.mementee.api.domain.Member;
+import com.mementee.api.domain.RefreshToken;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import jakarta.persistence.EntityManager;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -47,24 +49,35 @@ public class ChatRoomRepository {
                 .getResultList();
     }
 
-    public ChatRoom findOrCreateChatRoomById(Member loginMember, Member receiver) {
-        Long senderId = loginMember.getId();
-        Long receiverId = receiver.getId();
-
-        String query = "SELECT cr FROM ChatRoom cr " +
-                "WHERE (cr.sender.id = :senderId AND cr.receiver.id = :receiverId) " +
-                "OR (cr.sender.id = :receiverId AND cr.receiver.id = :senderId)";
-
+    public Optional<ChatRoom> findChatRoomById(Member loginMember, Member receiver) {
         try {
-            return em.createQuery(query, ChatRoom.class)
+            Long senderId = loginMember.getId();
+            Long receiverId = receiver.getId();
+
+            String query = "SELECT cr FROM ChatRoom cr " +
+                    "WHERE (cr.sender.id = :senderId AND cr.receiver.id = :receiverId) " +
+                    "OR (cr.sender.id = :receiverId AND cr.receiver.id = :senderId)";
+
+            ChatRoom chatRoom = em.createQuery(query, ChatRoom.class)
                     .setParameter("senderId", senderId)
                     .setParameter("receiverId", receiverId)
                     .getSingleResult();
+            return Optional.ofNullable(chatRoom);
         } catch (NoResultException e) {
-            // 채팅방이 없으면 새로운 채팅방을 생성
-            ChatRoom newChatRoom = new ChatRoom(loginMember, receiver);
-            em.persist(newChatRoom);
-            return newChatRoom;
+            return Optional.empty();
         }
+
+//        try {
+//            return em.createQuery(query, ChatRoom.class)
+//                    .setParameter("senderId", senderId)
+//                    .setParameter("receiverId", receiverId)
+//                    .getSingleResult();
+//        } catch (NoResultException e) {
+//            // 채팅방이 없으면 새로운 채팅방을 생성
+//            ChatRoom newChatRoom = new ChatRoom(loginMember, receiver);
+//            em.persist(newChatRoom);
+//            return newChatRoom;
+//        }
+//    }
     }
 }

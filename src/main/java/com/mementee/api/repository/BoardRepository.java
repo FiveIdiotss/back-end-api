@@ -1,6 +1,7 @@
 package com.mementee.api.repository;
 
 import com.mementee.api.domain.Board;
+import com.mementee.api.domain.BoardImage;
 import com.mementee.api.domain.Favorite;
 import com.mementee.api.domain.RefreshToken;
 import com.mementee.api.domain.enumtype.BoardType;
@@ -102,4 +103,9 @@ public class BoardRepository {
                 .getResultList();
     }
 
+
+    //게시판 사진 등롱
+    public void saveBoardImage(BoardImage boardImage){
+        em.persist(boardImage);
+    }
 }

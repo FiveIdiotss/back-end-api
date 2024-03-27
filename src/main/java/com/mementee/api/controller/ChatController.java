@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -81,20 +83,25 @@ public class ChatController {
     @Operation(description = "상대방 ID로 해당 채팅방 조회 " +
             "상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인(채팅방이 존재하지 않으면 새로 만듦)")
     @GetMapping("/chatRoom")
-    public ResponseEntity<ChatRoomDTO> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
-        Member loginMember = memberService.getMemberByToken(authorizationHeader);
-        Member receiver = memberService.getMemberById(receiverId);
+    public ResponseEntity<?> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            Member loginMember = memberService.getMemberByToken(authorizationHeader);
+            Member receiver = memberService.getMemberById(receiverId);
 
-        ChatRoom chatRoom = chatService.findChatRoomOrCreate(loginMember, receiver);
-        ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getId(), receiverId, receiver.getName());
+            Optional<ChatRoom> chatRoom = chatService.findChatRoom(loginMember, receiver);
 
-        return ResponseEntity.ok(chatRoomDTO);
+            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.get().getId(), receiverId, receiver.getName());
+            return ResponseEntity.ok(chatRoomDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @Operation(description = "특정 멤버가 속한 채팅방 모두 조회")
     @GetMapping("/chatRooms")
     public ResponseEntity<List<ChatRoomDTO>> findAllChatRoomsByMemberId(@RequestParam Long memberId) {
         List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMemberId(memberId);
+
         List<ChatRoomDTO> chatRoomDTOs = allChatRooms.stream()
                 .map(chatRoom -> chatService.createChatRoomDTO(memberId, chatRoom))
                 .collect(Collectors.toList());

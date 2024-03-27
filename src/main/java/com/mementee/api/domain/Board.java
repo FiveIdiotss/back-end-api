@@ -68,6 +68,23 @@ public class Board {
     @CollectionTable(name = "board_unavailable_times", joinColumns = @JoinColumn(name = "board_id"))
     private List<UnavailableTime> unavailableTimes = new ArrayList<>();
 
+    //게시물 사진
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_image_id")
+    private List<BoardImage> boardImages = new ArrayList<>();
+
+    public Board(String title, String content, int consultTime, BoardType boardType,  Member member,
+                 List<ScheduleTime> times, List<DayOfWeek> availableDays, List<BoardImage> boardImages) {
+        this.title = title;
+        this.content = content;
+        this.consultTime = consultTime;
+        this.times = times;
+        this.availableDays = availableDays;
+        this.boardType = boardType;
+        this.member = member;
+        this.boardImages = boardImages;
+    }
+
     public Board(String title, String content, int consultTime, BoardType boardType,  Member member,
                  List<ScheduleTime> times, List<DayOfWeek> availableDays) {
         this.title = title;
@@ -81,6 +98,14 @@ public class Board {
 
     public void addUnavailableTimes(LocalDate date, LocalTime startTime){
         this.getUnavailableTimes().add(new UnavailableTime(date, startTime));
+    }
+
+    public void addBoardImage(List<BoardImage> boardImages){
+        if (boardImages.isEmpty())
+            return;
+        for (BoardImage boardImage : boardImages){
+            this.getBoardImages().add(boardImage);
+        }
     }
 
     public void modifyBoards(String title, String content, int consultTime, BoardType boardType,

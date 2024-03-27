@@ -82,8 +82,10 @@ public class MemberService {
 
     //로그인 시 회원 정보
     public MemberDTO getMemberDTO(Member member) {
-        return new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear()
-                , member.getGender(), member.getSchool().getName(), member.getMajor().getName(), member.getMemberImage().getMemberImageUrl());
+        return new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear(),
+                member.getGender(), member.getSchool().getName(),
+                member.getMajor().getName(),
+                member.getMemberImage().getMemberImageUrl());
     }
 
     //로그인 시 토큰
