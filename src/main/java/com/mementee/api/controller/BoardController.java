@@ -1,10 +1,8 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.domain.School;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.dto.boardDTO.BoardDTO;
 import com.mementee.api.domain.Board;
-import com.mementee.api.dto.memberDTO.SchoolDTO;
 import com.mementee.api.service.ApplyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,8 +18,10 @@ import com.mementee.api.service.BoardService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,10 +55,11 @@ public class BoardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping("/api/board")
-    public ResponseEntity<String> saveBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
+    @PostMapping(value = "/api/board", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<String> saveBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
+                                            @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
         try {
-            boardService.saveBoard(request, authorizationHeader);
+            boardService.saveBoard(request, multipartFiles, authorizationHeader);
             return ResponseEntity.ok().body("글 등록 성공");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -182,7 +183,7 @@ public class BoardController {
             @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
     @PostMapping("/api/board/favorite/{boardId}")
     public ResponseEntity<String> addFavorite(@PathVariable Long boardId,
-                                             @RequestHeader("Authorization") String authorizationHeader){
+                                              @RequestHeader("Authorization") String authorizationHeader){
         try {
             boardService.addFavoriteBoard(authorizationHeader, boardId);
             return ResponseEntity.ok("추가 성공");
@@ -223,7 +224,7 @@ public class BoardController {
                 .collect(Collectors.toList());
     }
 
-    //내가 쓴 글 목록
+    //특정 멤버가 쓴 글 목록
     @Operation(description = "특정 멤버가 쓴 글 목록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "글 리스트 조회 성공"),

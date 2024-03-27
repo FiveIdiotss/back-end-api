@@ -16,6 +16,7 @@ import com.mementee.api.service.MemberService;
 import com.mementee.api.service.SchoolService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -158,7 +159,7 @@ public class MemberController {
             //Member member = memberService.isCheckMe(authorizationHeader, memberId);
             Member member = memberService.getMemberById(memberId);
             MemberInfoResponse response = new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(),
-                    member.getYear(), member.getGender(), member.getSchool().getName(), member.getMajor().getName());
+                    member.getYear(), member.getGender(), member.getSchool().getName(), member.getMajor().getName(), member.getMemberImage().getMemberImageUrl());
             return ResponseEntity.ok(response);
 
         } catch (EmptyResultDataAccessException e) {
@@ -173,7 +174,8 @@ public class MemberController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
             @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
-    @PostMapping("/api/member/image")
+    @PostMapping(value = "/api/member/image" ,
+                consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> updatedMemberImage(@RequestHeader("Authorization") String authorizationHeader,
                                                      @RequestPart("imageFile")MultipartFile multipartFile) {
         try {

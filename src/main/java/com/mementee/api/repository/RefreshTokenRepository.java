@@ -40,13 +40,13 @@ public class RefreshTokenRepository {
     }
 
     public Optional<RefreshToken> findRefreshTokenByRefreshToken(String token){
-       try {
-           RefreshToken refreshToken = em.createQuery("select r from RefreshToken r where r.refreshToken = :token", RefreshToken.class)
-                   .setParameter("token", token)
-                   .getSingleResult();
-           return Optional.ofNullable(refreshToken);
-       }catch (NoResultException e){
-           return Optional.empty();
-       }
+        try {
+            RefreshToken refreshToken = em.createQuery("select r from RefreshToken r where r.refreshToken = :token", RefreshToken.class)
+                    .setParameter("token", token)
+                    .getSingleResult();
+            return Optional.ofNullable(refreshToken);
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 }
