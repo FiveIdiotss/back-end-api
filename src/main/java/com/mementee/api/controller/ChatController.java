@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,21 +45,19 @@ public class ChatController {
 
 
     @MessageMapping("/hello")
-    public void sendMessage(final ChatMessageDTO messageDTO) {
+    public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
         // websocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
         // DB에 저장
         ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
         chatService.saveMessage(chatMessage);
 
-        String a = messageDTO.getImage();
-        byte[] bytes = DatatypeConverter.parseBase64Binary(a);
     }
 
     
     @PostMapping("/image")
-    public void sendImage(@RequestParam("file") MultipartFile file) {
-
+    public void sendImage(@RequestParam("file") MultipartFile file) throws IOException {
+        chatService.test(file);
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
