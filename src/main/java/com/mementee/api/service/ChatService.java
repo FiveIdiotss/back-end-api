@@ -15,8 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -85,13 +90,25 @@ public class ChatService {
         return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO);
     }
 
-    public void test(String message) {
-        String extenstion;
-        String[] split = message.split(",");
-        if (split[0].equals("data:image/jpeg;base64")) extenstion = "jpeg";
-        else if (split[0].equals("data:image/png;base64")) extenstion = "png";
-        else extenstion = "jpg";
+    public void test(MultipartFile mefilessage) throws IOException {
+        String directoryPath = "/User/jonghyunlee/Downloads";
 
-        byte[] bytes = DatatypeConverter.parseBase64Binary(split[1]);
+        File directory = new File(directoryPath);
+
+        String filePath =  directoryPath + "/" + mefilessage.getOriginalFilename();
+        File dest = new File(filePath);
+        mefilessage.transferTo(dest);
+
+        log.info("파일이 저장되었습니다.");
+
+//        String extenstion;
+//        String[] split = mefilessage.split(",");
+//        if (split[0].equals("data:image/jpeg;base64")) extenstion = "jpeg";
+//        else if (split[0].equals("data:image/png;base64")) extenstion = "png";
+//        else extenstion = "jpg";
+//
+//        byte[] bytes = DatatypeConverter.parseBase64Binary(split[1]);
+//        FileOutputStream fos = new FileOutputStream(directoryPath);
+//        fos.write(bytes);
     }
 }
