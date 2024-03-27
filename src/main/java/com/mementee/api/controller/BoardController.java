@@ -59,7 +59,7 @@ public class BoardController {
     public ResponseEntity<String> saveBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
                                             @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
         try {
-            boardService.saveBoard(request, authorizationHeader);
+            boardService.saveBoard(request, multipartFiles, authorizationHeader);
             return ResponseEntity.ok().body("글 등록 성공");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -183,7 +183,7 @@ public class BoardController {
             @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
     @PostMapping("/api/board/favorite/{boardId}")
     public ResponseEntity<String> addFavorite(@PathVariable Long boardId,
-                                             @RequestHeader("Authorization") String authorizationHeader){
+                                              @RequestHeader("Authorization") String authorizationHeader){
         try {
             boardService.addFavoriteBoard(authorizationHeader, boardId);
             return ResponseEntity.ok("추가 성공");
@@ -224,7 +224,7 @@ public class BoardController {
                 .collect(Collectors.toList());
     }
 
-    //내가 쓴 글 목록
+    //특정 멤버가 쓴 글 목록
     @Operation(description = "특정 멤버가 쓴 글 목록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "글 리스트 조회 성공"),
