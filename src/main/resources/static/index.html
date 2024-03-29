@@ -1,68 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>WebSocket Test</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <script type="text/javascript">
-        window.onload = function () {
-
-            var ws = new WebSocket('ws://localhost:8080/ws');
-            // var ws = new WebSocket('ws://menteetor.site:8080/ws');
-            var stompClient = Stomp.over(ws);
-
-            // 엔터 키 또는 전송 버튼 클릭으로 메시지 전송
-            function sendMessage() {
-                var messageInput = document.querySelector('#message');
-                var message = messageInput.value.trim(); // 입력된 메시지를 가져옵니다. 앞뒤 공백은 제거합니다.
-                if (message !== '') { // 메시지가 비어 있지 않은 경우에만 전송합니다.
-                    var senderId = 2; // 상대방 아이디를 얻는 코드를 작성하세요.
-                    var chatRoomId = 1;
-                    var senderName = "이종현"
-                    var time = new Date().toISOString();
-                    stompClient.send("/pub/hello", {}, JSON.stringify({
-                        content: message,
-                        senderName: senderName,
-                        senderId: senderId,
-                        chatRoomId: chatRoomId,
-                        localDateTime: time
-                    }));
-                    messageInput.value = ''; // 메시지 입력 필드를 비웁니다.
-                }
-            }
-
-            // 엔터 키로 메시지 전송
-            document.querySelector('#message').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault(); // 엔터 키의 기본 동작인 줄 바꿈을 방지합니다.
-                    sendMessage(); // sendMessage 함수 호출
-                }
-            });
-
-            // 전송 버튼 클릭으로 메시지 전송
-            document.querySelector('#send').onclick = sendMessage;
-
-            // 메시지 수신
-            stompClient.connect({}, function (frame) {
-                console.log('Connected: ' + frame);
-                stompClient.subscribe('/sub/chats/1', function (messageOutput) {
-                    console.log('Received: ' + messageOutput.body);
-                    var messageDisplay = document.querySelector('#messageDisplay');
-                    messageDisplay.innerHTML += messageOutput.body + '<br>'; // 메시지를 div에 추가합니다.
-                });
-            });
-
-        }
-    </script>
 </head>
 <body>
-<h1>Github Action을 통해서 배포하며 WebSocket 연결 테스트 페이지입니다.</h1>
+<h1>WebSocket 연결 테스트 페이지입니다.</h1>
 <input type="text" id="message" placeholder="메시지를 입력하세요">
+<input type="file" id="imageInput" style="display: none;">
+<button id="attachImage">이미지 첨부</button>
 <button id="send">전송</button>
 <div id="messageDisplay"></div>
+
+<script>
+    window.onload = function() {
+        var ws = new WebSocket('ws://localhost:8080/ws');
+        var stompClient = Stomp.over(ws);
+
+        // 이미지 첨부 버튼 클릭 시 input 태그 클릭
+        document.getElementById('attachImage').addEventListener('click', function() {
+            document.getElementById('imageInput').click();
+        });
+
+        // 이미지 파일 선택 시 base64로 변환하여 메시지와 함께 전송
+        document.getElementById('imageInput').addEventListener('change', function() {
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                var base64Image = event.target.result;
+                // base64 이미지와 함께 메시지 전송
+                sendMessage(base64Image);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 메시지 전송 함수
+        function sendMessage(base64Image) {
+            var messageInput = document.querySelector('#message');
+            var message = messageInput.value.trim();
+            if (message !== '' || base64Image !== null) {
+                var senderId = 1;
+                var chatRoomId = 1;
+                var senderName = "이종현";
+                var time = new Date().toISOString();
+
+                stompClient.send("/pub/hello", {}, JSON.stringify({
+                    content: message,
+                    senderName: senderName,
+                    senderId: senderId,
+                    chatRoomId: chatRoomId,
+                    image: base64Image,
+                    localDateTime: time
+                }));
+
+                messageInput.value = '';
+            }
+        }
+
+        // 전송 버튼 클릭 시 메시지 전송
+        document.querySelector('#send').onclick = function() {
+            sendMessage(null); // 이미지 없이 메시지만 전송
+        };
+
+        // 메시지 수신
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/sub/chats/1', function (messageOutput) {
+                console.log('Received: ' + messageOutput.body);
+                var messageDisplay = document.querySelector('#messageDisplay');
+                messageDisplay.innerHTML += messageOutput.body + '<br>';
+            });
+        });
+    }
+</script>
 </body>
 </html>
+
+
 
 <!--<!DOCTYPE html>-->
 <!--<html>-->
