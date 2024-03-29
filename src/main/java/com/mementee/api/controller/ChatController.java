@@ -55,6 +55,11 @@ public class ChatController {
         chatService.saveMessage(chatMessage);
 
         // image 전송
+        if (messageDTO.getImage() != null) chatService.saveImage(messageDTO.getImage());
+    }
+
+    @PostMapping("image")
+    public void sendImage(ChatMessageDTO messageDTO) throws IOException {
         chatService.saveImage(messageDTO.getImage());
     }
 
