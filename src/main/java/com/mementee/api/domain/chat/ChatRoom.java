@@ -1,5 +1,6 @@
 package com.mementee.api.domain.chat;
 
+import com.mementee.api.domain.Matching;
 import com.mementee.api.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,8 +27,13 @@ public class ChatRoom {
     @JoinColumn(name = "receiver_id")
     private Member receiver;
 
-    public ChatRoom(Member sender, Member receiver) {
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "matching_id")
+    private Matching matching;
+
+    public ChatRoom(Member sender, Member receiver, Matching matching) {
         this.sender = sender;
         this.receiver = receiver;
+        this.matching = matching;
     }
 }

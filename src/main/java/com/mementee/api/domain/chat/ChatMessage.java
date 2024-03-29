@@ -30,7 +30,7 @@ public class ChatMessage {
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
 
-    private LocalDateTime localDateTime;
+    private java.time.LocalDateTime localDateTime;
 
     public ChatMessage(String content, Member sender, ChatRoom chatRoom) {
         this.content = content;

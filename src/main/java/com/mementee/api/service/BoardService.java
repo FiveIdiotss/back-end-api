@@ -1,25 +1,24 @@
 package com.mementee.api.service;
 
+import com.mementee.api.domain.BoardImage;
 import com.mementee.api.domain.Favorite;
 import com.mementee.api.dto.boardDTO.WriteBoardRequest;
 import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.BoardType;
-import com.mementee.api.domain.subdomain.ScheduleTime;
 import com.mementee.api.repository.BoardRepository;
 import com.mementee.api.repository.BoardRepositorySub;
+import com.mementee.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,6 +26,7 @@ import java.util.Set;
 @Slf4j
 public class BoardService {
 
+    private final S3Service s3Service;
     private final MemberService memberService;
     private final BoardRepository boardRepository;
     private final BoardRepositorySub boardRepositorySub;
@@ -37,14 +37,35 @@ public class BoardService {
     }
 
     @Transactional
-    public Long saveBoard(WriteBoardRequest request, String authorizationHeader) {
+    public List<BoardImage> getBoardImageUrl(List<MultipartFile> multipartFiles) throws IOException {
+        List<BoardImage> boardImages = new ArrayList<>();
+        if (multipartFiles == null) {
+            return boardImages;
+        }
+        for(MultipartFile multipartFile : multipartFiles){
+            String url = s3Service.saveFile(multipartFile);
+            BoardImage boardImage = new BoardImage(url);
+            boardImages.add(boardImage);
+            boardRepository.saveBoardImage(boardImage);
+        }
+        return boardImages;
+    }
+
+    @Transactional
+    public Long saveBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) throws IOException {
         Member member = memberService.getMemberByToken(authorizationHeader);
+        List<BoardImage> boardImages = getBoardImageUrl(multipartFiles);
+        Board board;
+        if(boardImages.isEmpty()){
+            board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(),
+                    request.getBoardType(), member, request.getTimes(), request.getAvailableDays());
+        }else {
+            board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(),
+                    request.getBoardType(), member, request.getTimes(), request.getAvailableDays(), boardImages);
+            board.addBoardImage(boardImages);
+        }
 
-        Board board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(),
-                request.getBoardType(), member, request.getTimes(), request.getAvailableDays());
-
-        member.getBoards().add(board);
-
+        member.addBoard(board);
         boardRepository.saveBoard(board);
         return board.getId();
     }
@@ -79,7 +100,6 @@ public class BoardService {
 
 
     //즐겨찾기
-
     //즐겨찾기 검증
     public void isCheckFavorite(Long memberId, Long boardId){
         Optional<Favorite> favorite = boardRepository.findFavoriteByMemberIdAndBoardId(memberId, boardId);

@@ -1,5 +1,6 @@
 package com.mementee.api.domain;
 
+import com.mementee.api.domain.chat.ChatRoom;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,7 +44,8 @@ public class Matching {
     @JoinColumn(name = "mentee")
     private Member mentee;                     // 매칭 요청을 받은 회원
 
-    public Matching(LocalDate date, LocalTime startTime, int consultTime, Board board, Apply apply, Member mentor, Member mentee) {
+    public Matching(LocalDate date, LocalTime startTime, int consultTime,
+                    Board board, Apply apply, Member mentor, Member mentee) {
         this.date = date;
         this.startTime = startTime;
         this.consultTime = consultTime;

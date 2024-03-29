@@ -3,8 +3,11 @@ package com.mementee.api.service;
 import com.mementee.api.domain.Apply;
 import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Matching;
+import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.domain.enumtype.ApplyState;
 import com.mementee.api.repository.MatchingRepository;
+import com.mementee.api.repository.chat.ChatRoomRepository;
+import com.mementee.api.repository.chat.ChatRoomRepositorySub;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.BoardType;
@@ -21,8 +24,8 @@ import java.util.List;
 public class MatchingService {
 
     private final MatchingRepository matchingRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
-    private final BoardService boardService;
     private final MemberService memberService;
     private final ApplyService applyService;
 
@@ -59,6 +62,8 @@ public class MatchingService {
         Matching matching = new Matching(consultDate, consultTime, board.getConsultTime(),
                 board, apply, mentor, mentee);
 
+        ChatRoom chatRoom = new ChatRoom(mentor, mentee, matching);
+
         board.getMatchings().add(matching);
         mentor.getMyMenteeMatching().add(matching);
         mentee.getMyMentorMatching().add(matching);
@@ -67,6 +72,7 @@ public class MatchingService {
         apply.updateState();
 
         matchingRepository.saveMatch(matching);
+        chatRoomRepository.save(chatRoom);
     }
 
     //거절-----

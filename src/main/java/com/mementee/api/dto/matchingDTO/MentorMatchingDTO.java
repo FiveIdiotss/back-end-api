@@ -17,5 +17,5 @@ public class MentorMatchingDTO {
     private LocalDate date;                     // 상담 날짜
     private LocalTime startTime;                // 상담 시작 시간
 
-    //private String mentorId;
+
 }
