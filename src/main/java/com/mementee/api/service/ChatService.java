@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -102,25 +103,44 @@ public class ChatService {
                 chatRoom.getMatching().getStartTime());
     }
 
-    public void test(MultipartFile mefilessage) throws IOException {
-        String directoryPath = "/User/jonghyunlee/Downloads";
+    public void saveImage(String imageCode) throws IOException {
+        // 로컬에 저장될 디렉토리 경로
+        String directoryPath = "/Users/jonghyunlee/Downloads/savedImage";
 
+        // 이미지 확장자 추출
+        String extension = "";
+        String[] split = imageCode.split(",");
+        String base64Image = split[1];
+        if (split[0].equals("data:image/jpeg;base64")) {
+            extension = "jpeg";
+        } else if (split[0].equals("data:image/png;base64")) {
+            extension = "png";
+        } else {
+            extension = "jpg";
+        }
+
+        // Base64 문자열을 바이트 배열로 변환
+        byte[] bytes = DatatypeConverter.parseBase64Binary(base64Image);
+
+        // 지정된 디렉토리에 이미지 파일 저장
         File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdirs(); // 디렉토리가 존재하지 않으면 생성
+        }
 
-        String filePath =  directoryPath + "/" + mefilessage.getOriginalFilename();
-        File dest = new File(filePath);
-        mefilessage.transferTo(dest);
+        // 파일명 설정
+        String fileName = UUID.randomUUID() + "." + extension;
 
-        log.info("파일이 저장되었습니다.");
+        // 이미지 파일 생성
+        File imageFile = new File(directory, fileName);
 
-//        String extenstion;
-//        String[] split = mefilessage.split(",");
-//        if (split[0].equals("data:image/jpeg;base64")) extenstion = "jpeg";
-//        else if (split[0].equals("data:image/png;base64")) extenstion = "png";
-//        else extenstion = "jpg";
-//
-//        byte[] bytes = DatatypeConverter.parseBase64Binary(split[1]);
-//        FileOutputStream fos = new FileOutputStream(directoryPath);
-//        fos.write(bytes);
+        // 파일 출력 스트림 초기화
+        try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+            // 바이트 배열을 파일에 쓰기
+            fos.write(bytes);
+        }
+
+        // 저장된 파일 경로 출력 (실행 후 확인을 위해 출력)
+        System.out.println("이미지가 저장된 경로: " + imageFile.getAbsolutePath());
     }
 }
