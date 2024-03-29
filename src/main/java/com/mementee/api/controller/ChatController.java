@@ -52,12 +52,8 @@ public class ChatController {
         ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
         chatService.saveMessage(chatMessage);
 
-    }
-
-    
-    @PostMapping("/image")
-    public void sendImage(@RequestParam("file") MultipartFile file) throws IOException {
-        chatService.test(file);
+        // image 전송
+        chatService.saveImage(messageDTO.getImage());
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
