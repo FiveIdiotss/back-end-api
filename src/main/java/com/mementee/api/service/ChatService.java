@@ -133,27 +133,27 @@ public class ChatService {
         byte[] bytes = DatatypeConverter.parseBase64Binary(base64Image);
 
         // 지정된 디렉토리에 이미지 파일 저장
-        File directory = new File(localPath);
-        if (!directory.exists()) {
-            directory.mkdirs(); // 디렉토리가 존재하지 않으면 생성
-        }
+//        File directory = new File(localPath);
+//        if (!directory.exists()) {
+//            directory.mkdirs(); // 디렉토리가 존재하지 않으면 생성
+//        }
 
         // 파일명 설정
         String fileName = UUID.randomUUID() + "." + extension;
 
         // 이미지 파일 생성
-        File imageFile = new File(directory, fileName);
+//        File imageFile = new File(directory, fileName);
 
         // 파일 출력 스트림 초기화
-        try (FileOutputStream fos = new FileOutputStream(imageFile)) {
-            // 바이트 배열을 파일에 쓰기
-            fos.write(bytes);
-        }
+//        try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+//            // 바이트 배열을 파일에 쓰기
+//            fos.write(bytes);
+//        }
 
         log.info("s3 저장 로직");
         s3Service.saveChatImage(imageCode, fileName);
 
         // 저장된 파일 경로 출력 (실행 후 확인을 위해 출력)
-        System.out.println("이미지가 저장된 경로: " + imageFile.getAbsolutePath());
+//        System.out.println("이미지가 저장된 경로: " + imageFile.getAbsolutePath());
     }
 }
