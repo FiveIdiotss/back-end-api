@@ -25,10 +25,6 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    @Value("${cloud.aws.s3.additional}")
-    private String bucket2;
-
-
     public String saveFile(MultipartFile multipartFile) throws IOException {
 
         String originalFilename = multipartFile.getOriginalFilename();
