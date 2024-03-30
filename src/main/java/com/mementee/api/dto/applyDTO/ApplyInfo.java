@@ -21,4 +21,10 @@ public class ApplyInfo {
 
     private LocalDate date;
     private LocalTime startTime;
+
+    private Long memberId;
+    private String memberName;
+    private String memberImageUrl;
+    private String schoolName;
+    private String majorName;
 }

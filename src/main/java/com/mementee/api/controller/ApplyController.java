@@ -38,7 +38,7 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/myApply/{memberId}")
-    public List<?> myReceiveApplyList(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId,
+    public List<?> applyList(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId,
                                                  @RequestParam SendReceive sendReceive){
         memberService.isCheckMe(authorizationHeader, memberId);
 
@@ -102,7 +102,11 @@ public class ApplyController {
             Apply apply = applyService.findApplication(applyId);
 
             ApplyInfo response = new ApplyInfo(apply.getId(), apply.getBoard().getId(),
-                    apply.getContent(), apply.getBoard().getTitle(), apply.getApplyState(), apply.getDate(), apply.getStartTime());
+                    apply.getContent(), apply.getBoard().getTitle(), apply.getApplyState(),
+                    apply.getDate(), apply.getStartTime(), apply.getBoard().getMember().getId(),
+                    apply.getBoard().getMember().getName(), apply.getBoard().getMember().getMemberImage().getMemberImageUrl()
+                    ,apply.getBoard().getMember().getMajor().getSchool().getName(),
+                    apply.getBoard().getMember().getMajor().getName());
 
             return ResponseEntity.ok(response);
         }catch (EmptyResultDataAccessException e){
