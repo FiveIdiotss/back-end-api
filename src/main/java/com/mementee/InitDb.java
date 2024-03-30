@@ -37,7 +37,6 @@ public class InitDb {
         private final SchoolService schoolService;
         private final S3Service s3Service;
 
-
         public void dbInit() {
             System.out.println("Init1" + this.getClass());
 
