@@ -1,5 +1,10 @@
 package com.mementee.api.service;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
@@ -9,8 +14,12 @@ import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
+import com.mementee.s3.S3Config;
+import com.mementee.s3.S3Service;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -38,6 +47,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomRepositorySub chatRoomRepositorySub;
     private final MemberService memberService;
+    private final S3Service s3Service;
 
     public ChatRoom findChatRoom(Long chatRoomId){
         return chatRoomRepository.findChatRoomById(chatRoomId);
@@ -105,7 +115,7 @@ public class ChatService {
 
     public void saveImage(String imageCode) throws IOException {
         // 로컬에 저장될 디렉토리 경로
-        String directoryPath = "/Users/jonghyunlee/Downloads/savedImage";
+        String localPath = "/Users/jonghyunlee/Downloads/savedImage";
 
         // 이미지 확장자 추출
         String extension = "";
@@ -123,7 +133,7 @@ public class ChatService {
         byte[] bytes = DatatypeConverter.parseBase64Binary(base64Image);
 
         // 지정된 디렉토리에 이미지 파일 저장
-        File directory = new File(directoryPath);
+        File directory = new File(localPath);
         if (!directory.exists()) {
             directory.mkdirs(); // 디렉토리가 존재하지 않으면 생성
         }
@@ -139,6 +149,9 @@ public class ChatService {
             // 바이트 배열을 파일에 쓰기
             fos.write(bytes);
         }
+
+        log.info("s3 저장 로직");
+        s3Service.saveChatImage(imageCode, fileName);
 
         // 저장된 파일 경로 출력 (실행 후 확인을 위해 출력)
         System.out.println("이미지가 저장된 경로: " + imageFile.getAbsolutePath());

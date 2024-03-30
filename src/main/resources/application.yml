@@ -26,16 +26,19 @@ spring:
 
   datasource:
     #    kdy
-    url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
-    username : admin
+
+#    url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
+#    username : admin
     #url: jdbc:mysql://localhost:3306/kdy
-    #username: root
-    password: ehd5765613
+    # username: root
+#    password: ehd5765613
+
+
 
     #    JHL
-    #    url: jdbc:mysql://localhost:3306/member
-    #    username: root
-    #    password: asd990810
+    url: jdbc:mysql://localhost:3306/member
+    username: root
+    password: asd990810
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   security:
@@ -94,6 +97,7 @@ spring:
 
 api:
   univcert:
+    # fiveidiots
     #    key: ce6dc2f8-3d83-44ca-923a-7143022e5f3d
     key: fc3b5c45-85eb-4fd6-8309-a5725170a2c8
 
@@ -101,6 +105,7 @@ cloud:
   aws:
     s3:
       bucket: five-image
+      additional: fiveidiots-image
     credentials:
       access-key: AKIAXYAFCWJQBQ46DBPJ
       secret-key: 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
