@@ -22,6 +22,7 @@ import java.util.UUID;
 public class S3Service {
 
     private final AmazonS3 amazonS3;
+
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
   
