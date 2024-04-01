@@ -35,7 +35,6 @@ public class InitDb {
 
         private final EntityManager em;
         private final SchoolService schoolService;
-        private final S3Service s3Service;
 
 
         public void dbInit() {
