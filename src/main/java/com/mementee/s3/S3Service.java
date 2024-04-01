@@ -25,7 +25,7 @@ public class S3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-
+  
     public String saveFile(MultipartFile multipartFile) throws IOException {
 
         String originalFilename = multipartFile.getOriginalFilename();
@@ -55,7 +55,7 @@ public class S3Service {
         }
     }
 
-    public String saveChatImage(String base64ImageData, String imageName) throws IOException {
+    public String saveChatImage(String base64ImageData) {
         // base64 데이터 파싱
         String[] split = base64ImageData.split(",");
         String base64Image = split[1];
@@ -74,6 +74,7 @@ public class S3Service {
         byte[] imageBytes = DatatypeConverter.parseBase64Binary(base64Image);
 
         // S3에 업로드할 파일명 설정
+        String imageName = UUID.randomUUID() + "." + extension;
 
         // 업로드할 이미지 데이터 설정
         ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
@@ -87,5 +88,4 @@ public class S3Service {
         // 업로드된 이미지의 URL 반환
         return amazonS3.getUrl(bucket, imageName).toString();
     }
-
 }

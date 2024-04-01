@@ -36,7 +36,6 @@ public class InitDb {
         private final EntityManager em;
         private final SchoolService schoolService;
 
-
         public void dbInit() {
             System.out.println("Init1" + this.getClass());
 
