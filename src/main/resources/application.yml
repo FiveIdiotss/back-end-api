@@ -8,7 +8,7 @@ spring:
 
   jpa:
     hibernate:
-#      ddl-auto: create
+      #ddl-auto: create
       ddl-auto: update
     properties:
       hibernate:
@@ -25,17 +25,18 @@ spring:
     secret: 795a494eb4ca40d62227cc695a41e69d1e13fa5da2263727c28ba073fdbdd2f2
 
   datasource:
+  
     #    kdy
-#    url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
-#    username : admin
+    url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
+    #username : admin
     #url: jdbc:mysql://localhost:3306/kdy
-    #username: root
-#    password: ehd5765613
+    username: root
+    password: ehd5765613
 
     #    JHL
-    url: jdbc:mysql://localhost:3306/member
-    username: root
-    password: asd990810
+#    url: jdbc:mysql://localhost:3306/member
+#    username: root
+#    password: asd990810
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   security:
@@ -48,7 +49,7 @@ spring:
 
             # 로그인 성공 시, 클라이언트가 이동하는 uri
             redirect-uri: http://localhost:8080/login/oauth2/code/naver
-            authorization-grant-type: authorization_code
+            authorization-grant-type: authorization_cod e
             scope:
               - id
               - name

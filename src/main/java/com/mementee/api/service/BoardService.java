@@ -57,11 +57,11 @@ public class BoardService {
         List<BoardImage> boardImages = getBoardImageUrl(multipartFiles);
         Board board;
         if(boardImages.isEmpty()){
-            board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(),
-                    request.getBoardType(), member, request.getTimes(), request.getAvailableDays());
+            board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(),
+                    request.getConsultTime(), request.getBoardType(), member, request.getTimes(), request.getAvailableDays());
         }else {
-            board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(),
-                    request.getBoardType(), member, request.getTimes(), request.getAvailableDays(), boardImages);
+            board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(),
+                    request.getConsultTime(), request.getBoardType(), member, request.getTimes(), request.getAvailableDays(), boardImages);
             board.addBoardImage(boardImages);
         }
 
@@ -78,7 +78,8 @@ public class BoardService {
 
         isCheckBoardMember(member, board);
 
-        board.modifyBoards(request.getTitle(), request.getContent(), request.getConsultTime(),
+        board.modifyBoards(request.getTitle(), request.getIntroduce(), request.getTarget(),
+                request.getContent(), request.getConsultTime(),
                 request.getBoardType(), request.getTimes(), request.getAvailableDays());
 
         return board.getId();

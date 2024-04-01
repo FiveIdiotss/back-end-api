@@ -25,6 +25,8 @@ import java.util.List;
 @AllArgsConstructor
 public class WriteBoardRequest {
     private String title;
+    private String introduce;
+    private String target;
     private String content;
     private int consultTime;
     private BoardType boardType;
