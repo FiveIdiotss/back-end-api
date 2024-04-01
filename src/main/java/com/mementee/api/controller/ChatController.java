@@ -1,12 +1,15 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.chat.Notification;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
+import com.mementee.api.dto.notificationDTO.NotificationChatDTO;
 import com.mementee.api.service.ChatService;
 import com.mementee.api.service.MemberService;
+import com.mementee.api.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -42,6 +45,7 @@ public class ChatController {
 
     private final ChatService chatService;
     private final MemberService memberService;
+    private final NotificationService notificationService;
     private final RedisTemplate<String, Object> redisTemplate; // Redis에 전달하는 핸들러
     private final SimpMessagingTemplate websocketPublisher; //websocket에 전달하는 핸들러
 
@@ -60,6 +64,12 @@ public class ChatController {
         // DB에 저장
         ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
         chatService.saveMessage(chatMessage);
+
+        //알림 기능
+        Member sender = memberService.getMemberById(messageDTO.getSenderId());
+        notificationService.save(sender, "메시지 도착");
+        NotificationChatDTO notificationChatDTO = new NotificationChatDTO("메시지 도착", sender.getName());
+        websocketPublisher.convertAndSend("/sub/notifications/" + sender.getId(), notificationChatDTO);
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
