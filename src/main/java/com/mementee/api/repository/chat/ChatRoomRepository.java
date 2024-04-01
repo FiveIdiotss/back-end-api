@@ -66,18 +66,6 @@ public class ChatRoomRepository {
         } catch (NoResultException e) {
             return Optional.empty();
         }
-
-//        try {
-//            return em.createQuery(query, ChatRoom.class)
-//                    .setParameter("senderId", senderId)
-//                    .setParameter("receiverId", receiverId)
-//                    .getSingleResult();
-//        } catch (NoResultException e) {
-//            // 채팅방이 없으면 새로운 채팅방을 생성
-//            ChatRoom newChatRoom = new ChatRoom(loginMember, receiver);
-//            em.persist(newChatRoom);
-//            return newChatRoom;
-//        }
-//    }
     }
+
 }

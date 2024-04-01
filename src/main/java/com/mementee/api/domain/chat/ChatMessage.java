@@ -30,12 +30,15 @@ public class ChatMessage {
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
 
-    private java.time.LocalDateTime localDateTime;
+    private String image;
 
-    public ChatMessage(String content, Member sender, ChatRoom chatRoom) {
+    private LocalDateTime localDateTime;
+
+    public ChatMessage(String content, Member sender, ChatRoom chatRoom, String image) {
         this.content = content;
         this.sender = sender;
         this.chatRoom = chatRoom;
+        this.image = image;
         this.localDateTime = LocalDateTime.now();
     }
 }
