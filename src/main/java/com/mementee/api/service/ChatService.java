@@ -90,10 +90,11 @@ public class ChatService {
         String receiverName = member.getName();
 
         Optional<ChatMessage> latestChatMessage = findLatestChatMessage(chatRoom.getId());
-        LatestMessageDTO latestMessageDTO;
-        latestMessageDTO = latestChatMessage.map(chatMessage -> new LatestMessageDTO(chatMessage.getContent(),
-                chatMessage.getLocalDateTime())).orElseGet(()
-                -> new LatestMessageDTO(" ", null));
+        boolean hasImage = latestChatMessage.map(ChatMessage::getImage).isPresent();
+
+        LatestMessageDTO latestMessageDTO = latestChatMessage.map(chatMessage ->
+                        new LatestMessageDTO(chatMessage.getContent(), chatMessage.getLocalDateTime(), hasImage))
+                .orElse(new LatestMessageDTO(" ", null, false));
 
         return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO,
                 member.getMemberImage().getMemberImageUrl(),
