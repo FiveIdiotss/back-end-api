@@ -38,6 +38,8 @@ public class BoardController {
     //글 쓰기--------------------------------------
     @Operation(description = "글 쓰기 - 글 작성시 상담 가능한 요일들, 상담 가능  같이 적으셈" +
             "  {\"title\": \"string\",\n" +
+            "  {\"introduce\": \"string\",\n" +
+            "  {\"target\": \"string\",\n" +
             "  \"content\": \"string\",\n" +
             "  \"consultTime\": 0,\n" +
             "  \"boardType\": \"MENTEE\",\n" +

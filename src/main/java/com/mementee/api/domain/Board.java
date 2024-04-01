@@ -29,6 +29,14 @@ public class Board {
 
     @Lob
     @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
+    private String introduce;
+
+    @Lob
+    @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
+    private String target;
+
+    @Lob
+    @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
     private String content;
 
     @Column(nullable = false)
@@ -73,7 +81,8 @@ public class Board {
     @JoinColumn(name = "board_image_id")
     private List<BoardImage> boardImages = new ArrayList<>();
 
-    public Board(String title, String content, int consultTime, BoardType boardType,  Member member,
+    public Board(String title, String introduce, String target, String content,
+                 int consultTime, BoardType boardType,  Member member,
                  List<ScheduleTime> times, List<DayOfWeek> availableDays, List<BoardImage> boardImages) {
         this.title = title;
         this.content = content;
@@ -85,9 +94,12 @@ public class Board {
         this.boardImages = boardImages;
     }
 
-    public Board(String title, String content, int consultTime, BoardType boardType,  Member member,
+    public Board(String title, String introduce, String target, String content,
+                 int consultTime, BoardType boardType,  Member member,
                  List<ScheduleTime> times, List<DayOfWeek> availableDays) {
         this.title = title;
+        this.introduce = introduce;
+        this.target = target;
         this.content = content;
         this.consultTime = consultTime;
         this.times = times;
@@ -108,9 +120,12 @@ public class Board {
         }
     }
 
-    public void modifyBoards(String title, String content, int consultTime, BoardType boardType,
+    public void modifyBoards(String title, String introduce, String target,
+                             String content, int consultTime, BoardType boardType,
                              List<ScheduleTime> times, List<DayOfWeek> availableDays){
         this.title = title;
+        this.introduce = introduce;
+        this.target = target;
         this.content = content;
         this.consultTime = consultTime;
         this.boardType = boardType;
