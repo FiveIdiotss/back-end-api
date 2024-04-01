@@ -47,20 +47,19 @@ public class ChatController {
 
 
     @MessageMapping("/hello")
-    public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
+    public void sendMessage(ChatMessageDTO messageDTO) {
+        // 이미지 파일이 들어왔는지 확인
+        if (messageDTO.getImage() != null) {
+            String imageUrl = chatService.saveImage(messageDTO.getImage());
+            messageDTO.setImage(imageUrl);
+        }
+
         // websocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
+
         // DB에 저장
         ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
         chatService.saveMessage(chatMessage);
-
-        // image 전송
-        if (messageDTO.getImage() != null) chatService.saveImage(messageDTO.getImage());
-    }
-
-    @PostMapping("image")
-    public void sendImage(ChatMessageDTO messageDTO) throws IOException {
-        chatService.saveImage(messageDTO.getImage());
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
@@ -74,7 +73,7 @@ public class ChatController {
                 message.getSender().getName(),
                 message.getSender().getId(),
                 message.getChatRoom().getId(),
-                null,
+                message.getImage(),
                 message.getLocalDateTime()
         ));
 
@@ -110,5 +109,3 @@ public class ChatController {
         return ResponseEntity.ok(chatRoomDTOs);
     }
 }
-
-

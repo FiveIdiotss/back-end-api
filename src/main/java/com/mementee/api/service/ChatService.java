@@ -57,7 +57,7 @@ public class ChatService {
         Member sender = memberService.getMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = findChatRoom(messageDTO.getChatRoomId());
 
-        return new ChatMessage(messageDTO.getContent(), sender, chatRoom);
+        return new ChatMessage(messageDTO.getContent(), sender, chatRoom, messageDTO.getImage());
     }
 
     @Transactional
@@ -81,7 +81,7 @@ public class ChatService {
         if(chatRoom.isPresent())
             return chatRoom;
 
-        throw new IllegalArgumentException("채팅방이 존재하지 않습니다.");
+        throw new IllegalArgumentException("둘 사이에 채팅방이 존재하지 않습니다.");
     }
 
     public Optional<ChatMessage> findLatestChatMessage(Long chatRoomId) {
@@ -113,47 +113,8 @@ public class ChatService {
                 chatRoom.getMatching().getStartTime());
     }
 
-    public void saveImage(String imageCode) throws IOException {
-        // 로컬에 저장될 디렉토리 경로
-        String localPath = "/Users/jonghyunlee/Downloads/savedImage";
-
-        // 이미지 확장자 추출
-        String extension = "";
-        String[] split = imageCode.split(",");
-        String base64Image = split[1];
-        if (split[0].equals("data:image/jpeg;base64")) {
-            extension = "jpeg";
-        } else if (split[0].equals("data:image/png;base64")) {
-            extension = "png";
-        } else {
-            extension = "jpg";
-        }
-
-        // Base64 문자열을 바이트 배열로 변환
-        byte[] bytes = DatatypeConverter.parseBase64Binary(base64Image);
-
-        // 지정된 디렉토리에 이미지 파일 저장
-//        File directory = new File(localPath);
-//        if (!directory.exists()) {
-//            directory.mkdirs(); // 디렉토리가 존재하지 않으면 생성
-//        }
-
-        // 파일명 설정
-        String fileName = UUID.randomUUID() + "." + extension;
-
-        // 이미지 파일 생성
-//        File imageFile = new File(directory, fileName);
-
-        // 파일 출력 스트림 초기화
-//        try (FileOutputStream fos = new FileOutputStream(imageFile)) {
-//            // 바이트 배열을 파일에 쓰기
-//            fos.write(bytes);
-//        }
-
+    public String saveImage(String imageCode) {
         log.info("s3 저장 로직");
-        s3Service.saveChatImage(imageCode, fileName);
-
-        // 저장된 파일 경로 출력 (실행 후 확인을 위해 출력)
-//        System.out.println("이미지가 저장된 경로: " + imageFile.getAbsolutePath());
+        return s3Service.saveChatImage(imageCode);
     }
 }
