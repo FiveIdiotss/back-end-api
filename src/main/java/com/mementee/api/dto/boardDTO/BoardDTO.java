@@ -9,7 +9,10 @@ import com.mementee.api.domain.enumtype.BoardType;
 public class BoardDTO {
     private Long boardId;
     private BoardType boardType;
+
     private String title;
+    private String introduce;
+    private String target;
     private String content;
 
     private int year;           //작성자 학번

@@ -1,12 +1,12 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.domain.chat.Notification;
+import com.mementee.api.domain.subdomain.Notification;
+import com.mementee.api.dto.NotificationDTO;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
-import com.mementee.api.dto.notificationDTO.NotificationChatDTO;
 import com.mementee.api.service.ChatService;
 import com.mementee.api.service.MemberService;
 import com.mementee.api.service.NotificationService;
@@ -65,11 +65,14 @@ public class ChatController {
         ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
         chatService.saveMessage(chatMessage);
 
-        //알림 기능
-        Member sender = memberService.getMemberById(messageDTO.getSenderId());
-        notificationService.save(sender, "메시지 도착");
-        NotificationChatDTO notificationChatDTO = new NotificationChatDTO("메시지 도착", sender.getName());
-        websocketPublisher.convertAndSend("/sub/notifications/" + sender.getId(), notificationChatDTO);
+        //알림
+        ChatRoom chatRoom = chatService.findChatRoom(messageDTO.getChatRoomId());
+        Long receiverId = chatService.getReceiverId(messageDTO.getSenderId(), chatRoom);
+        Notification notification = new Notification(memberService.getMemberById(receiverId), chatMessage);
+        notificationService.save(notification);
+
+        NotificationDTO notificationDTO = new NotificationDTO(notification.getId(), receiverId, messageDTO);
+        notificationService.notify(receiverId, notificationDTO);
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")

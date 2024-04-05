@@ -38,8 +38,8 @@ public class BoardController {
     //글 쓰기--------------------------------------
     @Operation(description = "글 쓰기 - 글 작성시 상담 가능한 요일들, 상담 가능  같이 적으셈" +
             "  {\"title\": \"string\",\n" +
-            "  {\"introduce\": \"string\",\n" +
-            "  {\"target\": \"string\",\n" +
+            "  \"introduce\": \"string\",\n" +
+            "  \"target\": \"string\",\n" +
             "  \"content\": \"string\",\n" +
             "  \"consultTime\": 0,\n" +
             "  \"boardType\": \"MENTEE\",\n" +
@@ -80,7 +80,7 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Slice<Board> findBoards = boardService.findAllByBoardType(boardType, pageable);
-        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
+        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
                 b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
 
         return slice;
@@ -98,7 +98,7 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Slice<Board> findBoards = boardService.findAllByBoardTypeAndSchoolName(boardType, schoolName, pageable);
-        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
+        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(),b.getTarget(), b.getContent(),
                 b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
 
         return slice;
@@ -126,8 +126,9 @@ public class BoardController {
     public ResponseEntity<?> boardInfo(@PathVariable Long boardId){
         try {
             Board board = boardService.findBoard(boardId);
-            BoardDTO boardDTO = new BoardDTO(board.getId(), board.getBoardType(), board.getTitle(), board.getContent(),
-                    board.getMember().getYear(), board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
+            BoardDTO boardDTO = new BoardDTO(board.getId(), board.getBoardType(), board.getTitle(), board.getIntroduce(),
+                    board.getTarget(), board.getContent(), board.getMember().getYear(),
+                    board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
                     board.getMember().getId(), board.getMember().getName());
 
             BoardInfoResponse response = new BoardInfoResponse(boardDTO, board.getConsultTime(), board.getTimes(),
@@ -220,7 +221,7 @@ public class BoardController {
                                              @RequestHeader("Authorization") String authorizationHeader){
         List<Board> list = boardService.findFavoriteBoards(authorizationHeader, boardType);
         return list.stream()
-                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
+                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(), b.getContent(),
                         b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
                         b.getMember().getId(), b.getMember().getName()))
                 .collect(Collectors.toList());
@@ -237,7 +238,7 @@ public class BoardController {
                                    @PathVariable("memberId") Long memberId){
         List<Board> list = boardService.findMemberBoards(memberId, boardType);
         return list.stream()
-                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
+                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(), b.getContent(),
                         b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
                         b.getMember().getId(), b.getMember().getName()))
                 .collect(Collectors.toList());
