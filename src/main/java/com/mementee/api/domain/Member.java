@@ -1,6 +1,5 @@
 package com.mementee.api.domain;
 
-import com.mementee.api.domain.chat.Notification;
 import com.mementee.api.domain.enumtype.Gender;
 import com.mementee.api.domain.enumtype.Role;
 import jakarta.persistence.*;
