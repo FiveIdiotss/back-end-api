@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 <body>
+<a href = "notification.html">SSE 테스트 페이지</a><br>
 <h1>WebSocket 연결 테스트 페이지입니다.</h1>
 <input type="text" id="message" placeholder="메시지를 입력하세요">
 <input type="file" id="imageInput" style="display: none;">
@@ -15,7 +16,7 @@
 <button id="send">전송</button>
 <div id="messageDisplay"></div>
 <div id="imageDisplay"></div>
-<div id="notificationDisplay"></div> <!-- 알림을 표시할 요소 추가 -->
+<!-- <div id="notificationDisplay"></div> 알림을 표시할 요소 추가 -->
 
 
 <script>
@@ -80,27 +81,28 @@
             });
         });
 
-        // 메시지 및 알림 수신
-        stompClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
-
-            // 메시지 수신 구독
-            stompClient.subscribe('/sub/chats/1', function (messageOutput) {
-                console.log('Received: ' + messageOutput.body);
-                var messageDisplay = document.querySelector('#messageDisplay');
-                messageDisplay.innerHTML += messageOutput.body + '<br>';
-            });
-
-            // 사용자 알림 수신 구독
-            var userId = 1; // 예시로 1번 사용자를 설정합니다. 실제로는 동적으로 설정해야 합니다.
-            stompClient.subscribe('/sub/notifications/' + userId, function (notification) {
-                console.log('Notification received: ' + notification.body);
-                var notificationDisplay = document.querySelector('#notificationDisplay');
-                notificationDisplay.innerHTML += notification.body + '<br>';
-            });
-        });
+        // // 메시지 및 알림 수신
+        // stompClient.connect({}, function (frame) {
+        //     console.log('Connected: ' + frame);
+        //
+        //     // 메시지 수신 구독
+        //     stompClient.subscribe('/sub/chats/1', function (messageOutput) {
+        //         console.log('Received: ' + messageOutput.body);
+        //         var messageDisplay = document.querySelector('#messageDisplay');
+        //         messageDisplay.innerHTML += messageOutput.body + '<br>';
+        //     });
+        //
+        //     // 사용자 알림 수신 구독
+        //     var userId = 2; // 예시로 1번 사용자를 설정합니다. 실제로는 동적으로 설정해야 합니다.
+        //     stompClient.subscribe('/sub/notifications/' + userId, function (notification) {
+        //         console.log('Notification received: ' + notification.body);
+        //         var notificationDisplay = document.querySelector('#notificationDisplay');
+        //         notificationDisplay.innerHTML += notification.body + '<br>';
+        //     });
+        // });
 
     }
+
 </script>
 </body>
 </html>

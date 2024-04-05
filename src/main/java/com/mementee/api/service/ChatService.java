@@ -35,8 +35,16 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomRepositorySub chatRoomRepositorySub;
+    private final NotificationService notificationService;
     private final MemberService memberService;
     private final S3Service s3Service;
+
+    //회원 조회 로직, memberId는 Sender
+    public Long getReceiverId(Long memberId, ChatRoom chatRoom){
+        if(memberId == chatRoom.getSender().getId())
+            return chatRoom.getReceiver().getId();
+        return chatRoom.getSender().getId();
+    }
 
     public ChatRoom findChatRoom(Long chatRoomId){
         return chatRoomRepository.findChatRoomById(chatRoomId);
@@ -52,6 +60,7 @@ public class ChatService {
     @Transactional
     public void saveMessage(ChatMessage chatMessage) {
         chatMessageRepository.save(chatMessage);
+
     }
 
     // 채팅방 ID로 채팅방 메세지 조회
