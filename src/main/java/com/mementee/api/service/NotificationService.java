@@ -1,6 +1,6 @@
 package com.mementee.api.service;
 
-import com.mementee.api.domain.subdomain.Notification;
+import com.mementee.api.domain.Notification;
 import com.mementee.api.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
