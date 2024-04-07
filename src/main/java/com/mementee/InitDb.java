@@ -28,6 +28,7 @@ public class InitDb {
     //     initService.dbInit();
     // }
 
+
     @Component
     @Transactional
     @RequiredArgsConstructor

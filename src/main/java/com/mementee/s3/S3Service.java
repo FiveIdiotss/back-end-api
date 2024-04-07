@@ -55,7 +55,7 @@ public class S3Service {
         }
     }
 
-    public String saveChatImage(String base64ImageData) {
+        public String saveChatImage(String base64ImageData) {
         // base64 데이터 파싱
         String[] split = base64ImageData.split(",");
         String base64Image = split[1];

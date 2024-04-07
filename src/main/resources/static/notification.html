@@ -5,8 +5,8 @@
     <title>SSE 알림 테스트</title>
     <script>
         window.onload = function() {
-            var eventSource = new EventSource('http://localhost:8080/api/sse/subscribe/2');
-
+            //var eventSource = new EventSource('http://localhost:8080/api/sse/subscribe/2');
+            var eventSource = new EventSource('http://menteetor.site:8080/api/sse/subscribe/2');
             eventSource.addEventListener("sse", function(event) {
                 // 이벤트 데이터(JSON 형식의 문자열)를 파싱
                 try {
