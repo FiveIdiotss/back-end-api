@@ -118,7 +118,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "로그인 성공"),
             @ApiResponse(responseCode = "fail", description = "로그인 실패")})
     @PostMapping("/api/member/signIn")
-    public ResponseEntity<?> signIn(@Valid @RequestBody LoginMemberRequest request, BindingResult bindingResult) {
+    public ResponseEntity signIn(@Valid @RequestBody LoginMemberRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -138,7 +138,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "로그아웃 성공"),
             @ApiResponse(responseCode = "fail", description = "로그아웃 실패")})
     @PostMapping("/api/member/signOut")
-    public ResponseEntity<?> signOut(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity signOut(@RequestHeader("Authorization") String authorizationHeader) {
         try {
             memberService.logout(authorizationHeader);
             return ResponseEntity.ok("로그아웃 성공");
@@ -154,7 +154,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "회원 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "회원 조회 실패")})
     @GetMapping("/api/member/{memberId}")
-    public ResponseEntity<?> memberInfo(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId) {
+    public ResponseEntity memberInfo(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId) {
         try {
             //Member member = memberService.isCheckMe(authorizationHeader, memberId);
             Member member = memberService.getMemberById(memberId);

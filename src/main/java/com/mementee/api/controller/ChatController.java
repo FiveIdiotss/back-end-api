@@ -1,7 +1,7 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.domain.subdomain.Notification;
-import com.mementee.api.dto.NotificationDTO;
+import com.mementee.api.domain.Notification;
+import com.mementee.api.dto.notificationDTO.NotificationDTO;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
@@ -27,10 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

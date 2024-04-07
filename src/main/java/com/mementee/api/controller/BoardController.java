@@ -1,8 +1,10 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.Major;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
-import com.mementee.api.dto.boardDTO.BoardDTO;
+import com.mementee.api.dto.boardDTO.*;
 import com.mementee.api.domain.Board;
+import com.mementee.api.dto.memberDTO.MajorDTO;
 import com.mementee.api.service.ApplyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,8 +13,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import com.mementee.api.dto.boardDTO.BoardInfoResponse;
-import com.mementee.api.dto.boardDTO.WriteBoardRequest;
 import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.service.BoardService;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -68,7 +68,7 @@ public class BoardController {
         }
     }
 
-    //글 리스트로 전체 조회---------------
+    //Slice 글 리스트로 전체 조회---------------
     //멘토,멘티 글 전체 조회
     @Operation(description =  "페이지 단위로 멘토/멘티 전체 리스트")
     @ApiResponses(value = {
@@ -86,8 +86,9 @@ public class BoardController {
         return slice;
     }
 
+
     //학교별 게시물 리스트--------------------------------------
-    @Operation(description = "페이지 단위로 멘토/멘티 학교별 리스트")
+    @Operation(description = "페이지 단위로 멘토/멘티 학교별 리스트 (page 사용)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
@@ -102,6 +103,50 @@ public class BoardController {
                 b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
 
         return slice;
+    }
+
+    //Page 멘토,멘티 글 전체 조회 --------------
+    @Operation(description =  "페이지 단위로 멘토/멘티 전체 리스트 (page 사용, 정진혁 용)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @GetMapping("/api/pageBoards")
+    public ResponseEntity pageBoardsList(@RequestParam BoardType boardType,
+                                         @RequestParam int page, @RequestParam int size){
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
+
+        Page<Board> findBoards = boardService.findAllByBoardTypeByPage(boardType, pageable);
+        PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
+
+        List<Board> response = findBoards.getContent();
+        List<BoardDTO> list = response.stream().map
+                (b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
+                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(new PaginationResponseDto(list, pageInfo), HttpStatus.OK);
+    }
+
+    @Operation(description = "페이지 단위로 멘토/멘티 학교별 리스트 (page 사용, 정진혁 용)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @GetMapping("/api/pageBoards/{schoolName}")
+    public ResponseEntity pageBoardListBySchoolName(@RequestParam BoardType boardType,
+                                                    @RequestParam int page, @RequestParam int size,
+                                                    @PathVariable String schoolName){
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
+
+        Page<Board> findBoards = boardService.findAllByBoardTypeAndSchoolNameByPage(boardType, schoolName, pageable);
+        PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
+
+        List<Board> response = findBoards.getContent();
+        List<BoardDTO> list = response.stream().map
+                        (b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
+                                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(new PaginationResponseDto(list, pageInfo), HttpStatus.OK);
     }
 
     //게시글 조회 --------------------
@@ -123,7 +168,7 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "글 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "글 조회 실패")})
     @GetMapping("/api/board/{boardId}")
-    public ResponseEntity<?> boardInfo(@PathVariable Long boardId){
+    public ResponseEntity boardInfo(@PathVariable Long boardId){
         try {
             Board board = boardService.findBoard(boardId);
             BoardDTO boardDTO = new BoardDTO(board.getId(), board.getBoardType(), board.getTitle(), board.getIntroduce(),
@@ -134,7 +179,6 @@ public class BoardController {
             BoardInfoResponse response = new BoardInfoResponse(boardDTO, board.getConsultTime(), board.getTimes(),
                     board.getAvailableDays(), board.getUnavailableTimes());
             return ResponseEntity.ok(response);
-
         }catch (EmptyResultDataAccessException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("글 조회 실패");
         }
@@ -146,7 +190,7 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @PutMapping("/api/board/{boardId}")
-    public ResponseEntity<?> boardModify(@RequestBody @Valid WriteBoardRequest request, @PathVariable Long boardId,
+    public ResponseEntity boardModify(@RequestBody @Valid WriteBoardRequest request, @PathVariable Long boardId,
                                          @RequestHeader("Authorization") String authorizationHeader){
         try {
             boardService.modifyBoard(request, authorizationHeader, boardId);
@@ -168,7 +212,7 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "신청 성공"),
             @ApiResponse(responseCode = "fail", description = "신청 실패")})
     @PostMapping("/api/board/{boardId}")
-    public ResponseEntity<?> boardApply(@RequestBody @Valid ApplyRequest request, @PathVariable Long boardId,
+    public ResponseEntity boardApply(@RequestBody @Valid ApplyRequest request, @PathVariable Long boardId,
                                         @RequestHeader("Authorization") String authorizationHeader){
         try {
             applicationService.sendApply(authorizationHeader, boardId, request);

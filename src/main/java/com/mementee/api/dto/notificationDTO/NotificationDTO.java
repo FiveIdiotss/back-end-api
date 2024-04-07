@@ -1,4 +1,4 @@
-package com.mementee.api.dto;
+package com.mementee.api.dto.notificationDTO;
 
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;

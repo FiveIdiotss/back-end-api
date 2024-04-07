@@ -1,6 +1,6 @@
 package com.mementee.api.repository;
 
-import com.mementee.api.domain.subdomain.Notification;
+import com.mementee.api.domain.Notification;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

@@ -1,4 +1,4 @@
-package com.mementee.api.domain.subdomain;
+package com.mementee.api.domain;
 
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
