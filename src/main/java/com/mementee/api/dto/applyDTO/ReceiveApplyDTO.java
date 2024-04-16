@@ -19,8 +19,8 @@ public class ReceiveApplyDTO {
 
     private ApplyState applyState;
 
-    private Long sendMemberId;
-    private String sendMemberName;
+    private Long otherMemberId;
+    private String otherMemberName;
 
     private LocalDate date;
     private LocalTime startTime;
