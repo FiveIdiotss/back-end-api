@@ -18,6 +18,7 @@ public class BoardInfoResponse {
     private List<DayOfWeek> availableDays;            //상감 가능한 요일
 
     private List<UnavailableTime> unavailableTimes;   //예약 불가한 시간
+    private List<BoardImageDTO> boardImageUrls;       //게시물에 등록된 이미지
 
     //private List<LocalDate> availableDays;          //상담 가능한 요일
 }

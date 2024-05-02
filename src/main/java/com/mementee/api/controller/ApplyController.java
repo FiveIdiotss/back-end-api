@@ -1,9 +1,9 @@
 package com.mementee.api.controller;
 
 import com.mementee.api.domain.Apply;
-import com.mementee.api.dto.applyDTO.ApplyInfo;
-import com.mementee.api.dto.applyDTO.ReceiveApplyDTO;
-import com.mementee.api.dto.applyDTO.SendApplyDTO;
+import com.mementee.api.dto.applyDTO.*;
+import com.mementee.api.dto.boardDTO.PageInfo;
+import com.mementee.api.dto.boardDTO.PaginationResponseDto;
 import com.mementee.api.service.ApplyService;
 import com.mementee.api.service.MatchingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,11 +16,16 @@ import lombok.extern.slf4j.Slf4j;
 import com.mementee.api.domain.enumtype.SendReceive;
 import com.mementee.api.service.MemberService;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -47,15 +52,46 @@ public class ApplyController {
             return list.stream()
                     .map(a -> new ReceiveApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getBoard().getTitle(), a.getApplyState(),
                             a.getSendMember().getId(), a.getSendMember().getName(),
-                            a.getDate(), a.getStartTime()))
+                            a.getDate(), a.getStartTime(), a.getApplyTime()))
                     .toList();
         }
 
         return list.stream()
                 .map(a -> new SendApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getBoard().getTitle(), a.getApplyState(),
                         a.getReceiveMember().getId(), a.getReceiveMember().getName(),
-                        a.getDate(), a.getStartTime()))
+                        a.getDate(), a.getStartTime(), a.getApplyTime()))
                 .toList();
+    }
+
+    @Operation(description = "page 를 통한 내가 신청 한/받은 글 리스트")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @GetMapping("/api/pageMyApply")
+    public ResponseEntity pageApplyList(@RequestHeader("Authorization") String authorizationHeader,
+                                        @RequestParam SendReceive sendReceive, @RequestParam int page, @RequestParam int size){
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
+
+        Page<Apply> findApplies = applyService.findMyApplyByPage(memberService.getMemberByToken(authorizationHeader).getId(), sendReceive, pageable);
+        PageInfo pageInfo = new PageInfo(page, size, (int)findApplies.getTotalElements(), findApplies.getTotalPages());
+
+        List<Apply> response = findApplies.getContent();
+        if(sendReceive == SendReceive.RECEIVE) {
+            List<ReceiveApplyDTO> list = response.stream().map
+                    (a -> new ReceiveApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getBoard().getTitle(), a.getApplyState(),
+                            a.getSendMember().getId(), a.getSendMember().getName(),
+                            a.getDate(), a.getStartTime(), a.getApplyTime()))
+                    .collect(Collectors.toList());
+
+            return new ResponseEntity<>(new PaginationReceiveApplyResponseDto(list, pageInfo), HttpStatus.OK);
+        }
+
+        List<SendApplyDTO> list = response.stream().map
+                        (a -> new SendApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getBoard().getTitle(), a.getApplyState(),
+                                a.getReceiveMember().getId(), a.getReceiveMember().getName(),
+                                a.getDate(), a.getStartTime(), a.getApplyTime()))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(new PaginationSendApplyResponseDto(list, pageInfo), HttpStatus.OK);
     }
 
     //신청 받기
@@ -104,7 +140,7 @@ public class ApplyController {
             ApplyInfo response = new ApplyInfo(apply.getId(), apply.getBoard().getId(),
                     apply.getContent(), apply.getBoard().getTitle(), apply.getApplyState(),
                     apply.getDate(), apply.getStartTime(), apply.getBoard().getMember().getId(),
-                    apply.getBoard().getMember().getName(), apply.getBoard().getMember().getMemberImage().getMemberImageUrl()
+                    apply.getBoard().getMember().getName(), apply.getBoard().getMember().getMemberImageUrl()
                     ,apply.getBoard().getMember().getMajor().getSchool().getName(),
                     apply.getBoard().getMember().getMajor().getName());
 

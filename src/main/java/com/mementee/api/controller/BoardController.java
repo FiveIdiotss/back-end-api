@@ -1,11 +1,11 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.domain.Major;
+import com.mementee.api.domain.BoardImage;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.dto.boardDTO.*;
 import com.mementee.api.domain.Board;
-import com.mementee.api.dto.memberDTO.MajorDTO;
 import com.mementee.api.service.ApplyService;
+import com.mementee.api.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -34,6 +34,7 @@ public class BoardController {
 
     private final BoardService boardService;
     private final ApplyService applicationService;
+    private final NotificationService notificationService;
 
     //글 쓰기--------------------------------------
     @Operation(description = "글 쓰기 - 글 작성시 상담 가능한 요일들, 상담 가능  같이 적으셈" +
@@ -42,6 +43,7 @@ public class BoardController {
             "  \"target\": \"string\",\n" +
             "  \"content\": \"string\",\n" +
             "  \"consultTime\": 0,\n" +
+            "  \"boardCategory\": \"이공\",\n" +
             "  \"boardType\": \"MENTEE\",\n" +
             "  \"times\": [\n" +
             "    {  \"startTime\": \"09:00:00\",\n" +
@@ -80,8 +82,8 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Slice<Board> findBoards = boardService.findAllByBoardType(boardType, pageable);
-        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
-                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
+        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
+                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName(), b.getWriteTime()));
 
         return slice;
     }
@@ -99,8 +101,8 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Slice<Board> findBoards = boardService.findAllByBoardTypeAndSchoolName(boardType, schoolName, pageable);
-        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(),b.getTarget(), b.getContent(),
-                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
+        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(),b.getTarget(), b.getContent(),
+                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName(), b.getWriteTime()));
 
         return slice;
     }
@@ -120,8 +122,9 @@ public class BoardController {
 
         List<Board> response = findBoards.getContent();
         List<BoardDTO> list = response.stream().map
-                (b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
-                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()))
+                (b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
+                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
+                        b.getMember().getId(), b.getMember().getName(), b.getWriteTime()))
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(new PaginationResponseDto(list, pageInfo), HttpStatus.OK);
@@ -142,8 +145,9 @@ public class BoardController {
 
         List<Board> response = findBoards.getContent();
         List<BoardDTO> list = response.stream().map
-                        (b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
-                                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()))
+                        (b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
+                                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
+                                b.getMember().getId(), b.getMember().getName(), b.getWriteTime()))
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(new PaginationResponseDto(list, pageInfo), HttpStatus.OK);
@@ -171,13 +175,19 @@ public class BoardController {
     public ResponseEntity boardInfo(@PathVariable Long boardId){
         try {
             Board board = boardService.findBoard(boardId);
-            BoardDTO boardDTO = new BoardDTO(board.getId(), board.getBoardType(), board.getTitle(), board.getIntroduce(),
+            List<BoardImage> boardImages = boardService.getBoardImages(boardId);
+
+            List<BoardImageDTO> boardImageDTOS = boardImages.stream().
+                    map(b -> new BoardImageDTO(b.getBoardImageUrl()))
+                    .collect(Collectors.toList());
+
+            BoardDTO boardDTO = new BoardDTO(board.getId(), board.getBoardCategory(), board.getBoardType(), board.getTitle(), board.getIntroduce(),
                     board.getTarget(), board.getContent(), board.getMember().getYear(),
                     board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
-                    board.getMember().getId(), board.getMember().getName());
+                    board.getMember().getId(), board.getMember().getName(), board.getWriteTime());
 
             BoardInfoResponse response = new BoardInfoResponse(boardDTO, board.getConsultTime(), board.getTimes(),
-                    board.getAvailableDays(), board.getUnavailableTimes());
+                    board.getAvailableDays(), board.getUnavailableTimes(), boardImageDTOS);
             return ResponseEntity.ok(response);
         }catch (EmptyResultDataAccessException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("글 조회 실패");
@@ -216,6 +226,7 @@ public class BoardController {
                                         @RequestHeader("Authorization") String authorizationHeader){
         try {
             applicationService.sendApply(authorizationHeader, boardId, request);
+            notificationService.sendNotification(boardService.findBoard(boardId).getMember().getId(), request);
             return ResponseEntity.ok("신청 성공");
         }catch (IllegalArgumentException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -265,9 +276,9 @@ public class BoardController {
                                              @RequestHeader("Authorization") String authorizationHeader){
         List<Board> list = boardService.findFavoriteBoards(authorizationHeader, boardType);
         return list.stream()
-                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(), b.getContent(),
+                .map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(), b.getContent(),
                         b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
-                        b.getMember().getId(), b.getMember().getName()))
+                        b.getMember().getId(), b.getMember().getName(), b.getWriteTime()))
                 .collect(Collectors.toList());
     }
 
@@ -282,9 +293,9 @@ public class BoardController {
                                    @PathVariable("memberId") Long memberId){
         List<Board> list = boardService.findMemberBoards(memberId, boardType);
         return list.stream()
-                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(), b.getContent(),
+                .map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(), b.getContent(),
                         b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
-                        b.getMember().getId(), b.getMember().getName()))
+                        b.getMember().getId(), b.getMember().getName(), b.getWriteTime()))
                 .collect(Collectors.toList());
     }
 }

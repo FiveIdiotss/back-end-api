@@ -24,7 +24,7 @@ public class BoardRepository {
         em.persist(board);
     }
 
-    //멘토 게시글 조회
+    //게시글 조회
     public Board findBoard(Long boardId) {
         return em.find(Board.class, boardId);
     }
@@ -107,5 +107,12 @@ public class BoardRepository {
     //게시판 사진 등롱
     public void saveBoardImage(BoardImage boardImage){
         em.persist(boardImage);
+    }
+
+    //게시판에 등록된 이미지
+    public List<BoardImage> findBoardImages(Long boardId){
+        return em.createQuery("select b from BoardImage b where b.board.id =: boardId", BoardImage.class)
+                .setParameter("boardId", boardId)
+                .getResultList();
     }
 }

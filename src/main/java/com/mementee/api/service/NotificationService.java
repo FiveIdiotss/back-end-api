@@ -1,27 +1,71 @@
 package com.mementee.api.service;
 
+import com.mementee.api.domain.Member;
 import com.mementee.api.domain.Notification;
+import com.mementee.api.dto.notificationDTO.NotificationDTO;
 import com.mementee.api.repository.NotificationRepository;
+import com.mementee.config.chat.RedisPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService {
 
+    private final MemberService memberService;
     private final NotificationRepository notificationRepository;
-    private final static long TIMEOUT = 60L *  60 * 1000;
+    private final RedisPublisher redisPublisher;
+    private final static long TIMEOUT = 60L *  60;
+
+    private NotificationDTO createNotificationDTO(Long receiverId, Object objectDTO, LocalDateTime localDateTime){
+        return new NotificationDTO(receiverId, objectDTO, localDateTime);
+    }
 
     @Transactional
-    public void save(Notification notification){
+    public void sendNotification(Long receiverId, Object objectDTO){
+        Member receiver = memberService.getMemberById(receiverId);
+        Notification notification = new Notification(receiver);
+        NotificationDTO notificationDTO = createNotificationDTO(receiverId, objectDTO, notification.getCreatedAt());
+
+        //sendToClient(receiverId, notificationDTO);
+
+        redisPublisher.publish(ChannelTopic.of("notification:" + receiverId),
+                notificationDTO);
+
         notificationRepository.saveNotification(notification);
+    }
+
+    /**
+     * 사용자 아이디를 기반으로 이벤트 Emitter를 생성
+     *
+     * @param receiverId - 사용자 아이디.
+     * @return SseEmitter - 생성된 이벤트 Emitter.
+     */
+    private SseEmitter createEmitter(Long receiverId) {
+        SseEmitter emitter = new SseEmitter(TIMEOUT);
+        notificationRepository.save(receiverId, emitter);
+
+        // Emitter가 완료될 때(모든 데이터가 성공적으로 전송된 상태) Emitter를 삭제한다.
+        emitter.onCompletion(() -> notificationRepository.deleteById(receiverId));
+
+        // Emitter가 타임아웃 되었을 때(지정된 시간동안 어떠한 이벤트도 전송되지 않았을 때) Emitter를 삭제한다.
+        emitter.onTimeout(() -> notificationRepository.deleteById(receiverId));
+
+        return emitter;
     }
 
     /**
@@ -30,19 +74,9 @@ public class NotificationService {
      * @param memberId - 구독하는 클라이언트의 사용자 아이디.
      * @return SseEmitter - 서버에서 보낸 이벤트 Emitter
      */
-    public SseEmitter subscribe(Long memberId, String lastEventId) {
-        if (lastEventId == null || lastEventId.isEmpty()) {
-            lastEventId = "0"; // "0"으로 설정하여 최근 알림만을 전송하도록 함
-        }
-
-        SseEmitter emitter = createEmitter(memberId, lastEventId);
+    public SseEmitter subscribe(Long memberId) {
+        SseEmitter emitter = createEmitter(memberId);
         sendToClient(memberId, "EventStream Created. [memberId=" + memberId + "]");
-
-        // 필터링된 알림 조회 및 전송
-        List<Notification> filteredNotifications = notificationRepository.findNotificationsAfter(memberId, lastEventId);
-        for (Notification notification : filteredNotifications) {
-            sendToClient(memberId, notification.getChatMessage()); // eventData를 적절히 전송가능한 형태로 변환 필요
-        }
 
         return emitter;
     }
@@ -64,36 +98,16 @@ public class NotificationService {
      * @param receiverId   - 데이터를 받을 사용자의 아이디.
      * @param data - 전송할 데이터.
      */
-    private void sendToClient(Long receiverId, Object data) {
-        SseEmitter emitter = notificationRepository.get(receiverId);
-        System.out.println(emitter);
-        if (emitter != null) {
+    public void sendToClient(Long receiverId, Object data) {
+        Optional<SseEmitter> emitter = notificationRepository.get(receiverId);
+        if (emitter.isPresent()) {
             try {
-                emitter.send(SseEmitter.event().id(String.valueOf(receiverId)).name("sse").data(data));
+                emitter.get().send(SseEmitter.event().id(String.valueOf(receiverId)).name("sse").data(data));
             } catch (IOException exception) {
                 notificationRepository.deleteById(receiverId);
-                emitter.completeWithError(exception);
+                emitter.get().completeWithError(exception);
             }
         }
-    }
-
-    /**
-     * 사용자 아이디를 기반으로 이벤트 Emitter를 생성
-     *
-     * @param receiverId - 사용자 아이디.
-     * @return SseEmitter - 생성된 이벤트 Emitter.
-     */
-    private SseEmitter createEmitter(Long receiverId, String lastEventId) {
-        SseEmitter emitter = new SseEmitter(TIMEOUT);
-        notificationRepository.save(receiverId, emitter, lastEventId);
-
-        // Emitter가 완료될 때(모든 데이터가 성공적으로 전송된 상태) Emitter를 삭제한다.
-        emitter.onCompletion(() -> notificationRepository.deleteById(receiverId));
-
-        // Emitter가 타임아웃 되었을 때(지정된 시간동안 어떠한 이벤트도 전송되지 않았을 때) Emitter를 삭제한다.
-        emitter.onTimeout(() -> notificationRepository.deleteById(receiverId));
-
-        return emitter;
     }
 }
 

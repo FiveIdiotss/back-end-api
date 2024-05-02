@@ -1,11 +1,11 @@
 package com.mementee.api.domain;
 
-import com.mementee.api.domain.Member;
-import com.mementee.api.domain.chat.ChatMessage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -20,12 +20,15 @@ public class Notification {
     @JoinColumn(name = "member_id")
     private Member receiver;
 
-    @OneToOne
-    @JoinColumn(name = "chat_message_id")
-    private ChatMessage chatMessage;
+//    @OneToOne
+//    @JoinColumn(name = "chat_message_id")
+//    private ChatMessage chatMessage;
 
-    public Notification(Member receiver, ChatMessage chatMessage) {
+
+    private LocalDateTime createdAt;
+
+    public Notification(Member receiver) {
         this.receiver = receiver;
-        this.chatMessage = chatMessage;
+        this.createdAt = LocalDateTime.now();
     }
 }

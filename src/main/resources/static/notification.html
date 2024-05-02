@@ -17,13 +17,13 @@
                     var currentTime = new Date().toTimeString().split(" ")[0]; // 현재 시간
 
                     // chatMessageDTO가 있는 경우, 채팅 메시지 내용을 표시
-                    if (parsedData.chatMessageDTO) {
-                        var content = parsedData.chatMessageDTO.content;
-                        var senderName = parsedData.chatMessageDTO.senderName;
-                        newElement.innerHTML = "<strong>알림 시간:</strong> " + currentTime + " | <strong>발신자:</strong> " + senderName + " | <strong>내용:</strong> " + content;
+                    if (parsedData.notificationDTO) {
+                        var senderId = parsedData.notificationDTO.receiverId;
+                        //var senderName = parsedData.chatMessageDTO.senderName;
+                        newElement.innerHTML = "<strong>알림 시간:</strong> " + currentTime + " | <strong>발신자 ID:</strong> " + senderId;
                     } else {
                         // chatMessageDTO가 없는 경우(예: 이벤트 스트림 생성 메시지), 기본 메시지 표시
-                        newElement.innerHTML = "<strong>알림:</strong> " + event.data;
+                        newElement.innerHTML = "<strong>알림 발생:</strong> " + event.data;
                     }
 
                     // 생성한 요소를 알림 영역에 추가
