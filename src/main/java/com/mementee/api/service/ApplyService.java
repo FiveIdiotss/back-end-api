@@ -3,10 +3,14 @@ package com.mementee.api.service;
 import com.mementee.api.domain.Apply;
 import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
+import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.repository.ApplyRepository;
+import com.mementee.api.repository.ApplyRepositorySub;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.domain.enumtype.SendReceive;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +23,7 @@ import java.util.Optional;
 public class ApplyService {
 
     private final ApplyRepository applicationRepository;
+    private final ApplyRepositorySub applicationRepositorySub;
     private final MemberService memberService;
     private final BoardService boardService;
 
@@ -70,6 +75,13 @@ public class ApplyService {
         if(sendReceive.equals(SendReceive.SEND))
             return findApplyBySendMember(memberId);
         return findApplyByReceiveMember(memberId);
+    }
+
+    //Page 를 통한 보낸/받은 신청목록
+    public Page<Apply> findMyApplyByPage(Long memberId, SendReceive sendReceive, Pageable pageable){
+        if(sendReceive.equals(SendReceive.SEND))
+            return applicationRepositorySub.findMySendApplyByPage(memberId, pageable);
+        return applicationRepositorySub.findMyReceiveApplyByPage(memberId, pageable);
     }
 
     public List<Apply> findApplyBySendMember(Long memberId){

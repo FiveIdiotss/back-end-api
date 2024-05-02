@@ -30,6 +30,9 @@ public class Member{
     @Column(nullable = false)
     private int year;                //학번
 
+    @Column(name = "member_image_url")
+    private String memberImageUrl;      //프로필 사진
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Gender gender;
@@ -66,15 +69,11 @@ public class Member{
     @Column(name = "mentee")
     private List<Matching> myMenteeMatching = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_image_id")
-    private MemberImage memberImage;
-
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Favorite> likes = new ArrayList<>();
 
-    public Member(String email, String name, String password, int year, Gender gender,
-                  School school, Major major, MemberImage memberImage) {
+    public Member(String email, String name, String password, int year, String defaultMemberImageUrl,
+                  Gender gender, School school, Major major) {
         this.email = email;
         this.name = name;
         this.password = password;
@@ -83,7 +82,7 @@ public class Member{
         this.role = Role.USER;
         this.school = school;
         this.major = major;
-        this.memberImage = memberImage;
+        this.memberImageUrl = defaultMemberImageUrl;
     }
 
     //임시
@@ -105,5 +104,10 @@ public class Member{
 
     public void removeFavoriteBoard(Favorite favorite){
         this.getLikes().remove(favorite);
+    }
+
+    public Member updateMemberImage(String newMemberImageUrl) {
+        this.memberImageUrl = newMemberImageUrl;
+        return this;
     }
 }

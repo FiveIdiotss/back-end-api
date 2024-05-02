@@ -17,9 +17,11 @@ public class RedisMessageSaveDTO {
     private String content;
     private String senderName;
     private Long senderId;
+    private Long chatRoomId;
+    private String image;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @CreatedDate
-    private LocalDateTime localDateTime;
+    private LocalDateTime localDateTime = LocalDateTime.now();
 }

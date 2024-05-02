@@ -106,7 +106,7 @@ public class MemberController {
         List<Member> findMembers = memberService.findMembers();
         List<MemberDTO> collect = findMembers.stream()
                 .map(m -> new MemberDTO(m.getId(), m.getEmail(), m.getName(), m.getYear(), m.getGender(),
-                        m.getSchool().getName(), m.getMajor().getName(), m.getMemberImage().getMemberImageUrl())) //Member entity에서 꺼내와 dto에 넣음
+                        m.getSchool().getName(), m.getMajor().getName(), m.getMemberImageUrl())) //Member entity에서 꺼내와 dto에 넣음
                 .collect(Collectors.toList());
 
         return collect;
@@ -159,7 +159,7 @@ public class MemberController {
             //Member member = memberService.isCheckMe(authorizationHeader, memberId);
             Member member = memberService.getMemberById(memberId);
             MemberInfoResponse response = new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(),
-                    member.getYear(), member.getGender(), member.getSchool().getName(), member.getMajor().getName(), member.getMemberImage().getMemberImageUrl());
+                    member.getYear(), member.getGender(), member.getSchool().getName(), member.getMajor().getName(), member.getMemberImageUrl());
             return ResponseEntity.ok(response);
 
         } catch (EmptyResultDataAccessException e) {
@@ -179,8 +179,8 @@ public class MemberController {
     public ResponseEntity<String> updatedMemberImage(@RequestHeader("Authorization") String authorizationHeader,
                                                      @RequestPart("imageFile")MultipartFile multipartFile) {
         try {
-            memberService.updatedMemberImage(authorizationHeader, multipartFile);
-            return ResponseEntity.ok("프로필 변경 성공");
+            String imageUrl = memberService.updatedMemberImage(authorizationHeader, multipartFile);
+            return ResponseEntity.ok(imageUrl);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -193,8 +193,8 @@ public class MemberController {
     @PostMapping("/api/member/defaultImage")
     public ResponseEntity<String> updatedDefaultMemberImage(@RequestHeader("Authorization") String authorizationHeader) {
         try {
-            memberService.updatedDefaultMemberImage(authorizationHeader);
-            return ResponseEntity.ok("프로필 변경 성공");
+            String imageUrl = memberService.updatedDefaultMemberImage(authorizationHeader);
+            return ResponseEntity.ok(imageUrl);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
