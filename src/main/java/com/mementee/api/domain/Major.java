@@ -28,8 +28,6 @@ public class Major {
     @OneToMany(mappedBy = "major")
     private List<Member> members = new ArrayList<>();
 
-    private Long iddd;
-
     public Major(String name, School school) {
         this.name = name;
         this.school = school;

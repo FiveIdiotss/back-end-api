@@ -1,13 +1,17 @@
 package com.mementee.api.dto.boardDTO;
 
+import com.mementee.api.domain.enumtype.BoardCategory;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import com.mementee.api.domain.enumtype.BoardType;
+
+import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
 public class BoardDTO {
     private Long boardId;
+    private BoardCategory boardCategory;
     private BoardType boardType;
 
     private String title;
@@ -21,4 +25,6 @@ public class BoardDTO {
 
     private Long memberId;      //작성자
     private String memberName;  //작성자
+
+    private LocalDateTime writeTime;  ////작성 시간
 }

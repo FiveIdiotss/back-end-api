@@ -38,6 +38,13 @@ public class BoardService {
             throw new IllegalArgumentException("권한이 없습니다.");        //작성자가 아닐경우
     }
 
+    //이미지
+    //이미지 조회
+    public List<BoardImage> getBoardImages(Long boardId){
+        return boardRepository.findBoardImages(boardId);
+    }
+
+    //게시물 등록시 이미지 추출 후 엔티티 생성
     @Transactional
     public List<BoardImage> getBoardImageUrl(List<MultipartFile> multipartFiles) throws IOException {
         List<BoardImage> boardImages = new ArrayList<>();
@@ -53,18 +60,23 @@ public class BoardService {
         return boardImages;
     }
 
+    //-------------
     @Transactional
     public Long saveBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) throws IOException {
         Member member = memberService.getMemberByToken(authorizationHeader);
         List<BoardImage> boardImages = getBoardImageUrl(multipartFiles);
         Board board;
         if(boardImages.isEmpty()){
-            board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(),
-                    request.getConsultTime(), request.getBoardType(), member, request.getTimes(), request.getAvailableDays());
+            board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
+                    request.getBoardCategory(), request.getBoardType(), member, request.getTimes(), request.getAvailableDays());
         }else {
-            board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(),
-                    request.getConsultTime(), request.getBoardType(), member, request.getTimes(), request.getAvailableDays(), boardImages);
+            board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
+                    request.getBoardCategory(), request.getBoardType(), member, request.getTimes(), request.getAvailableDays(), boardImages);
             board.addBoardImage(boardImages);
+
+            for(BoardImage boardImage : boardImages){
+                boardImage.setBoard(board);
+            }
         }
 
         member.addBoard(board);
@@ -72,7 +84,7 @@ public class BoardService {
         return board.getId();
     }
 
-
+    //-----------
     @Transactional
     public Long modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId) {
         Member member = memberService.getMemberByToken(authorizationHeader);
@@ -81,7 +93,7 @@ public class BoardService {
         isCheckBoardMember(member, board);
 
         board.modifyBoards(request.getTitle(), request.getIntroduce(), request.getTarget(),
-                request.getContent(), request.getConsultTime(),
+                request.getContent(), request.getConsultTime(), request.getBoardCategory(),
                 request.getBoardType(), request.getTimes(), request.getAvailableDays());
 
         return board.getId();
@@ -107,7 +119,7 @@ public class BoardService {
         return boardRepositorySub.findAllByBoardTypeByPage(boardType, pageable);
     }
 
-    public Page<Board> findAllByBoardTypeAndSchoolNameByPage(BoardType boardType, String schoolName,Pageable pageable){
+    public Page<Board> findAllByBoardTypeAndSchoolNameByPage(BoardType boardType, String schoolName, Pageable pageable){
         return boardRepositorySub.findAllByBoardTypeAndSchoolNameByPage(boardType, schoolName, pageable);
     }
 

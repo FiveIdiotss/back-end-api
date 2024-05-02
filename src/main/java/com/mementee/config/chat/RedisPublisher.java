@@ -1,6 +1,5 @@
 package com.mementee.config.chat;
 
-import com.mementee.api.dto.redisDTO.RedisMessageSaveDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,9 +13,12 @@ public class RedisPublisher {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public void publish(ChannelTopic topic, RedisMessageSaveDTO message) {
-        log.info("Redis Publisher");
-
-        redisTemplate.convertAndSend(topic.getTopic(), message);
+    public void publish(ChannelTopic topic, Object message) {
+        log.info("Publishing to Redis topic: {}", topic.getTopic());
+        try {
+            redisTemplate.convertAndSend(topic.getTopic(), message);
+        } catch (Exception e) {
+            log.error("Error publishing message to Redis: {}", e.getMessage());
+        }
     }
 }

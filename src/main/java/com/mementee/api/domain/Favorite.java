@@ -11,8 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Favorite {
 
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     @Column(name = "favorite_id")
     private Long id;
 

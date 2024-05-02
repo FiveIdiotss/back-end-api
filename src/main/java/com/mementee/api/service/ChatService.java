@@ -9,22 +9,21 @@ import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
+import com.mementee.config.chat.RedisPublisher;
 import com.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -35,13 +34,12 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomRepositorySub chatRoomRepositorySub;
-    private final NotificationService notificationService;
     private final MemberService memberService;
     private final S3Service s3Service;
 
     //회원 조회 로직, memberId는 Sender
     public Long getReceiverId(Long memberId, ChatRoom chatRoom){
-        if(memberId == chatRoom.getSender().getId())
+        if(Objects.equals(memberId, chatRoom.getSender().getId()))
             return chatRoom.getReceiver().getId();
         return chatRoom.getSender().getId();
     }
@@ -58,7 +56,8 @@ public class ChatService {
     }
 
     @Transactional
-    public void saveMessage(ChatMessage chatMessage) {
+    public void saveMessage(ChatMessageDTO messageDTO) {
+        ChatMessage chatMessage = createMessageByDTO(messageDTO);
         chatMessageRepository.save(chatMessage);
 
     }
@@ -106,7 +105,7 @@ public class ChatService {
                 .orElse(new LatestMessageDTO(" ", null, false));
 
         return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO,
-                member.getMemberImage().getMemberImageUrl(),
+                member.getMemberImageUrl(),
                 chatRoom.getMatching().getBoard().getTitle(),
                 chatRoom.getMatching().getDate(),
                 chatRoom.getMatching().getStartTime());

@@ -20,6 +20,10 @@ public class BoardImage {
     @Column(name = "board_image_url")
     private String boardImageUrl;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
+    private Board board;
+
     public BoardImage(String boardImageUrl) {
         this.boardImageUrl = boardImageUrl;
     }
@@ -28,5 +32,4 @@ public class BoardImage {
         this.boardImageUrl = newBoardImageUrl;
         return this;
     }
-
 }

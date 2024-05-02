@@ -1,13 +1,13 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.domain.Notification;
-import com.mementee.api.dto.notificationDTO.NotificationDTO;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
+import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.ChatService;
+import com.mementee.api.service.FCMNotificationService;
 import com.mementee.api.service.MemberService;
 import com.mementee.api.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,13 +21,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,36 +40,34 @@ import java.util.stream.Collectors;
 @Tag(name = "실시간 채팅 기능")
 public class ChatController {
 
+    private final FCMNotificationService fcmNotificationService;
     private final ChatService chatService;
     private final MemberService memberService;
-    private final NotificationService notificationService;
-    private final RedisTemplate<String, Object> redisTemplate; // Redis에 전달하는 핸들러
     private final SimpMessagingTemplate websocketPublisher; //websocket에 전달하는 핸들러
-
+    private final NotificationService notificationService;
 
     @MessageMapping("/hello")
-    public void sendMessage(ChatMessageDTO messageDTO) {
-        // 이미지 파일이 들어왔는지 확인
+    public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
+
         if (messageDTO.getImage() != null) {
             String imageUrl = chatService.saveImage(messageDTO.getImage());
             messageDTO.setImage(imageUrl);
         }
 
-        // websocket에 보내기
+        // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
 
-        // DB에 저장
-        ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
-        chatService.saveMessage(chatMessage);
+        //DB에 저장
+        chatService.saveMessage(messageDTO);
 
-        //알림
-        ChatRoom chatRoom = chatService.findChatRoom(messageDTO.getChatRoomId());
-        Long receiverId = chatService.getReceiverId(messageDTO.getSenderId(), chatRoom);
-        Notification notification = new Notification(memberService.getMemberById(receiverId), chatMessage);
-        notificationService.save(notification);
+        //FCM 알림
+        FcmDTO fcmDTO = fcmNotificationService.createChatFcmDTO(messageDTO);
+        fcmNotificationService.sendMessageTo(fcmDTO);
 
-        NotificationDTO notificationDTO = new NotificationDTO(notification.getId(), receiverId, messageDTO);
-        notificationService.notify(receiverId, notificationDTO);
+        //redis
+        //redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
+        //SSE 알림
+        //notificationService.sendNotification(receiverId, messageDTO);
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")

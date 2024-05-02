@@ -16,10 +16,8 @@ public interface BoardRepositorySub extends JpaRepository<Board, Long> {
     Slice<Board> findAllByBoardTypeAndSchoolName(@Param("boardType") BoardType boardType, @Param("schoolName") String schoolName, Pageable pageable);
 
     @Query("SELECT b FROM Board b WHERE b.boardType = :boardType")
-    Page<Board> findAllByBoardTypeByPage(BoardType boardType, Pageable pageable);
+    Page<Board> findAllByBoardTypeByPage(@Param("boardType") BoardType boardType, Pageable pageable);
 
     @Query("SELECT b FROM Board b WHERE b.boardType = :boardType AND b.member.school.name = :schoolName")
     Page<Board> findAllByBoardTypeAndSchoolNameByPage(@Param("boardType") BoardType boardType, @Param("schoolName") String schoolName, Pageable pageable);
-
-
 }

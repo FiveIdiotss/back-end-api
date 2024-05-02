@@ -1,5 +1,6 @@
 package com.mementee.api.domain;
 
+import com.mementee.api.domain.enumtype.BoardCategory;
 import com.mementee.api.domain.subdomain.UnavailableTime;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -7,9 +8,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.domain.subdomain.ScheduleTime;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,7 @@ public class Board {
     private String content;
 
     @Column(nullable = false)
+    @ColumnDefault("30")
     private int consultTime;                //얼마나 상담할 건지
 
 
@@ -52,9 +56,15 @@ public class Board {
     @Column(nullable = false)
     private BoardType boardType;                                            //멘토로써 올리는지, 멘티로써 올리는지
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BoardCategory boardCategory;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    private LocalDateTime writeTime;            //작성 시간
 
     @OneToMany(mappedBy = "board")
     private List<Apply> applies = new ArrayList<>();
@@ -82,20 +92,24 @@ public class Board {
     private List<BoardImage> boardImages = new ArrayList<>();
 
     public Board(String title, String introduce, String target, String content,
-                 int consultTime, BoardType boardType,  Member member,
+                 int consultTime, BoardCategory boardCategory, BoardType boardType,  Member member,
                  List<ScheduleTime> times, List<DayOfWeek> availableDays, List<BoardImage> boardImages) {
         this.title = title;
+        this.introduce = introduce;
+        this.target = target;
         this.content = content;
         this.consultTime = consultTime;
         this.times = times;
         this.availableDays = availableDays;
+        this.boardCategory = boardCategory;
         this.boardType = boardType;
         this.member = member;
         this.boardImages = boardImages;
+        this.writeTime = LocalDateTime.now();
     }
 
-    public Board(String title, String introduce, String target, String content,
-                 int consultTime, BoardType boardType,  Member member,
+    public Board(String title, String introduce, String target, String content, int consultTime,
+                 BoardCategory boardCategory, BoardType boardType,  Member member,
                  List<ScheduleTime> times, List<DayOfWeek> availableDays) {
         this.title = title;
         this.introduce = introduce;
@@ -104,8 +118,10 @@ public class Board {
         this.consultTime = consultTime;
         this.times = times;
         this.availableDays = availableDays;
+        this.boardCategory = boardCategory;
         this.boardType = boardType;
         this.member = member;
+        this.writeTime = LocalDateTime.now();
     }
 
     public void addUnavailableTimes(LocalDate date, LocalTime startTime){
@@ -121,15 +137,18 @@ public class Board {
     }
 
     public void modifyBoards(String title, String introduce, String target,
-                             String content, int consultTime, BoardType boardType,
+                             String content, int consultTime, BoardCategory boardCategory,
+                             BoardType boardType,
                              List<ScheduleTime> times, List<DayOfWeek> availableDays){
         this.title = title;
         this.introduce = introduce;
         this.target = target;
         this.content = content;
         this.consultTime = consultTime;
+        this.boardCategory = boardCategory;
         this.boardType = boardType;
         this.times = times;
         this.availableDays = availableDays;
+        this.writeTime = LocalDateTime.now();
     }
 }
