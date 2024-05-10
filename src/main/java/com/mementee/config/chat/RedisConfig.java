@@ -1,5 +1,7 @@
 package com.mementee.config.chat;
 
+import com.mementee.api.domain.chat.ChatMessage;
+import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +11,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -24,8 +26,8 @@ public class RedisConfig {
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandConfig = new RedisStandaloneConfiguration();
-        redisStandConfig.setHostName("menteetor.site");
-//        redisStandConfig.setHostName("localhost");
+//        redisStandConfig.setHostName("menteetor.site");
+        redisStandConfig.setHostName("localhost");
         redisStandConfig.setPort(6379);
         return new LettuceConnectionFactory(redisStandConfig);
     }
@@ -35,11 +37,16 @@ public class RedisConfig {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChatMessage.class));
         redisTemplate.setConnectionFactory(redisConnectionFactory());
 
         return redisTemplate;
     }
+
+    @Bean
+    public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory) {		// 1.
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);		// 2.
 
 
     //Redis 에서 메시지가 발행될 때마다 SSE를 통해 클라이언트에게 전달할 리스너

@@ -10,6 +10,14 @@
 <body>
 <a href = "notification.html">SSE 테스트 페이지</a><br>
 <h1>WebSocket 연결 테스트 페이지입니다.</h1>
+
+<ul>
+    <li><a href="#" onclick="enterChatRoom(1)">채팅방 1 입장</a></li>
+    <li><a href="/chatroom/2">채팅방 2 입장</a></li>
+    <li><a href="/chatroom/3">채팅방 3 입장</a></li>
+    <!-- 각 채팅방의 ID를 URL에 포함하여 링크를 생성 -->
+</ul>
+
 <input type="text" id="message" placeholder="메시지를 입력하세요">
 <input type="file" id="imageInput" style="display: none;">
 <button id="attachImage">이미지 첨부</button>
@@ -20,8 +28,20 @@
 
 
 <script>
+    function enterChatRoom(chatRoomId) {
+        // 채팅방 접속 요청을 서버에 보냄
+        // 채팅방 ID를 파라미터로 전달하여 서버에서 해당 채팅방에 접속 처리
+        // 여기에서는 간단히 alert로 채팅방 ID 출력하도록 설정
+        alert("채팅방 " + chatRoomId + "에 입장했습니다.");
+
+        // 실제 서버에 요청을 보내는 코드를 작성해야 함
+        // 예를 들어, Ajax나 fetch를 사용하여 서버에 요청을 보낼 수 있음
+        // 서버는 해당 요청을 받아 채팅방에 접속 처리를 수행해야 함
+    }
+
     window.onload = function() {
-      
+
+ 
         var ws = new WebSocket('ws://menteetor.site:8080/ws');
         //var ws = new WebSocket('ws://localhost:8080/ws');
         var stompClient = Stomp.over(ws);

@@ -9,6 +9,7 @@ import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
+import com.mementee.config.chat.RedisSubscriber;
 import com.mementee.config.chat.RedisPublisher;
 import com.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
@@ -16,9 +17,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
+import javax.security.auth.callback.CallbackHandler;
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,6 +41,20 @@ public class ChatService {
     private final ChatRoomRepositorySub chatRoomRepositorySub;
     private final MemberService memberService;
     private final S3Service s3Service;
+    private final RedisMessageListenerContainer redisMessageListener;
+    private final RedisSubscriber redisSubscriber;
+    private Map<String, ChannelTopic> topics;
+
+    public void enterChatRoom(String chatRoomId) {
+        ChannelTopic topic = topics.get(chatRoomId);
+
+        if (topic == null) {
+            topic = new ChannelTopic(chatRoomId);
+            redisMessageListener.addMessageListener(redisSubscriber, topic);
+            topics.put(chatRoomId, topic);
+        }
+
+    }
 
     //회원 조회 로직, memberId는 Sender
     public Long getReceiverId(Long memberId, ChatRoom chatRoom){
