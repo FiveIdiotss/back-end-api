@@ -76,7 +76,7 @@ public class MemberService {
 
     //이미 기본 이미지 인지
     public void isCheckDefaultImage(Member member, String imageUrl){
-        if(member.getMemberImage().getMemberImageUrl().equals(imageUrl))
+        if(member.getMemberImageUrl().equals(imageUrl))
             throw new IllegalArgumentException("이미 기본이미지 입니다.");
     }
 
@@ -85,7 +85,7 @@ public class MemberService {
         return new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear(),
                 member.getGender(), member.getSchool().getName(),
                 member.getMajor().getName(),
-                member.getMemberImage().getMemberImageUrl());
+                member.getMemberImageUrl());
     }
 
     //로그인 시 토큰
@@ -105,17 +105,15 @@ public class MemberService {
 
         //회원가입시 기본 이미지로 설정
         String defaultPhotoUrl = s3Service.getImageUrl("defaultImage.jpg");
-        MemberImage memberImage = new MemberImage(defaultPhotoUrl);
 
         String encodePw = passwordEncoder.encode(request.getPassword()); //비밀번호 암호화
         Member member = new Member(request.getEmail(), request.getName(), encodePw, request.getYear(),
-                request.getGender(), school, major, memberImage);
+                defaultPhotoUrl, request.getGender(), school, major);
 
         school.getMembers().add(member);
         major.getMembers().add(member);
 
         memberRepository.save(member);
-        memberRepository.saveMemberImage(memberImage);
     }
 
     //회원 조회
@@ -168,20 +166,22 @@ public class MemberService {
 
     //프로필 사진 변경
     @Transactional
-    public void updatedMemberImage(String authorizationHeader, MultipartFile image) throws IOException {
+    public String updatedMemberImage(String authorizationHeader, MultipartFile image) throws IOException {
         Member member = getMemberByToken(authorizationHeader);
 
         String imageUrl = s3Service.saveFile(image);
-        member.getMemberImage().updateMemberImage(imageUrl);
+        member.updateMemberImage(imageUrl);
+        return imageUrl;
     }
 
     //프로필 기본 이미지로 변경
     @Transactional
-    public void updatedDefaultMemberImage(String authorizationHeader) {
+    public String updatedDefaultMemberImage(String authorizationHeader) {
         Member member = getMemberByToken(authorizationHeader);
         String imageUrl = s3Service.getImageUrl("defaultImage.jpg");
 
         isCheckDefaultImage(member, imageUrl);
-        member.getMemberImage().updateMemberImage(imageUrl);
+        member.updateMemberImage(imageUrl);
+        return imageUrl;
     }
 }

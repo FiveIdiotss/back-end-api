@@ -16,9 +16,18 @@ public class RedisPublisher {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public void publish(ChannelTopic channel, ChatMessageDTO message) {
-        log.info("Redis Publisher");
+// <<<<<<< final
+//     public void publish(ChannelTopic channel, ChatMessageDTO message) {
+//         log.info("Redis Publisher");
 
-        redisTemplate.convertAndSend(channel.getTopic(), message);
+//         redisTemplate.convertAndSend(channel.getTopic(), message);
+// =======
+    public void publish(ChannelTopic topic, Object message) {
+        log.info("Publishing to Redis topic: {}", topic.getTopic());
+        try {
+            redisTemplate.convertAndSend(topic.getTopic(), message);
+        } catch (Exception e) {
+            log.error("Error publishing message to Redis: {}", e.getMessage());
+        }
     }
 }

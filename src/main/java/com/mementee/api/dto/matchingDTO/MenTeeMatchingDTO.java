@@ -11,8 +11,9 @@ import java.time.LocalTime;
 public class MenTeeMatchingDTO {
     private Long matchingId;
     private Long applyId;
-    private Long menteeMemberId;
-    private String menteeMemberName;
+
+    private Long otherMemberId;
+    private String otherMemberName;
 
     private LocalDate date;                     // 상담 날짜
     private LocalTime startTime;                // 상담 시작 시간

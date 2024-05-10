@@ -10,6 +10,7 @@ import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
 import com.mementee.config.chat.RedisSubscriber;
+import com.mementee.config.chat.RedisPublisher;
 import com.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.callback.CallbackHandler;
@@ -54,6 +56,13 @@ public class ChatService {
 
     }
 
+    //회원 조회 로직, memberId는 Sender
+    public Long getReceiverId(Long memberId, ChatRoom chatRoom){
+        if(Objects.equals(memberId, chatRoom.getSender().getId()))
+            return chatRoom.getReceiver().getId();
+        return chatRoom.getSender().getId();
+    }
+
     public ChatRoom findChatRoom(Long chatRoomId){
         return chatRoomRepository.findChatRoomById(chatRoomId);
     }
@@ -66,8 +75,10 @@ public class ChatService {
     }
 
     @Transactional
-    public void saveMessage(ChatMessage chatMessage) {
+    public void saveMessage(ChatMessageDTO messageDTO) {
+        ChatMessage chatMessage = createMessageByDTO(messageDTO);
         chatMessageRepository.save(chatMessage);
+
     }
 
     // 채팅방 ID로 채팅방 메세지 조회
@@ -113,7 +124,7 @@ public class ChatService {
                 .orElse(new LatestMessageDTO(" ", null, false));
 
         return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO,
-                member.getMemberImage().getMemberImageUrl(),
+                member.getMemberImageUrl(),
                 chatRoom.getMatching().getBoard().getTitle(),
                 chatRoom.getMatching().getDate(),
                 chatRoom.getMatching().getStartTime());

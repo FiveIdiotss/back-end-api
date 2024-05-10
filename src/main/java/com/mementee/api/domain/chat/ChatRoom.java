@@ -36,9 +36,4 @@ public class ChatRoom {
         this.receiver = receiver;
         this.matching = matching;
     }
-
-    public ChatRoom(Member sender, Member receiver) {
-        this.sender = sender;
-        this.receiver = receiver;
-    }
 }

@@ -11,6 +11,8 @@ import com.mementee.api.repository.BoardRepositorySub;
 import com.mementee.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,13 @@ public class BoardService {
             throw new IllegalArgumentException("권한이 없습니다.");        //작성자가 아닐경우
     }
 
+    //이미지
+    //이미지 조회
+    public List<BoardImage> getBoardImages(Long boardId){
+        return boardRepository.findBoardImages(boardId);
+    }
+
+    //게시물 등록시 이미지 추출 후 엔티티 생성
     @Transactional
     public List<BoardImage> getBoardImageUrl(List<MultipartFile> multipartFiles) throws IOException {
         List<BoardImage> boardImages = new ArrayList<>();
@@ -51,18 +60,23 @@ public class BoardService {
         return boardImages;
     }
 
+    //-------------
     @Transactional
     public Long saveBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) throws IOException {
         Member member = memberService.getMemberByToken(authorizationHeader);
         List<BoardImage> boardImages = getBoardImageUrl(multipartFiles);
         Board board;
         if(boardImages.isEmpty()){
-            board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(),
-                    request.getBoardType(), member, request.getTimes(), request.getAvailableDays());
+            board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
+                    request.getBoardCategory(), request.getBoardType(), member, request.getTimes(), request.getAvailableDays());
         }else {
-            board = new Board(request.getTitle(), request.getContent(), request.getConsultTime(),
-                    request.getBoardType(), member, request.getTimes(), request.getAvailableDays(), boardImages);
+            board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
+                    request.getBoardCategory(), request.getBoardType(), member, request.getTimes(), request.getAvailableDays(), boardImages);
             board.addBoardImage(boardImages);
+
+            for(BoardImage boardImage : boardImages){
+                boardImage.setBoard(board);
+            }
         }
 
         member.addBoard(board);
@@ -70,7 +84,7 @@ public class BoardService {
         return board.getId();
     }
 
-
+    //-----------
     @Transactional
     public Long modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId) {
         Member member = memberService.getMemberByToken(authorizationHeader);
@@ -78,7 +92,8 @@ public class BoardService {
 
         isCheckBoardMember(member, board);
 
-        board.modifyBoards(request.getTitle(), request.getContent(), request.getConsultTime(),
+        board.modifyBoards(request.getTitle(), request.getIntroduce(), request.getTarget(),
+                request.getContent(), request.getConsultTime(), request.getBoardCategory(),
                 request.getBoardType(), request.getTimes(), request.getAvailableDays());
 
         return board.getId();
@@ -88,6 +103,7 @@ public class BoardService {
         return boardRepository.findBoard(boardId);
     }
 
+    //Slice 사용---------------------------------
     //멘토, 멘티 별로 전체 게시물 조회(무한 스크롤 이용)
     public Slice<Board>findAllByBoardType(BoardType boardType, Pageable pageable){
         return boardRepositorySub.findAllByBoardType(boardType, pageable);
@@ -97,6 +113,16 @@ public class BoardService {
     public Slice<Board>findAllByBoardTypeAndSchoolName(BoardType boardType, String schoolName,Pageable pageable){
         return boardRepositorySub.findAllByBoardTypeAndSchoolName(boardType, schoolName, pageable);
     }
+
+    //Page 사용---------------------------------
+    public Page<Board> findAllByBoardTypeByPage(BoardType boardType, Pageable pageable){
+        return boardRepositorySub.findAllByBoardTypeByPage(boardType, pageable);
+    }
+
+    public Page<Board> findAllByBoardTypeAndSchoolNameByPage(BoardType boardType, String schoolName, Pageable pageable){
+        return boardRepositorySub.findAllByBoardTypeAndSchoolNameByPage(boardType, schoolName, pageable);
+    }
+
 
 
     //즐겨찾기

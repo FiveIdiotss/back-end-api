@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import com.mementee.api.domain.enumtype.ApplyState;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -26,6 +27,8 @@ public class Apply {
 
     @Column(nullable = false)
     private LocalTime startTime;                //예약시간
+
+    private LocalDateTime applyTime;            //신청 시간
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sendMember")
@@ -51,6 +54,7 @@ public class Apply {
         this.receiveMember = receiveMember;
         this.board = board;
         this.applyState = ApplyState.HOLDING;
+        this.applyTime = LocalDateTime.now();
     }
 
     //신청 상황 업데이트

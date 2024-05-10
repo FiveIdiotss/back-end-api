@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>SSE 알림 테스트</title>
+    <script>
+        window.onload = function() {
+            //var eventSource = new EventSource('http://localhost:8080/api/sse/subscribe/2');
+            var eventSource = new EventSource('http://menteetor.site:8080/api/sse/subscribe/2');
+            eventSource.addEventListener("sse", function(event) {
+                // 이벤트 데이터(JSON 형식의 문자열)를 파싱
+                try {
+                    var parsedData = JSON.parse(event.data);
+
+                    // 화면에 표시할 요소 생성 및 내용 설정
+                    var newElement = document.createElement("div");
+                    var currentTime = new Date().toTimeString().split(" ")[0]; // 현재 시간
+
+                    // chatMessageDTO가 있는 경우, 채팅 메시지 내용을 표시
+                    if (parsedData.notificationDTO) {
+                        var senderId = parsedData.notificationDTO.receiverId;
+                        //var senderName = parsedData.chatMessageDTO.senderName;
+                        newElement.innerHTML = "<strong>알림 시간:</strong> " + currentTime + " | <strong>발신자 ID:</strong> " + senderId;
+                    } else {
+                        // chatMessageDTO가 없는 경우(예: 이벤트 스트림 생성 메시지), 기본 메시지 표시
+                        newElement.innerHTML = "<strong>알림 발생:</strong> " + event.data;
+                    }
+
+                    // 생성한 요소를 알림 영역에 추가
+                    document.getElementById("notificationArea").appendChild(newElement);
+                } catch (e) {
+                    console.error("데이터 파싱 중 오류 발생", e);
+                }
+            });
+
+            eventSource.onopen = function(event) {
+                console.log("SSE 연결이 열렸습니다.");
+            };
+
+            eventSource.onerror = function(event) {
+                if (event.target.readyState == EventSource.CLOSED) {
+                    console.log("SSE 연결이 닫혔습니다.");
+                } else if (event.target.readyState == EventSource.CONNECTING) {
+                    console.log("SSE 연결 재시도 중...");
+                } else {
+                    console.error("SSE 연결 에러가 발생했습니다.", event);
+                }
+            };
+        };
+    </script>
+</head>
+<body>
+<h2>memberId가 2인 사람의 SSE 알림 테스트 페이지</h2>
+<div id="notificationArea">
+    <p>알림이 여기에 표시됩니다. 알림이 올 때마다 아래에 새로운 메시지가 추가됩니다.</p>
+</div>
+</body>
+</html>

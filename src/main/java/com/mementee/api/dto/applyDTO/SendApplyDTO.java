@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
@@ -19,9 +20,11 @@ public class SendApplyDTO {
 
     private ApplyState applyState;
 
-    private Long receiveMemberId;
-    private String receiveMemberName;
+    private Long otherMemberId;
+    private String otherMemberName;
 
     private LocalDate date;
     private LocalTime startTime;
+
+    private LocalDateTime applyTime;
 }

@@ -1,9 +1,11 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.BoardImage;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
-import com.mementee.api.dto.boardDTO.BoardDTO;
+import com.mementee.api.dto.boardDTO.*;
 import com.mementee.api.domain.Board;
 import com.mementee.api.service.ApplyService;
+import com.mementee.api.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -11,8 +13,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import com.mementee.api.dto.boardDTO.BoardInfoResponse;
-import com.mementee.api.dto.boardDTO.WriteBoardRequest;
 import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.service.BoardService;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -34,12 +34,16 @@ public class BoardController {
 
     private final BoardService boardService;
     private final ApplyService applicationService;
+    private final NotificationService notificationService;
 
     //글 쓰기--------------------------------------
     @Operation(description = "글 쓰기 - 글 작성시 상담 가능한 요일들, 상담 가능  같이 적으셈" +
             "  {\"title\": \"string\",\n" +
+            "  \"introduce\": \"string\",\n" +
+            "  \"target\": \"string\",\n" +
             "  \"content\": \"string\",\n" +
             "  \"consultTime\": 0,\n" +
+            "  \"boardCategory\": \"이공\",\n" +
             "  \"boardType\": \"MENTEE\",\n" +
             "  \"times\": [\n" +
             "    {  \"startTime\": \"09:00:00\",\n" +
@@ -66,7 +70,7 @@ public class BoardController {
         }
     }
 
-    //글 리스트로 전체 조회---------------
+    //Slice 글 리스트로 전체 조회---------------
     //멘토,멘티 글 전체 조회
     @Operation(description =  "페이지 단위로 멘토/멘티 전체 리스트")
     @ApiResponses(value = {
@@ -78,14 +82,15 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Slice<Board> findBoards = boardService.findAllByBoardType(boardType, pageable);
-        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
-                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
+        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
+                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName(), b.getWriteTime()));
 
         return slice;
     }
 
+
     //학교별 게시물 리스트--------------------------------------
-    @Operation(description = "페이지 단위로 멘토/멘티 학교별 리스트")
+    @Operation(description = "페이지 단위로 멘토/멘티 학교별 리스트 (page 사용)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
@@ -96,10 +101,56 @@ public class BoardController {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Slice<Board> findBoards = boardService.findAllByBoardTypeAndSchoolName(boardType, schoolName, pageable);
-        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
-                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName()));
+        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(),b.getTarget(), b.getContent(),
+                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName(), b.getWriteTime()));
 
         return slice;
+    }
+
+    //Page 멘토,멘티 글 전체 조회 --------------
+    @Operation(description =  "페이지 단위로 멘토/멘티 전체 리스트 (page 사용, 정진혁 용)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @GetMapping("/api/pageBoards")
+    public ResponseEntity pageBoardsList(@RequestParam BoardType boardType,
+                                         @RequestParam int page, @RequestParam int size){
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
+
+        Page<Board> findBoards = boardService.findAllByBoardTypeByPage(boardType, pageable);
+        PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
+
+        List<Board> response = findBoards.getContent();
+        List<BoardDTO> list = response.stream().map
+                (b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
+                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
+                        b.getMember().getId(), b.getMember().getName(), b.getWriteTime()))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(new PaginationResponseDto(list, pageInfo), HttpStatus.OK);
+    }
+
+    @Operation(description = "페이지 단위로 멘토/멘티 학교별 리스트 (page 사용, 정진혁 용)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @GetMapping("/api/pageBoards/{schoolName}")
+    public ResponseEntity pageBoardListBySchoolName(@RequestParam BoardType boardType,
+                                                    @RequestParam int page, @RequestParam int size,
+                                                    @PathVariable String schoolName){
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
+
+        Page<Board> findBoards = boardService.findAllByBoardTypeAndSchoolNameByPage(boardType, schoolName, pageable);
+        PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
+
+        List<Board> response = findBoards.getContent();
+        List<BoardDTO> list = response.stream().map
+                        (b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
+                                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
+                                b.getMember().getId(), b.getMember().getName(), b.getWriteTime()))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(new PaginationResponseDto(list, pageInfo), HttpStatus.OK);
     }
 
     //게시글 조회 --------------------
@@ -121,17 +172,23 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "글 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "글 조회 실패")})
     @GetMapping("/api/board/{boardId}")
-    public ResponseEntity<?> boardInfo(@PathVariable Long boardId){
+    public ResponseEntity boardInfo(@PathVariable Long boardId){
         try {
             Board board = boardService.findBoard(boardId);
-            BoardDTO boardDTO = new BoardDTO(board.getId(), board.getBoardType(), board.getTitle(), board.getContent(),
-                    board.getMember().getYear(), board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
-                    board.getMember().getId(), board.getMember().getName());
+            List<BoardImage> boardImages = boardService.getBoardImages(boardId);
+
+            List<BoardImageDTO> boardImageDTOS = boardImages.stream().
+                    map(b -> new BoardImageDTO(b.getBoardImageUrl()))
+                    .collect(Collectors.toList());
+
+            BoardDTO boardDTO = new BoardDTO(board.getId(), board.getBoardCategory(), board.getBoardType(), board.getTitle(), board.getIntroduce(),
+                    board.getTarget(), board.getContent(), board.getMember().getYear(),
+                    board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
+                    board.getMember().getId(), board.getMember().getName(), board.getWriteTime());
 
             BoardInfoResponse response = new BoardInfoResponse(boardDTO, board.getConsultTime(), board.getTimes(),
-                    board.getAvailableDays(), board.getUnavailableTimes());
+                    board.getAvailableDays(), board.getUnavailableTimes(), boardImageDTOS);
             return ResponseEntity.ok(response);
-
         }catch (EmptyResultDataAccessException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("글 조회 실패");
         }
@@ -143,7 +200,7 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @PutMapping("/api/board/{boardId}")
-    public ResponseEntity<?> boardModify(@RequestBody @Valid WriteBoardRequest request, @PathVariable Long boardId,
+    public ResponseEntity boardModify(@RequestBody @Valid WriteBoardRequest request, @PathVariable Long boardId,
                                          @RequestHeader("Authorization") String authorizationHeader){
         try {
             boardService.modifyBoard(request, authorizationHeader, boardId);
@@ -165,10 +222,11 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "신청 성공"),
             @ApiResponse(responseCode = "fail", description = "신청 실패")})
     @PostMapping("/api/board/{boardId}")
-    public ResponseEntity<?> boardApply(@RequestBody @Valid ApplyRequest request, @PathVariable Long boardId,
+    public ResponseEntity boardApply(@RequestBody @Valid ApplyRequest request, @PathVariable Long boardId,
                                         @RequestHeader("Authorization") String authorizationHeader){
         try {
             applicationService.sendApply(authorizationHeader, boardId, request);
+            notificationService.sendNotification(boardService.findBoard(boardId).getMember().getId(), request);
             return ResponseEntity.ok("신청 성공");
         }catch (IllegalArgumentException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -218,9 +276,9 @@ public class BoardController {
                                              @RequestHeader("Authorization") String authorizationHeader){
         List<Board> list = boardService.findFavoriteBoards(authorizationHeader, boardType);
         return list.stream()
-                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
+                .map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(), b.getContent(),
                         b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
-                        b.getMember().getId(), b.getMember().getName()))
+                        b.getMember().getId(), b.getMember().getName(), b.getWriteTime()))
                 .collect(Collectors.toList());
     }
 
@@ -235,9 +293,9 @@ public class BoardController {
                                    @PathVariable("memberId") Long memberId){
         List<Board> list = boardService.findMemberBoards(memberId, boardType);
         return list.stream()
-                .map(b -> new BoardDTO(b.getId(), b.getBoardType(), b.getTitle(), b.getContent(),
+                .map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getBoardType(), b.getTitle(), b.getIntroduce(), b.getTarget(), b.getContent(),
                         b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
-                        b.getMember().getId(), b.getMember().getName()))
+                        b.getMember().getId(), b.getMember().getName(), b.getWriteTime()))
                 .collect(Collectors.toList());
     }
 }

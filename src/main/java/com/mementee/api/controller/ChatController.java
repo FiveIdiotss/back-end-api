@@ -5,9 +5,12 @@ import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
+import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.ChatService;
+import com.mementee.api.service.FCMNotificationService;
 import com.mementee.api.service.MemberService;
 import com.mementee.config.chat.RedisPublisher;
+import com.mementee.api.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,12 +25,14 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.listener.ChannelTopic;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +45,7 @@ import java.util.stream.Collectors;
 @Tag(name = "실시간 채팅 기능")
 public class ChatController {
 
+    private final FCMNotificationService fcmNotificationService;
     private final ChatService chatService;
     private final MemberService memberService;
     private final SimpMessagingTemplate websocketPublisher; //websocket에 전달하는 핸들러
@@ -50,10 +56,11 @@ public class ChatController {
         Long size = hashOperations.size("chatRoom" + chatRoomId);
         return size == 2;
     }
+    private final NotificationService notificationService;
 
     @MessageMapping("/hello")
-    public void sendMessage(ChatMessageDTO messageDTO) {
-        // 이미지 파일이 들어왔는지 확인
+    public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
+
         if (messageDTO.getImage() != null) {
             String imageUrl = chatService.saveImage(messageDTO.getImage());
             messageDTO.setImage(imageUrl);
@@ -69,6 +76,20 @@ public class ChatController {
         // MYSQL DB에 저장
         ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
         chatService.saveMessage(chatMessage);
+        // webSocket에 보내기
+        websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
+
+        //DB에 저장
+        chatService.saveMessage(messageDTO);
+
+        //FCM 알림
+        FcmDTO fcmDTO = fcmNotificationService.createChatFcmDTO(messageDTO);
+        fcmNotificationService.sendMessageTo(fcmDTO);
+
+        //redis
+        //redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
+        //SSE 알림
+        //notificationService.sendNotification(receiverId, messageDTO);
     }
 
     // 회원이 채팅방에 들어가면 레디스에 저장
