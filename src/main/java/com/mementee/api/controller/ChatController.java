@@ -7,6 +7,7 @@ import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.service.ChatService;
 import com.mementee.api.service.MemberService;
+import com.mementee.config.chat.RedisPublisher;
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,20 +15,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.joda.time.LocalDateTime;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,9 +42,14 @@ public class ChatController {
 
     private final ChatService chatService;
     private final MemberService memberService;
-    private final RedisTemplate<String, Object> redisTemplate; // Redis에 전달하는 핸들러
     private final SimpMessagingTemplate websocketPublisher; //websocket에 전달하는 핸들러
+    private final RedisPublisher redisPublisher;
+    private final HashOperations<String, String, String> hashOperations;
 
+    public boolean isAllConnected(Long chatRoomId) {
+        Long size = hashOperations.size("chatRoom" + chatRoomId);
+        return size == 2;
+    }
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageDTO messageDTO) {
@@ -54,19 +59,42 @@ public class ChatController {
             messageDTO.setImage(imageUrl);
         }
 
-        // websocket에 보내기
-        websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
+        if (isAllConnected(messageDTO.getChatRoomId())) messageDTO.setReadCount(0);
+        else messageDTO.setReadCount(1);
 
-        // DB에 저장
+
+        // redis에 publish
+        redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
+
+        // MYSQL DB에 저장
         ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
         chatService.saveMessage(chatMessage);
+    }
+
+    // 회원이 채팅방에 들어가면 레디스에 저장
+    @Operation(description = "채팅방 접속")
+    @PostMapping("/enterChatRoom")
+    public void enterChatRoom(@RequestHeader("Authorization") String authorizationHeader, @RequestParam Long chatRoomId) {
+        Member loginMember = memberService.getMemberByToken(authorizationHeader);
+        log.info("해당 멤버가 채팅방에 접속했습니다.={}", loginMember);
+
+        hashOperations.put("chatRoom" + chatRoomId, loginMember.getId().toString(), new LocalDateTime(LocalDateTime.now()).toString());
+    }
+
+    @Operation(description = "채팅방 나감")
+    @PostMapping("/exitChatRoom")
+    public void exitChatRoom(@RequestHeader("Authorization") String authorizationHeader, @RequestParam Long chatRoomId) {
+        Member loginMember = memberService.getMemberByToken(authorizationHeader);
+        log.info("해당 멤버가 채팅방을 벗어났습니다.={}", loginMember);
+
+        hashOperations.delete("chatRoom" + chatRoomId.toString(), loginMember.getId().toString());
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages/{chatRoomId}")
     public Slice<ChatMessageDTO> findAllMessagesByChatRoom(@RequestParam int page, @RequestParam int size,
                                                            @PathVariable Long chatRoomId) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차순(최신순)
         Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
         Slice<ChatMessageDTO> slice = allMessages.map(message -> new ChatMessageDTO(
                 message.getContent(),

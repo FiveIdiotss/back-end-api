@@ -34,6 +34,8 @@ public class ChatMessage {
 
     private LocalDateTime localDateTime;
 
+    private int readCount;
+
     public ChatMessage(String content, Member sender, ChatRoom chatRoom, String image) {
         this.content = content;
         this.sender = sender;
