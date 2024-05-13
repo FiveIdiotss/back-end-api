@@ -11,7 +11,6 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -44,10 +43,11 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory) {		// 1.
+    public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory) {        // 1.
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);		// 2.
-
+        container.setConnectionFactory(connectionFactory);        // 2.
+        return container;
+    }
 
     //Redis 에서 메시지가 발행될 때마다 SSE를 통해 클라이언트에게 전달할 리스너
     @Bean

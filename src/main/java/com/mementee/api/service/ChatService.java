@@ -10,24 +10,17 @@ import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
 import com.mementee.config.chat.RedisSubscriber;
-import com.mementee.config.chat.RedisPublisher;
 import com.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.security.auth.callback.CallbackHandler;
-import javax.xml.bind.DatatypeConverter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -130,8 +123,13 @@ public class ChatService {
                 chatRoom.getMatching().getStartTime());
     }
 
-    public String saveImage(String imageCode) {
+    public void saveImage(MultipartFile file) {
         log.info("s3 저장 로직");
-        return s3Service.saveChatImage(imageCode);
+        s3Service.saveImage(file);
     }
+
+    public void saveVideo(MultipartFile file) {
+        s3Service.saveVideo(file);
+    }
+
 }

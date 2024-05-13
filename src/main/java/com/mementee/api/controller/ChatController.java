@@ -1,5 +1,6 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.enumtype.FileType;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
@@ -31,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,31 +53,28 @@ public class ChatController {
     private final SimpMessagingTemplate websocketPublisher; //websocket에 전달하는 핸들러
     private final RedisPublisher redisPublisher;
     private final HashOperations<String, String, String> hashOperations;
+    private final NotificationService notificationService;
 
     public boolean isAllConnected(Long chatRoomId) {
         Long size = hashOperations.size("chatRoom" + chatRoomId);
         return size == 2;
     }
-    private final NotificationService notificationService;
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
 
-        if (messageDTO.getImage() != null) {
-            String imageUrl = chatService.saveImage(messageDTO.getImage());
-            messageDTO.setImage(imageUrl);
-        }
-
-        if (isAllConnected(messageDTO.getChatRoomId())) messageDTO.setReadCount(0);
-        else messageDTO.setReadCount(1);
+//        if (messageDTO.getImage() != null) {
+//            String imageUrl = chatService.saveImage(messageDTO.getImage());
+//            messageDTO.setImage(imageUrl);
+//        }
+//
+//        if (isAllConnected(messageDTO.getChatRoomId())) messageDTO.setReadCount(0);
+//        else messageDTO.setReadCount(1);
 
 
         // redis에 publish
         redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
 
-        // MYSQL DB에 저장
-        ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
-        chatService.saveMessage(chatMessage);
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
 
@@ -90,6 +89,30 @@ public class ChatController {
         //redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
         //SSE 알림
         //notificationService.sendNotification(receiverId, messageDTO);
+    }
+
+
+    //video, picture, zip file, pdf file, 연락처
+    @Operation(description = "파일 전송 처리")
+    @PostMapping("/sendFile")
+    public ResponseEntity<String> sendFile(@RequestParam("file") MultipartFile file) {
+        log.info("TEST");
+
+        // If file is not uploaded, return BAD_REQUEST error.
+        if (file.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
+
+        if (file.getContentType().startsWith("image")) chatService.saveImage(file);
+        if (file.getContentType().startsWith("video")) chatService.saveVideo(file);
+
+        return null;
+    }
+
+    private FileType getFileType(String fileName) {
+        if (fileName.endsWith(".zip")) return FileType.ZIP;
+        if (fileName.endsWith(".jpg") || fileName.endsWith(".png") || fileName.endsWith(".jpeg")) return FileType.IMAGE;
+        if (fileName.endsWith(".mp4") || fileName.endsWith(".avi")) return FileType.VIDEO;
+        if (fileName.endsWith(".pdf")) return FileType.PDF;
+        throw new IllegalArgumentException("Unsupported file type");
     }
 
     // 회원이 채팅방에 들어가면 레디스에 저장

@@ -1,18 +1,16 @@
 package com.mementee.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.util.UUID;
 
@@ -25,7 +23,7 @@ public class S3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-  
+
     public String saveFile(MultipartFile multipartFile) throws IOException {
 
         String originalFilename = multipartFile.getOriginalFilename();
@@ -55,37 +53,64 @@ public class S3Service {
         }
     }
 
-        public String saveChatImage(String base64ImageData) {
-        // base64 데이터 파싱
-        String[] split = base64ImageData.split(",");
-        String base64Image = split[1];
+    public void saveImage(MultipartFile file) {
+        try {
+            ByteArrayOutputStream compressedImageStream = compressImage(file);
+            byte[] imageBytes = compressedImageStream.toByteArray();
 
-        // 이미지 확장자 추출
-        String extension;
-        if (split[0].equals("data:image/jpeg;base64")) {
-            extension = "jpeg";
-        } else if (split[0].equals("data:image/png;base64")) {
-            extension = "png";
+            // Generate a random file name with the appropriate extension
+            String extension = "jpg"; // Default to jpg if compression is applied
+            String imageName = UUID.randomUUID() + "." + extension;
+
+            // Prepare the metadata for S3 object
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(imageBytes.length);
+            metadata.setContentType("image/jpeg");
+
+            // Upload the image to S3
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
+            amazonS3.putObject(new PutObjectRequest(bucket, imageName, inputStream, metadata));
+
+            // Return the URL of the uploaded image
+            amazonS3.getUrl(bucket, imageName);
+        } catch (IOException e) {
+            e.getMessage();
+        }
+    }
+
+    public ByteArrayOutputStream compressImage(MultipartFile file) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        // Compress the image if it is larger than 2MB
+        if (file.getSize() > 1024 * 1024 * 2) {
+            Thumbnails.of(file.getInputStream())
+                    .size(1280, 720)
+                    .outputFormat("jpg")
+                    .outputQuality(0.75)
+                    .toOutputStream(outputStream);
         } else {
-            extension = "jpg";
+            file.getInputStream().transferTo(outputStream);
         }
 
-        // base64 문자열을 바이트 배열로 변환
-        byte[] imageBytes = DatatypeConverter.parseBase64Binary(base64Image);
+        return outputStream;
+    }
 
-        // S3에 업로드할 파일명 설정
-        String imageName = UUID.randomUUID() + "." + extension;
+    public String saveVideo(MultipartFile file) {
+        try {
+            String fileName = file.getOriginalFilename();
+            String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
-        // 업로드할 이미지 데이터 설정
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(imageBytes.length);
-        metadata.setContentType("image/" + extension);
+            String imageName = UUID.randomUUID() + "." + extension;
 
-        // S3에 이미지 업로드
-        amazonS3.putObject(new PutObjectRequest(bucket, imageName, inputStream, metadata));
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+            metadata.setContentType(file.getContentType());
 
-        // 업로드된 이미지의 URL 반환
-        return amazonS3.getUrl(bucket, imageName).toString();
+            amazonS3.putObject(new PutObjectRequest(bucket, imageName, file.getInputStream(), metadata));
+
+            return amazonS3.getUrl(bucket, imageName).toString();
+        } catch (IOException e) {
+            return "Error uploading file: " + e.getMessage();
+        }
     }
 }
