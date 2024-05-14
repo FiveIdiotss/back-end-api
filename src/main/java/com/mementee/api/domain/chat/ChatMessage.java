@@ -1,6 +1,7 @@
 package com.mementee.api.domain.chat;
 
 import com.mementee.api.domain.Member;
+import com.mementee.api.domain.enumtype.FileType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,6 +34,11 @@ public class ChatMessage {
     private String image;
 
     private LocalDateTime localDateTime;
+
+    @Enumerated(EnumType.STRING)
+    private FileType fileType;
+
+    private int readCount;
 
     public ChatMessage(String content, Member sender, ChatRoom chatRoom, String image) {
         this.content = content;

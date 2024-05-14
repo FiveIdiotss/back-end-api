@@ -9,7 +9,7 @@ import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
-import com.mementee.config.chat.RedisPublisher;
+import com.mementee.config.chat.RedisSubscriber;
 import com.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -36,6 +34,20 @@ public class ChatService {
     private final ChatRoomRepositorySub chatRoomRepositorySub;
     private final MemberService memberService;
     private final S3Service s3Service;
+    private final RedisMessageListenerContainer redisMessageListener;
+    private final RedisSubscriber redisSubscriber;
+    private Map<String, ChannelTopic> topics;
+
+    public void enterChatRoom(String chatRoomId) {
+        ChannelTopic topic = topics.get(chatRoomId);
+
+        if (topic == null) {
+            topic = new ChannelTopic(chatRoomId);
+            redisMessageListener.addMessageListener(redisSubscriber, topic);
+            topics.put(chatRoomId, topic);
+        }
+
+    }
 
     //회원 조회 로직, memberId는 Sender
     public Long getReceiverId(Long memberId, ChatRoom chatRoom){
@@ -111,8 +123,9 @@ public class ChatService {
                 chatRoom.getMatching().getStartTime());
     }
 
-    public String saveImage(String imageCode) {
-        log.info("s3 저장 로직");
-        return s3Service.saveChatImage(imageCode);
+    public String save(MultipartFile file) {
+        return s3Service.save(file);
     }
+
+
 }
