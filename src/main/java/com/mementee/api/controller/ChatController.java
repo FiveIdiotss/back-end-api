@@ -1,16 +1,15 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.enumtype.FileType;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
-import com.mementee.api.service.ChatService;
-import com.mementee.api.service.FCMNotificationService;
-import com.mementee.api.service.MemberService;
+import com.mementee.api.service.*;
 import com.mementee.config.chat.RedisPublisher;
-import com.mementee.api.service.NotificationService;
+import com.mementee.s3.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -31,6 +30,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,37 +45,29 @@ import java.util.stream.Collectors;
 @Tag(name = "실시간 채팅 기능")
 public class ChatController {
 
-    private final FCMNotificationService fcmNotificationService;
     private final ChatService chatService;
     private final MemberService memberService;
     private final SimpMessagingTemplate websocketPublisher; //websocket에 전달하는 핸들러
     private final RedisPublisher redisPublisher;
-    private final HashOperations<String, String, String> hashOperations;
 
-    public boolean isAllConnected(Long chatRoomId) {
-        Long size = hashOperations.size("chatRoom" + chatRoomId);
-        return size == 2;
-    }
     private final NotificationService notificationService;
+    private final FCMNotificationService fcmNotificationService;
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
 
-        if (messageDTO.getImage() != null) {
-            String imageUrl = chatService.saveImage(messageDTO.getImage());
-            messageDTO.setImage(imageUrl);
-        }
-
-        if (isAllConnected(messageDTO.getChatRoomId())) messageDTO.setReadCount(0);
-        else messageDTO.setReadCount(1);
+//        if (messageDTO.getImage() != null) {
+//            String imageUrl = chatService.saveImage(messageDTO.getImage());
+//            messageDTO.setImage(imageUrl);
+//        }
+//
+//        if (isAllConnected(messageDTO.getChatRoomId())) messageDTO.setReadCount(0);
+//        else messageDTO.setReadCount(1);
 
 
         // redis에 publish
         redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
 
-        // MYSQL DB에 저장
-        ChatMessage chatMessage = chatService.createMessageByDTO(messageDTO);
-        chatService.saveMessage(chatMessage);
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
 
@@ -92,23 +84,16 @@ public class ChatController {
         //notificationService.sendNotification(receiverId, messageDTO);
     }
 
-    // 회원이 채팅방에 들어가면 레디스에 저장
-    @Operation(description = "채팅방 접속")
-    @PostMapping("/enterChatRoom")
-    public void enterChatRoom(@RequestHeader("Authorization") String authorizationHeader, @RequestParam Long chatRoomId) {
-        Member loginMember = memberService.getMemberByToken(authorizationHeader);
-        log.info("해당 멤버가 채팅방에 접속했습니다.={}", loginMember);
 
-        hashOperations.put("chatRoom" + chatRoomId, loginMember.getId().toString(), new LocalDateTime(LocalDateTime.now()).toString());
-    }
+    //video, picture, zip file, pdf file, 연락처
+    @Operation(description = "파일 전송 처리")
+    @PostMapping("/sendFile")
+    public ResponseEntity<String> sendFile(@RequestParam("file") MultipartFile file) {
+        // If file is not uploaded, return BAD_REQUEST error.
+        if (file.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
 
-    @Operation(description = "채팅방 나감")
-    @PostMapping("/exitChatRoom")
-    public void exitChatRoom(@RequestHeader("Authorization") String authorizationHeader, @RequestParam Long chatRoomId) {
-        Member loginMember = memberService.getMemberByToken(authorizationHeader);
-        log.info("해당 멤버가 채팅방을 벗어났습니다.={}", loginMember);
-
-        hashOperations.delete("chatRoom" + chatRoomId.toString(), loginMember.getId().toString());
+        // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.save(file));
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
@@ -117,7 +102,8 @@ public class ChatController {
                                                            @PathVariable Long chatRoomId) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차순(최신순)
         Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
-        Slice<ChatMessageDTO> slice = allMessages.map(message -> new ChatMessageDTO(
+
+        return allMessages.map(message -> new ChatMessageDTO(
                 message.getContent(),
                 message.getSender().getName(),
                 message.getSender().getId(),
@@ -125,8 +111,6 @@ public class ChatController {
                 message.getImage(),
                 message.getLocalDateTime()
         ));
-
-        return slice;
     }
 
     @Operation(description = "상대방 ID로 해당 채팅방 조회 " +

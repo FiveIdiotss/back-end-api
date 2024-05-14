@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 <body>
-<a href = "notification.html">SSE 테스트 페이지</a><br>
+<a href="notification.html">SSE 테스트 페이지</a><br>
 <h1>WebSocket 연결 테스트 페이지입니다.</h1>
 
 <ul>
@@ -17,6 +17,11 @@
     <li><a href="/chatroom/3">채팅방 3 입장</a></li>
     <!-- 각 채팅방의 ID를 URL에 포함하여 링크를 생성 -->
 </ul>
+
+<form id="uploadForm" action="/api/chat/sendFile" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" id="fileInput">
+    <input type="submit" value="이미지 업로드">
+</form>
 
 <input type="text" id="message" placeholder="메시지를 입력하세요">
 <input type="file" id="imageInput" style="display: none;">
@@ -39,23 +44,23 @@
         // 서버는 해당 요청을 받아 채팅방에 접속 처리를 수행해야 함
     }
 
-    window.onload = function() {
+    window.onload = function () {
 
- 
-        var ws = new WebSocket('ws://menteetor.site:8080/ws');
-        //var ws = new WebSocket('ws://localhost:8080/ws');
+
+        // var ws = new WebSocket('ws://menteetor.site:8080/ws');
+        var ws = new WebSocket('ws://localhost:8080/ws');
         var stompClient = Stomp.over(ws);
 
         // 이미지 첨부 버튼 클릭 시 input 태그 클릭
-        document.getElementById('attachImage').addEventListener('click', function() {
+        document.getElementById('attachImage').addEventListener('click', function () {
             document.getElementById('imageInput').click();
         });
 
         // 이미지 파일 선택 시 base64로 변환하여 메시지와 함께 전송
-        document.getElementById('imageInput').addEventListener('change', function() {
+        document.getElementById('imageInput').addEventListener('change', function () {
             var file = this.files[0];
             var reader = new FileReader();
-            reader.onload = function(event) {
+            reader.onload = function (event) {
                 var base64Image = event.target.result;
                 // base64 이미지와 함께 메시지 전송
                 sendMessage(base64Image);
@@ -87,7 +92,7 @@
         }
 
         // 전송 버튼 클릭 시 메시지 전송
-        document.querySelector('#send').onclick = function() {
+        document.querySelector('#send').onclick = function () {
             sendMessage(null); // 이미지 없이 메시지만 전송
         };
 
@@ -100,6 +105,7 @@
                 messageDisplay.innerHTML += messageOutput.body + '<br>';
             });
         });
+
 
         // // 메시지 및 알림 수신
         // stompClient.connect({}, function (frame) {
@@ -126,7 +132,6 @@
 </script>
 </body>
 </html>
-
 
 
 <!--<!DOCTYPE html>-->

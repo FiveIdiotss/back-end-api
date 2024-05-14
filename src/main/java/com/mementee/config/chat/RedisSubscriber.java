@@ -33,11 +33,6 @@ public class RedisSubscriber implements MessageListener {
     public void onMessage(Message message, byte[] pattern) {
         String messageBody = redisTemplate.getStringSerializer().deserialize(message.getBody());
         log.info("Subscribe");
-
-
-            ChatMessageDTO chatMessage = objectMapper.readValue(publishMessage, ChatMessageDTO.class);
-
-            messagingTemplate.convertAndSend("/sub/chats/" + chatMessage.getChatRoomId(), chatMessage);
         try {
             NotificationDTO notificationDTO = objectMapper.readValue(messageBody, NotificationDTO.class);
             Long receiverId = notificationDTO.getReceiverId();
