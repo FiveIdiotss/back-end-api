@@ -123,13 +123,9 @@ public class ChatService {
                 chatRoom.getMatching().getStartTime());
     }
 
-    public void saveImage(MultipartFile file) {
-        log.info("s3 저장 로직");
-        s3Service.saveImage(file);
+    public String save(MultipartFile file) {
+        return s3Service.save(file);
     }
 
-    public void saveVideo(MultipartFile file) {
-        s3Service.saveVideo(file);
-    }
 
 }

@@ -102,11 +102,15 @@ cloud:
   aws:
     s3:
       bucket: five-image
+      bucket_image: fiveidiots-image
+      bucket_video: fiveidiots-video
+      bucket_pdf: fiveidiots-pdf
     credentials:
       access-key: AKIAXYAFCWJQBQ46DBPJ
       secret-key: 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
     region:
-      static: ap-northeast-2
+#      static: ap-northeast-2
+      static: us-east-1
       auto: false
     stack:
       auto: false

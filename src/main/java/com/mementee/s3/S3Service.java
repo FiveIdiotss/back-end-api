@@ -10,6 +10,7 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
 import java.io.*;
 import java.util.UUID;
@@ -20,9 +21,16 @@ import java.util.UUID;
 public class S3Service {
 
     private final AmazonS3 amazonS3;
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+    @Value("${cloud.aws.s3.bucket_image}")
+    private String bucket_image;
+    @Value("${cloud.aws.s3.bucket_video}")
+    private String bucket_video;
+    @Value("${cloud.aws.s3.bucket_pdf}")
+    private String bucket_pdf;
+
+
 
     public String saveFile(MultipartFile multipartFile) throws IOException {
 
@@ -53,7 +61,7 @@ public class S3Service {
         }
     }
 
-    public void saveImage(MultipartFile file) {
+    public String saveImage(MultipartFile file) {
         try {
             ByteArrayOutputStream compressedImageStream = compressImage(file);
             byte[] imageBytes = compressedImageStream.toByteArray();
@@ -69,12 +77,12 @@ public class S3Service {
 
             // Upload the image to S3
             ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
-            amazonS3.putObject(new PutObjectRequest(bucket, imageName, inputStream, metadata));
+            amazonS3.putObject(new PutObjectRequest(bucket_image, imageName, inputStream, metadata));
 
             // Return the URL of the uploaded image
-            amazonS3.getUrl(bucket, imageName);
+            return amazonS3.getUrl(bucket_image, imageName).toString();
         } catch (IOException e) {
-            e.getMessage();
+            return e.getMessage();
         }
     }
 
@@ -95,22 +103,35 @@ public class S3Service {
         return outputStream;
     }
 
-    public String saveVideo(MultipartFile file) {
+    public String save(MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
             String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
+            String contentType = file.getContentType();
 
-            String imageName = UUID.randomUUID() + "." + extension;
+            String s3FileName = UUID.randomUUID() + "." + extension;
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
-            metadata.setContentType(file.getContentType());
+            metadata.setContentType(contentType);
 
-            amazonS3.putObject(new PutObjectRequest(bucket, imageName, file.getInputStream(), metadata));
+            String bucketName = "fiveidiots-" + extractBucketName(contentType);
 
-            return amazonS3.getUrl(bucket, imageName).toString();
+            amazonS3.putObject(new PutObjectRequest(bucketName, s3FileName, file.getInputStream(), metadata));
+
+            return amazonS3.getUrl(bucketName, s3FileName).toString();
         } catch (IOException e) {
             return "Error uploading file: " + e.getMessage();
         }
+    }
+
+    public String extractBucketName(String str) {
+        if (str.startsWith("image")) return "image";
+        if (str.startsWith("video")) return "video";
+        if (str.equals("application/pdf")) return "pdf";
+        if (str.equals("application/zip")) return "zip";
+        if (str.equals("text/vcard")) return "vcard";
+
+        throw new UnsupportedMediaTypeException("Unsupported file type.");
     }
 }
