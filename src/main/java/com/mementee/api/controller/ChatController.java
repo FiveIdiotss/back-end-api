@@ -1,6 +1,5 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.domain.enumtype.FileType;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
@@ -9,7 +8,6 @@ import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.*;
 import com.mementee.config.chat.RedisPublisher;
-import com.mementee.s3.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,12 +15,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.joda.time.LocalDateTime;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.listener.ChannelTopic;
 
 import org.springframework.http.HttpStatus;
@@ -55,16 +51,6 @@ public class ChatController {
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
-
-//        if (messageDTO.getImage() != null) {
-//            String imageUrl = chatService.saveImage(messageDTO.getImage());
-//            messageDTO.setImage(imageUrl);
-//        }
-//
-//        if (isAllConnected(messageDTO.getChatRoomId())) messageDTO.setReadCount(0);
-//        else messageDTO.setReadCount(1);
-
-
         // redis에 publish
         redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
 
