@@ -34,29 +34,15 @@ public class ChatService {
     private final ChatRoomRepositorySub chatRoomRepositorySub;
     private final MemberService memberService;
     private final S3Service s3Service;
-    private final RedisMessageListenerContainer redisMessageListener;
-    private final RedisSubscriber redisSubscriber;
-    private Map<String, ChannelTopic> topics;
-
-    public void enterChatRoom(String chatRoomId) {
-        ChannelTopic topic = topics.get(chatRoomId);
-
-        if (topic == null) {
-            topic = new ChannelTopic(chatRoomId);
-            redisMessageListener.addMessageListener(redisSubscriber, topic);
-            topics.put(chatRoomId, topic);
-        }
-
-    }
 
     //회원 조회 로직, memberId는 Sender
-    public Long getReceiverId(Long memberId, ChatRoom chatRoom){
-        if(Objects.equals(memberId, chatRoom.getSender().getId()))
+    public Long getReceiverId(Long memberId, ChatRoom chatRoom) {
+        if (Objects.equals(memberId, chatRoom.getSender().getId()))
             return chatRoom.getReceiver().getId();
         return chatRoom.getSender().getId();
     }
 
-    public ChatRoom findChatRoom(Long chatRoomId){
+    public ChatRoom findChatRoom(Long chatRoomId) {
         return chatRoomRepository.findChatRoomById(chatRoomId);
     }
 
@@ -75,7 +61,7 @@ public class ChatService {
     }
 
     // 채팅방 ID로 채팅방 메세지 조회
-    public Slice<ChatMessage> findAllMessagesByChatRoomId(Long chatRoomId, Pageable pageable){
+    public Slice<ChatMessage> findAllMessagesByChatRoomId(Long chatRoomId, Pageable pageable) {
         return chatRoomRepositorySub.findAllMessagesByChatRoomId(chatRoomId, pageable);
     }
 
@@ -87,7 +73,7 @@ public class ChatService {
     // 상대방 아이디로 해당 채팅방 조회
     public Optional<ChatRoom> findChatRoom(Member loginMember, Member receiver) {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findChatRoomById(loginMember, receiver);
-        if(chatRoom.isPresent())
+        if (chatRoom.isPresent())
             return chatRoom;
 
         throw new IllegalArgumentException("둘 사이에 채팅방이 존재하지 않습니다.");
@@ -126,6 +112,5 @@ public class ChatService {
     public String save(MultipartFile file) {
         return s3Service.save(file);
     }
-
 
 }
