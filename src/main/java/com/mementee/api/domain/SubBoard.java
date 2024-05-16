@@ -1,6 +1,7 @@
 package com.mementee.api.domain;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,8 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class SubBoard {
 
@@ -27,11 +27,14 @@ public class SubBoard {
     @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
     private String content;
 
+    private int likeCount;
+
     private LocalDateTime writeTime;            //작성 시간
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "sub_board_image_id")
@@ -58,5 +61,9 @@ public class SubBoard {
         for (SubBoardImage subBoardImage : subBoardImages){
             this.getSubBoardImages().add(subBoardImage);
         }
+    }
+
+    public void addLikeCount(){
+        likeCount++;
     }
 }

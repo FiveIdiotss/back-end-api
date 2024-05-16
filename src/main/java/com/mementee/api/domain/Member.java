@@ -72,6 +72,9 @@ public class Member{
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Favorite> likes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<SubBoardLike> subBoardLikes = new ArrayList<>();
+
     public Member(String email, String name, String password, int year, String defaultMemberImageUrl,
                   Gender gender, School school, Major major) {
         this.email = email;
@@ -104,6 +107,14 @@ public class Member{
 
     public void removeFavoriteBoard(Favorite favorite){
         this.getLikes().remove(favorite);
+    }
+
+    public void addSubBoardLike(SubBoardLike subBoardLike){
+        this.getSubBoardLikes().add(subBoardLike);
+    }
+
+    public void removeSubeBoardLike(SubBoardLike subBoardLike){
+        this.getSubBoardLikes().remove(subBoardLike);
     }
 
     public Member updateMemberImage(String newMemberImageUrl) {

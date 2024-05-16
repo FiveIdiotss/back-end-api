@@ -4,12 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
+import com.mementee.api.domain.Board;
 import com.mementee.api.domain.FCMNotification;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.domain.enumtype.NotificationType;
+import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.dto.notificationDTO.FcmMessage;
@@ -38,6 +38,7 @@ public class FCMNotificationService {
 
     private final ChatService chatService;
     private final MemberService memberService;
+    private final BoardService boardService;
 
     @Transactional
     public void saveFCMNotification(Member member, String token) {
@@ -48,6 +49,16 @@ public class FCMNotificationService {
             fcmNotification.get().updateFCMToken(token);
     }
 
+    public FcmDTO createApplyFcmDTO(String authorizationHeader, Long boardId, ApplyRequest request){
+        Member sender = memberService.getMemberByToken(authorizationHeader);
+        Optional<Board> board = boardService.findById(boardId);
+        Long receiverId = board.get().getMember().getId();
+        String parsingSenderId = String.valueOf(sender.getId());
+
+        return new FcmDTO(receiverId, sender.getName(), request.getContent(),
+                parsingSenderId, sender.getMemberImageUrl(), NotificationType.APPLY);
+    }
+
     public FcmDTO createChatFcmDTO(ChatMessageDTO messageDTO){
         Member sender = memberService.getMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = chatService.findChatRoom(messageDTO.getChatRoomId());
@@ -55,8 +66,10 @@ public class FCMNotificationService {
         String parsingSenderId = String.valueOf(sender.getId());
 
         if(messageDTO.getImage() != null)
-            return new FcmDTO(receiverId, sender.getName(), messageDTO.getImage(), parsingSenderId, sender.getMemberImageUrl());
-        return new FcmDTO(receiverId, sender.getName(), messageDTO.getContent(), parsingSenderId, sender.getMemberImageUrl());
+            return new FcmDTO(receiverId, sender.getName(), messageDTO.getImage(),
+                    parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
+        return new FcmDTO(receiverId, sender.getName(), messageDTO.getContent(),
+                parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
     }
 
     //채팅 알림 보내기
@@ -93,7 +106,7 @@ public class FCMNotificationService {
                                 "content", fcmDTO.getContent(),
                                 "senderImageUrl", fcmDTO.getSenderImageUrl(),
                                 "senderId", fcmDTO.getSenderId(),
-                                "type", NotificationType.CHAT.name()
+                                "type", fcmDTO.getNotificationType().name()
                         ))
                         .build()).validateOnly(false).build();
         return objectMapper.writeValueAsString(fcmMessage);

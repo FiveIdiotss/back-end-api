@@ -8,7 +8,7 @@
 //import com.mementee.api.domain.enumtype.BoardType;
 //import com.mementee.api.domain.subdomain.ScheduleTime;
 //import com.mementee.api.repository.ApplyRepository;
-//import com.mementee.api.repository.BoardRepository;
+//import com.mementee.api.repository.board.BoardRepository;
 //import com.mementee.api.repository.MemberRepository;
 //import jakarta.transaction.Transactional;
 //import org.junit.jupiter.api.Test;

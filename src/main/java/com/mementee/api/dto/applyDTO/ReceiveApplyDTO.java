@@ -13,6 +13,7 @@ import java.time.LocalTime;
 public class ReceiveApplyDTO {
     private Long applyId;
     //private BoardDTO boardDTO;
+
     private Long boardId;
     private String boardTitle;
 

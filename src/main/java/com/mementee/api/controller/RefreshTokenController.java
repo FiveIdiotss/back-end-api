@@ -19,7 +19,7 @@ public class RefreshTokenController {
 
     //refreshToken을 이용한 accessToken 재발급
     @GetMapping("/api/refresh")
-    public ResponseEntity<?> refresh(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> updatedAccess(@RequestHeader("Authorization") String authorizationHeader) {
         try {
             TokenDTO tokenDTO = refreshService.getAccessKey(authorizationHeader);
             return ResponseEntity.ok().body(tokenDTO);

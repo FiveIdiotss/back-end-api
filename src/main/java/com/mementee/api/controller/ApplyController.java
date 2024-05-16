@@ -3,7 +3,6 @@ package com.mementee.api.controller;
 import com.mementee.api.domain.Apply;
 import com.mementee.api.dto.applyDTO.*;
 import com.mementee.api.dto.boardDTO.PageInfo;
-import com.mementee.api.dto.boardDTO.PaginationResponseDto;
 import com.mementee.api.service.ApplyService;
 import com.mementee.api.service.MatchingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,24 +42,15 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/myApply/{memberId}")
-    public List<?> applyList(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId,
-                                                 @RequestParam SendReceive sendReceive){
+    public ResponseEntity<List<?>> applyList(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long memberId,
+                                             @RequestParam SendReceive sendReceive){
         memberService.isCheckMe(authorizationHeader, memberId);
 
         List<Apply> list = applyService.findMyApply(memberService.getMemberByToken(authorizationHeader).getId(), sendReceive);
         if(sendReceive == SendReceive.RECEIVE) {
-            return list.stream()
-                    .map(a -> new ReceiveApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getBoard().getTitle(), a.getApplyState(),
-                            a.getSendMember().getId(), a.getSendMember().getName(),
-                            a.getDate(), a.getStartTime(), a.getApplyTime()))
-                    .toList();
+            return ResponseEntity.ok(applyService.createReceiveApplyDTO(list));
         }
-
-        return list.stream()
-                .map(a -> new SendApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getBoard().getTitle(), a.getApplyState(),
-                        a.getReceiveMember().getId(), a.getReceiveMember().getName(),
-                        a.getDate(), a.getStartTime(), a.getApplyTime()))
-                .toList();
+        return ResponseEntity.ok(applyService.createSendApplyDTO(list));
     }
 
     @Operation(description = "page 를 통한 내가 신청 한/받은 글 리스트")
@@ -68,29 +58,19 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/pageMyApply")
-    public ResponseEntity pageApplyList(@RequestHeader("Authorization") String authorizationHeader,
-                                        @RequestParam SendReceive sendReceive, @RequestParam int page, @RequestParam int size){
+    public ResponseEntity pageApplyList(@RequestHeader("Authorization") String authorizationHeader, @RequestParam SendReceive sendReceive,
+                                        @RequestParam int page, @RequestParam int size){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Page<Apply> findApplies = applyService.findMyApplyByPage(memberService.getMemberByToken(authorizationHeader).getId(), sendReceive, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)findApplies.getTotalElements(), findApplies.getTotalPages());
-
         List<Apply> response = findApplies.getContent();
-        if(sendReceive == SendReceive.RECEIVE) {
-            List<ReceiveApplyDTO> list = response.stream().map
-                    (a -> new ReceiveApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getBoard().getTitle(), a.getApplyState(),
-                            a.getSendMember().getId(), a.getSendMember().getName(),
-                            a.getDate(), a.getStartTime(), a.getApplyTime()))
-                    .collect(Collectors.toList());
 
+        if(sendReceive == SendReceive.RECEIVE) {
+            List<ReceiveApplyDTO> list = applyService.createReceiveApplyDTO(response);
             return new ResponseEntity<>(new PaginationReceiveApplyResponseDto(list, pageInfo), HttpStatus.OK);
         }
-
-        List<SendApplyDTO> list = response.stream().map
-                        (a -> new SendApplyDTO(a.getId(), a.getBoard().getId(), a.getContent(), a.getBoard().getTitle(), a.getApplyState(),
-                                a.getReceiveMember().getId(), a.getReceiveMember().getName(),
-                                a.getDate(), a.getStartTime(), a.getApplyTime()))
-                .collect(Collectors.toList());
+        List<SendApplyDTO> list = applyService.createSendApplyDTO(response);
         return new ResponseEntity<>(new PaginationSendApplyResponseDto(list, pageInfo), HttpStatus.OK);
     }
 
@@ -104,7 +84,6 @@ public class ApplyController {
                                              @RequestHeader("Authorization") String authorizationHeader){
         try {
             matchingService.saveMatching(applyId, authorizationHeader);
-
             return ResponseEntity.ok("신청 수락 성공");
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("신청 수락 실패");
@@ -136,18 +115,9 @@ public class ApplyController {
         try {
             applyService.isCheckApply(authorizationHeader, applyId);
             Apply apply = applyService.findApplication(applyId);
-
-            ApplyInfo response = new ApplyInfo(apply.getId(), apply.getBoard().getId(),
-                    apply.getContent(), apply.getBoard().getTitle(), apply.getApplyState(),
-                    apply.getDate(), apply.getStartTime(), apply.getBoard().getMember().getId(),
-                    apply.getBoard().getMember().getName(), apply.getBoard().getMember().getMemberImageUrl()
-                    ,apply.getBoard().getMember().getMajor().getSchool().getName(),
-                    apply.getBoard().getMember().getMajor().getName());
-
+            ApplyInfo response = applyService.createApplyInfo(apply);
             return ResponseEntity.ok(response);
-        }catch (EmptyResultDataAccessException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }catch (Exception e){
+        }catch (EmptyResultDataAccessException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
