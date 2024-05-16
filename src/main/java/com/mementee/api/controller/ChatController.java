@@ -93,7 +93,6 @@ public class ChatController {
                 message.getSender().getName(),
                 message.getSender().getId(),
                 message.getChatRoom().getId(),
-                message.getImage(),
                 message.getLocalDateTime()
         ));
     }

@@ -19,7 +19,6 @@ public class ChatMessageDTO {
     private String senderName;
     private Long senderId;
     private Long chatRoomId;
-    private String image;
     private int readCount;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -27,12 +26,11 @@ public class ChatMessageDTO {
     @CreatedDate
     private LocalDateTime localDateTime = LocalDateTime.now();
 
-    public ChatMessageDTO(String content, String senderName, Long senderId, Long chatRoomId, String image, LocalDateTime localDateTime) {
+    public ChatMessageDTO(String content, String senderName, Long senderId, Long chatRoomId, LocalDateTime localDateTime) {
         this.content = content;
         this.senderName = senderName;
         this.senderId = senderId;
         this.chatRoomId = chatRoomId;
-        this.image = image;
         this.localDateTime = localDateTime;
     }
 }
