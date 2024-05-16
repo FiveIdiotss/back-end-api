@@ -29,6 +29,12 @@ dependencies {
 	implementation 'com.google.firebase:firebase-admin:9.1.1'
 	implementation 'com.squareup.okhttp3:okhttp:4.11.0'
 
+	//image 파일 압축
+	implementation 'net.coobird:thumbnailator:0.4.14'
+	//연락처 정보 처리 (vCard, .vcf 파일)
+	implementation 'com.googlecode.ez-vcard:ez-vcard:0.10.6'
+	//PDF파일 처리
+	implementation 'org.apache.pdfbox:pdfbox:2.0.24'
 
 	//aws s3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'

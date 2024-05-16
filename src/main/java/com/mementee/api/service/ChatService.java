@@ -9,7 +9,7 @@ import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
-import com.mementee.config.chat.RedisPublisher;
+import com.mementee.config.chat.RedisSubscriber;
 import com.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -38,13 +36,13 @@ public class ChatService {
     private final S3Service s3Service;
 
     //회원 조회 로직, memberId는 Sender
-    public Long getReceiverId(Long memberId, ChatRoom chatRoom){
-        if(Objects.equals(memberId, chatRoom.getSender().getId()))
+    public Long getReceiverId(Long memberId, ChatRoom chatRoom) {
+        if (Objects.equals(memberId, chatRoom.getSender().getId()))
             return chatRoom.getReceiver().getId();
         return chatRoom.getSender().getId();
     }
 
-    public ChatRoom findChatRoom(Long chatRoomId){
+    public ChatRoom findChatRoom(Long chatRoomId) {
         return chatRoomRepository.findChatRoomById(chatRoomId);
     }
 
@@ -63,7 +61,7 @@ public class ChatService {
     }
 
     // 채팅방 ID로 채팅방 메세지 조회
-    public Slice<ChatMessage> findAllMessagesByChatRoomId(Long chatRoomId, Pageable pageable){
+    public Slice<ChatMessage> findAllMessagesByChatRoomId(Long chatRoomId, Pageable pageable) {
         return chatRoomRepositorySub.findAllMessagesByChatRoomId(chatRoomId, pageable);
     }
 
@@ -75,7 +73,7 @@ public class ChatService {
     // 상대방 아이디로 해당 채팅방 조회
     public Optional<ChatRoom> findChatRoom(Member loginMember, Member receiver) {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findChatRoomById(loginMember, receiver);
-        if(chatRoom.isPresent())
+        if (chatRoom.isPresent())
             return chatRoom;
 
         throw new IllegalArgumentException("둘 사이에 채팅방이 존재하지 않습니다.");
@@ -111,8 +109,8 @@ public class ChatService {
                 chatRoom.getMatching().getStartTime());
     }
 
-    public String saveImage(String imageCode) {
-        log.info("s3 저장 로직");
-        return s3Service.saveChatImage(imageCode);
+    public String save(MultipartFile file) {
+        return s3Service.save(file);
     }
+
 }
