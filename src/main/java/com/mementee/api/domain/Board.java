@@ -46,15 +46,9 @@ public class Board {
     @ColumnDefault("30")
     private int consultTime;                //얼마나 상담할 건지
 
-
-//    @ElementCollection
-//    @Column(name = "available_days", nullable = false)
-//    private List<LocalDate> availableDays = new ArrayList<>();              //상담 가능한 요일
-
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private BoardType boardType;                                            //멘토로써 올리는지, 멘티로써 올리는지
+    private BoardType boardType;                                            //글 작성은 무조건 멘토가
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -87,12 +81,11 @@ public class Board {
     private List<UnavailableTime> unavailableTimes = new ArrayList<>();
 
     //게시물 사진
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_image_id")
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
     private List<BoardImage> boardImages = new ArrayList<>();
 
     public Board(String title, String introduce, String target, String content,
-                 int consultTime, BoardCategory boardCategory, BoardType boardType,  Member member,
+                 int consultTime, BoardCategory boardCategory, Member member,
                  List<ScheduleTime> times, List<DayOfWeek> availableDays, List<BoardImage> boardImages) {
         this.title = title;
         this.introduce = introduce;
@@ -102,14 +95,13 @@ public class Board {
         this.times = times;
         this.availableDays = availableDays;
         this.boardCategory = boardCategory;
-        this.boardType = boardType;
         this.member = member;
         this.boardImages = boardImages;
         this.writeTime = LocalDateTime.now();
     }
 
     public Board(String title, String introduce, String target, String content, int consultTime,
-                 BoardCategory boardCategory, BoardType boardType,  Member member,
+                 BoardCategory boardCategory, Member member,
                  List<ScheduleTime> times, List<DayOfWeek> availableDays) {
         this.title = title;
         this.introduce = introduce;
@@ -119,7 +111,7 @@ public class Board {
         this.times = times;
         this.availableDays = availableDays;
         this.boardCategory = boardCategory;
-        this.boardType = boardType;
+        this.boardType = BoardType.MENTOR;
         this.member = member;
         this.writeTime = LocalDateTime.now();
     }
@@ -138,7 +130,6 @@ public class Board {
 
     public void modifyBoards(String title, String introduce, String target,
                              String content, int consultTime, BoardCategory boardCategory,
-                             BoardType boardType,
                              List<ScheduleTime> times, List<DayOfWeek> availableDays){
         this.title = title;
         this.introduce = introduce;
@@ -146,7 +137,6 @@ public class Board {
         this.content = content;
         this.consultTime = consultTime;
         this.boardCategory = boardCategory;
-        this.boardType = boardType;
         this.times = times;
         this.availableDays = availableDays;
         this.writeTime = LocalDateTime.now();

@@ -1,5 +1,6 @@
 package com.mementee.api.dto.notificationDTO;
 
+import com.mementee.api.domain.enumtype.NotificationType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,4 +14,6 @@ public class FcmDTO {
     private String content;
     private String senderId;
     private String senderImageUrl;
+
+    private NotificationType notificationType;
 }

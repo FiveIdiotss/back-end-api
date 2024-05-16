@@ -31,7 +31,6 @@ public class WriteBoardRequest {
     private String content;
     private int consultTime;
     private BoardCategory boardCategory;
-    private BoardType boardType;
 
     @DateTimeFormat(pattern = "HH:mm:ss")
     @JsonSerialize(using = LocalTimeSerializer.class)

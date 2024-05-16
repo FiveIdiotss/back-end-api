@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 public class BoardDTO {
     private Long boardId;
     private BoardCategory boardCategory;
-    private BoardType boardType;
 
     private String title;
     private String introduce;
@@ -27,4 +26,6 @@ public class BoardDTO {
     private String memberName;  //작성자
 
     private LocalDateTime writeTime;  ////작성 시간
+
+    private boolean isFavorite;
 }

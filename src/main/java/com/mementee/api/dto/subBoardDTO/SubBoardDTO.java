@@ -18,7 +18,9 @@ public class SubBoardDTO {
     private String majorName;   //작성자 전공
 
     private Long memberId;      //작성자
+    private String imageUrl;
     private String memberName;  //작성자
 
     private LocalDateTime writeTime;  ////작성 시간
-}
+
+    private boolean isLike;}
