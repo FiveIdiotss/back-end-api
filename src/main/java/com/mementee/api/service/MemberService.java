@@ -37,6 +37,9 @@ public class MemberService {
 
     //검증, 확인, 편리 메소드--------------------
     public Member getMemberByToken(String authorizationHeader) {
+        if (authorizationHeader == null)
+            throw  new IllegalArgumentException("로그인이 필요 합니다.");
+
         String token = authorizationHeader.split(" ")[1];
         String email = JwtUtil.getMemberEmail(token, secretKey);
         return findMemberByEmail(email);
@@ -61,13 +64,13 @@ public class MemberService {
     }
 
     //비밀번호 맞는지 체크
-    public void matchPassWord(String requestPw, String memberPw) {
+    private void matchPassWord(String requestPw, String memberPw) {
         if (!passwordEncoder.matches(requestPw, memberPw))
             throw new IllegalArgumentException("비밀번호 불 일치");
     }
 
     //중복 이메일 검증
-    public void emailDuplicateCheck(String email) {
+    private void emailDuplicateCheck(String email) {
         List<Member> findMembers = memberRepository.emailDuplicateCheck(email);
         if (!findMembers.isEmpty()) {
             throw new IllegalArgumentException("이미 존재하는 회원입니다.");
@@ -75,13 +78,13 @@ public class MemberService {
     }
 
     //이미 기본 이미지 인지
-    public void isCheckDefaultImage(Member member, String imageUrl){
+    private void isCheckDefaultImage(Member member, String imageUrl){
         if(member.getMemberImageUrl().equals(imageUrl))
             throw new IllegalArgumentException("이미 기본이미지 입니다.");
     }
 
     //로그인 시 회원 정보
-    public MemberDTO getMemberDTO(Member member) {
+    private MemberDTO getMemberDTO(Member member) {
         return new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear(),
                 member.getGender(), member.getSchool().getName(),
                 member.getMajor().getName(),
@@ -93,6 +96,11 @@ public class MemberService {
         String newAccessToken = JwtUtil.createAccessToken(member.getEmail(), secretKey);
         String newRefreshToken = JwtUtil.createRefreshToken(secretKey);
         return new TokenDTO(newAccessToken, newRefreshToken);
+    }
+
+    public MemberInfoResponse createMemberInfoResponse(Member member){
+        return new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(), member.getYear(),
+                member.getGender(), member.getSchool().getName(), member.getMajor().getName(), member.getMemberImageUrl());
     }
 
     //구현 메소드 --------------------

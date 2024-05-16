@@ -7,7 +7,6 @@ import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.domain.enumtype.ApplyState;
 import com.mementee.api.repository.MatchingRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
-import com.mementee.api.repository.chat.ChatRoomRepositorySub;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.BoardType;
@@ -29,7 +28,7 @@ public class MatchingService {
     private final MemberService memberService;
     private final ApplyService applyService;
 
-    public void isCheckCompleteApply(Apply apply){
+    private void isCheckCompleteApply(Apply apply){
         if(apply.getApplyState() == ApplyState.COMPLETE)
             throw new IllegalArgumentException("이미 완료된 신청입니다.");
     }
@@ -48,16 +47,8 @@ public class MatchingService {
         Long receiveMemberId = apply.getReceiveMember().getId();        //신청 받을(게시물 글쓴이) 사람의 Id
         memberService.isCheckMe(authorizationHeader, receiveMemberId);
 
-        Member mentor;
-        Member mentee;
-
-        if (apply.getBoard().getBoardType() == BoardType.MENTOR) { //신청을 수락하는 메소드이기 때문에 글에 대한 타입에 따라 멘토, 멘티 역할
-            mentor = apply.getReceiveMember();
-            mentee = apply.getSendMember();
-        } else {
-            mentor = apply.getSendMember();
-            mentee = apply.getReceiveMember();
-        }
+        Member mentor = apply.getReceiveMember();;
+        Member mentee = apply.getSendMember();
 
         Matching matching = new Matching(consultDate, consultTime, board.getConsultTime(),
                 board, apply, mentor, mentee);

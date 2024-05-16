@@ -158,13 +158,9 @@ public class MemberController {
         try {
             //Member member = memberService.isCheckMe(authorizationHeader, memberId);
             Member member = memberService.getMemberById(memberId);
-            MemberInfoResponse response = new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(),
-                    member.getYear(), member.getGender(), member.getSchool().getName(), member.getMajor().getName(), member.getMemberImageUrl());
+            MemberInfoResponse response = memberService.createMemberInfoResponse(member);
             return ResponseEntity.ok(response);
-
         } catch (EmptyResultDataAccessException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("조회 실패");
-        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("조회 실패");
         }
     }

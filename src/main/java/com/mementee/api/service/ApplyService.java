@@ -3,7 +3,9 @@ package com.mementee.api.service;
 import com.mementee.api.domain.Apply;
 import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
-import com.mementee.api.domain.enumtype.BoardType;
+import com.mementee.api.dto.applyDTO.ApplyInfo;
+import com.mementee.api.dto.applyDTO.ReceiveApplyDTO;
+import com.mementee.api.dto.applyDTO.SendApplyDTO;
 import com.mementee.api.repository.ApplyRepository;
 import com.mementee.api.repository.ApplyRepositorySub;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class ApplyService {
     private final MemberService memberService;
     private final BoardService boardService;
 
+    //검증, 유효성
     //신청 중복 체크
     public void isDuplicateApply(Long sendMemberId, Long receiveMemberId, Long boardId){
         Optional<Apply> duplicateApply = applicationRepository.isDuplicateApply(sendMemberId, receiveMemberId, boardId);
@@ -36,7 +39,7 @@ public class ApplyService {
     }
 
     //자신의 글에 신청 체크
-    public void isCheckMyBoard(Member member ,Board board){
+    public void isCheckMyBoard(Member member , Board board){
         if(member == board.getMember())
             throw new IllegalArgumentException("자신의 글에는 신청할 수 없습니다.");
     }
@@ -51,10 +54,36 @@ public class ApplyService {
             throw new IllegalArgumentException("나에게 해당하는 지원 글이 아닙니다.");
     }
 
+    public List<ReceiveApplyDTO> createReceiveApplyDTO(List<Apply> applies){
+        return applies.stream()
+                .map(a -> new ReceiveApplyDTO(a.getId(), a.getBoard().getId(), a.getBoard().getTitle(), a.getContent(), a.getApplyState(),
+                        a.getSendMember().getId(), a.getSendMember().getName(),
+                        a.getDate(), a.getStartTime(), a.getApplyTime()))
+                .toList();
+    }
+
+    public List<SendApplyDTO> createSendApplyDTO(List<Apply> applies){
+        return applies.stream()
+                .map(a -> new SendApplyDTO(a.getId(), a.getBoard().getId(), a.getBoard().getTitle(), a.getContent(), a.getApplyState(),
+                        a.getReceiveMember().getId(), a.getReceiveMember().getName(),
+                        a.getDate(), a.getStartTime(), a.getApplyTime()))
+                .toList();
+    }
+
+    public ApplyInfo createApplyInfo(Apply apply){
+        return new ApplyInfo(apply.getId(), apply.getBoard().getId(),
+                apply.getContent(), apply.getBoard().getTitle(), apply.getApplyState(),
+                apply.getDate(), apply.getStartTime(), apply.getBoard().getMember().getId(),
+                apply.getBoard().getMember().getName(), apply.getBoard().getMember().getMemberImageUrl()
+                ,apply.getBoard().getMember().getMajor().getSchool().getName(),
+                apply.getBoard().getMember().getMajor().getName());
+    }
+
+    //기능 구현
     //멘토 or 멘티 신청 하기
     @Transactional
     public void sendApply(String authorizationHeader, Long boardId, ApplyRequest request){
-        Board board = boardService.findBoard(boardId);
+        Board board = boardService.findOne(boardId);
 
         Member sendMember = memberService.getMemberByToken(authorizationHeader);
         Member receiveMember = board.getMember();
