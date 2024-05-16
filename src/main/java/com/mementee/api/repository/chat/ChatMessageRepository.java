@@ -40,4 +40,12 @@ public class ChatMessageRepository {
                 .getResultList();
     }
 
+    public List<ChatMessage> findByChatRoomIdAndReadCountGreaterThan(Long chatRoomId, int readCount) {
+        String query = "SELECT cm FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId AND cm.readCount > :readCount";
+
+        return em.createQuery(query, ChatMessage.class)
+                .setParameter("chatRoomId", chatRoomId)
+                .setParameter("readCount", readCount)
+                .getResultList();
+    }
 }

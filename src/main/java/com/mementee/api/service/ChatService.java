@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,45 @@ public class ChatService {
     private final ChatRoomRepositorySub chatRoomRepositorySub;
     private final MemberService memberService;
     private final S3Service s3Service;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    //
+
+    public void userEnterChatRoom(Long chatRoomId, Long userId) {
+        String key = "chatRoom:" + chatRoomId;
+        redisTemplate.opsForSet().add(key, userId);
+        // 읽지 않은 메시지 모두 읽음 처리
+        markAllMessagesAsRead(chatRoomId, userId);
+    }
+
+    public void userLeaveChatRoom(Long chatRoomId, Long userId) {
+        String key = "chatRoom:" + chatRoomId;
+        redisTemplate.opsForSet().remove(key, userId);
+    }
+
+    public boolean isUserInChatRoom(Long chatRoomId, Long userId) {
+        String key = "chatRoom:" + chatRoomId;
+        return redisTemplate.opsForSet().isMember(key, userId);
+    }
+
+    public Set<Object> getUsersInChatRoom(Long chatRoomId) {
+        String key = "chatRoom:" + chatRoomId;
+        return redisTemplate.opsForSet().members(key);
+    }
+
+    public void markAllMessagesAsRead(Long chatRoomId, Long userId) {
+        List<ChatMessage> messages = chatMessageRepository.findByChatRoomIdAndReadCountGreaterThan(chatRoomId, 0);
+        for (ChatMessage message : messages) {
+            if (!message.getSender().getId().equals(userId) && message.getReadCount() > 0) {
+                message.setReadCount(0);
+                chatMessageRepository.save(message);
+            }
+        }
+    }
+
+
+
+    //
 
     //회원 조회 로직, memberId는 Sender
     public Long getReceiverId(Long memberId, ChatRoom chatRoom) {
@@ -50,14 +90,13 @@ public class ChatService {
         Member sender = memberService.getMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = findChatRoom(messageDTO.getChatRoomId());
 
-        return new ChatMessage(messageDTO.getContent(), sender, chatRoom, messageDTO.getImage());
+        return new ChatMessage(messageDTO.getContent(), sender, chatRoom);
     }
 
     @Transactional
     public void saveMessage(ChatMessageDTO messageDTO) {
         ChatMessage chatMessage = createMessageByDTO(messageDTO);
         chatMessageRepository.save(chatMessage);
-
     }
 
     // 채팅방 ID로 채팅방 메세지 조회
@@ -96,11 +135,10 @@ public class ChatService {
         String receiverName = member.getName();
 
         Optional<ChatMessage> latestChatMessage = findLatestChatMessage(chatRoom.getId());
-        boolean hasImage = latestChatMessage.map(ChatMessage::getImage).isPresent();
 
         LatestMessageDTO latestMessageDTO = latestChatMessage.map(chatMessage ->
-                        new LatestMessageDTO(chatMessage.getContent(), chatMessage.getLocalDateTime(), hasImage))
-                .orElse(new LatestMessageDTO(" ", null, false));
+                        new LatestMessageDTO(chatMessage.getContent(), chatMessage.getLocalDateTime()))
+                .orElse(new LatestMessageDTO(" ", null));
 
         return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO,
                 member.getMemberImageUrl(),
@@ -112,5 +150,7 @@ public class ChatService {
     public String save(MultipartFile file) {
         return s3Service.save(file);
     }
+
+
 
 }
