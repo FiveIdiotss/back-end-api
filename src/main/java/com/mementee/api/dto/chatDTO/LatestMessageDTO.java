@@ -12,5 +12,4 @@ import java.time.LocalDateTime;
 public class LatestMessageDTO {
     private String content;
     private LocalDateTime localDateTime;
-    private boolean hasImage;
 }
