@@ -7,6 +7,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -31,20 +32,14 @@ public class ChatMessage {
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
 
-    private String image;
-
     private LocalDateTime localDateTime;
 
-    @Enumerated(EnumType.STRING)
-    private FileType fileType;
+    private int readCount = 2;
 
-    private int readCount;
-
-    public ChatMessage(String content, Member sender, ChatRoom chatRoom, String image) {
+    public ChatMessage(String content, Member sender, ChatRoom chatRoom) {
         this.content = content;
         this.sender = sender;
         this.chatRoom = chatRoom;
-        this.image = image;
         this.localDateTime = LocalDateTime.now();
     }
 }

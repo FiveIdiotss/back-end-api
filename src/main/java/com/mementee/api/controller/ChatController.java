@@ -70,7 +70,6 @@ public class ChatController {
         //notificationService.sendNotification(receiverId, messageDTO);
     }
 
-
     //video, picture, zip file, pdf file, 연락처
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
@@ -94,13 +93,11 @@ public class ChatController {
                 message.getSender().getName(),
                 message.getSender().getId(),
                 message.getChatRoom().getId(),
-                message.getImage(),
                 message.getLocalDateTime()
         ));
     }
 
-    @Operation(description = "상대방 ID로 해당 채팅방 조회 " +
-            "상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인(채팅방이 존재하지 않으면 새로 만듦)")
+    @Operation(description = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인(채팅방이 존재하지 않으면 새로 만듦)")
     @GetMapping("/chatRoom")
     public ResponseEntity<?> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
         try {
