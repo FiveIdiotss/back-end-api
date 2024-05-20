@@ -35,45 +35,16 @@ public class ChatService {
     private final ChatRoomRepositorySub chatRoomRepositorySub;
     private final MemberService memberService;
     private final S3Service s3Service;
-    private final RedisTemplate<String, Object> redisTemplate;
 
-    //
-
-    public void userEnterChatRoom(Long chatRoomId, Long userId) {
-        String key = "chatRoom:" + chatRoomId;
-        redisTemplate.opsForSet().add(key, userId);
-        // 읽지 않은 메시지 모두 읽음 처리
-        markAllMessagesAsRead(chatRoomId, userId);
-    }
-
-    public void userLeaveChatRoom(Long chatRoomId, Long userId) {
-        String key = "chatRoom:" + chatRoomId;
-        redisTemplate.opsForSet().remove(key, userId);
-    }
-
-    public boolean isUserInChatRoom(Long chatRoomId, Long userId) {
-        String key = "chatRoom:" + chatRoomId;
-        return redisTemplate.opsForSet().isMember(key, userId);
-    }
-
-    public Set<Object> getUsersInChatRoom(Long chatRoomId) {
-        String key = "chatRoom:" + chatRoomId;
-        return redisTemplate.opsForSet().members(key);
-    }
-
-    public void markAllMessagesAsRead(Long chatRoomId, Long userId) {
-        List<ChatMessage> messages = chatMessageRepository.findByChatRoomIdAndReadCountGreaterThan(chatRoomId, 0);
+    public void markMessagesAsReadForUser(Long chatRoomId, Long userId) {
+        List<ChatMessage> messages = chatMessageRepository.findByChatRoomIdAndReadCount(chatRoomId, 1);
         for (ChatMessage message : messages) {
-            if (!message.getSender().getId().equals(userId) && message.getReadCount() > 0) {
-                message.setReadCount(0);
+            if (!message.getSender().getId().equals(userId)) {
+                message.setReadCount(2);
                 chatMessageRepository.save(message);
             }
         }
     }
-
-
-
-    //
 
     //회원 조회 로직, memberId는 Sender
     public Long getReceiverId(Long memberId, ChatRoom chatRoom) {
@@ -90,7 +61,7 @@ public class ChatService {
         Member sender = memberService.getMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = findChatRoom(messageDTO.getChatRoomId());
 
-        return new ChatMessage(messageDTO.getContent(), sender, chatRoom);
+        return new ChatMessage(messageDTO.getContent(), sender, chatRoom, messageDTO.getReadCount());
     }
 
     @Transactional
@@ -150,7 +121,5 @@ public class ChatService {
     public String save(MultipartFile file) {
         return s3Service.save(file);
     }
-
-
 
 }

@@ -33,101 +33,118 @@
 
 
 <script>
-    function enterChatRoom(chatRoomId) {
-        // 채팅방 접속 요청을 서버에 보냄
-        // 채팅방 ID를 파라미터로 전달하여 서버에서 해당 채팅방에 접속 처리
-        // 여기에서는 간단히 alert로 채팅방 ID 출력하도록 설정
-        alert("채팅방 " + chatRoomId + "에 입장했습니다.");
+    // function enterChatRoom(chatRoomId) {
+    //     if (stompClient) {
+    //         stompClient.disconnect();
+    //     }
+    //
+    //     currentChatRoomId = chatRoomId;
+    //
+    //     var socket = new SockJS('/chat-websocket');
+    //     stompClient = Stomp.over(socket);
+    //
+    //     stompClient.connect({userId: currentUserId, chatRoomId: currentChatRoomId}, function (frame) {
+    //         stompClient.subscribe('/sub/chats/' + chatRoomId, function (messageOutput) {
+    //             console.log('Received: ' + messageOutput.body);
+    //             var messageDisplay = document.querySelector('#messageDisplay');
+    //             messageDisplay.innerHTML += messageOutput.body + '<br>';
+    //         });
+    //
+    //         // 채팅방 새로고침 요청 구독
+    //         stompClient.subscribe('/sub/chats/' + chatRoomId + '/reload', function (userId) {
+    //             if (parseInt(userId.body) === currentUserId) {
+    //                 reloadChatMessages();
+    //             }
+    //         });
+    //
+    //         alert("채팅방 " + chatRoomId + "에 입장했습니다.");
+    //     });
+    {
+        window.onload = function () {
 
-        // 실제 서버에 요청을 보내는 코드를 작성해야 함
-        // 예를 들어, Ajax나 fetch를 사용하여 서버에 요청을 보낼 수 있음
-        // 서버는 해당 요청을 받아 채팅방에 접속 처리를 수행해야 함
-    }
 
-    window.onload = function () {
+            // var ws = new WebSocket('ws://menteetor.site:8080/ws');
+            var ws = new WebSocket('ws://localhost:8080/ws');
+            var stompClient = Stomp.over(ws);
 
-
-        // var ws = new WebSocket('ws://menteetor.site:8080/ws');
-        var ws = new WebSocket('ws://localhost:8080/ws');
-        var stompClient = Stomp.over(ws);
-
-        // 이미지 첨부 버튼 클릭 시 input 태그 클릭
-        document.getElementById('attachImage').addEventListener('click', function () {
-            document.getElementById('imageInput').click();
-        });
-
-        // 이미지 파일 선택 시 base64로 변환하여 메시지와 함께 전송
-        document.getElementById('imageInput').addEventListener('change', function () {
-            var file = this.files[0];
-            var reader = new FileReader();
-            reader.onload = function (event) {
-                var base64Image = event.target.result;
-                // base64 이미지와 함께 메시지 전송
-                sendMessage(base64Image);
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // 메시지 전송 함수
-        function sendMessage(base64Image) {
-            var messageInput = document.querySelector('#message');
-            var message = messageInput.value.trim();
-            if (message !== '' || base64Image !== null) {
-                var senderId = 1;
-                var chatRoomId = 1;
-                var senderName = "이종현";
-                var time = new Date().toISOString();
-
-                stompClient.send("/pub/hello", {}, JSON.stringify({
-                    content: message,
-                    senderName: senderName,
-                    senderId: senderId,
-                    chatRoomId: chatRoomId,
-                    image: base64Image,
-                    localDateTime: time
-                }));
-
-                messageInput.value = '';
-            }
-        }
-
-        // 전송 버튼 클릭 시 메시지 전송
-        document.querySelector('#send').onclick = function () {
-            sendMessage(null); // 이미지 없이 메시지만 전송
-        };
-
-        // 메시지 수신
-        stompClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
-            stompClient.subscribe('/sub/chats/1', function (messageOutput) {
-                console.log('Received: ' + messageOutput.body);
-                var messageDisplay = document.querySelector('#messageDisplay');
-                messageDisplay.innerHTML += messageOutput.body + '<br>';
+            // 이미지 첨부 버튼 클릭 시 input 태그 클릭
+            document.getElementById('attachImage').addEventListener('click', function () {
+                document.getElementById('imageInput').click();
             });
-        });
 
+            // 이미지 파일 선택 시 base64로 변환하여 메시지와 함께 전송
+            document.getElementById('imageInput').addEventListener('change', function () {
+                var file = this.files[0];
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    var base64Image = event.target.result;
+                    // base64 이미지와 함께 메시지 전송
+                    sendMessage(base64Image);
+                };
+                reader.readAsDataURL(file);
+            });
 
-        // // 메시지 및 알림 수신
-        // stompClient.connect({}, function (frame) {
-        //     console.log('Connected: ' + frame);
-        //
-        //     // 메시지 수신 구독
-        //     stompClient.subscribe('/sub/chats/1', function (messageOutput) {
-        //         console.log('Received: ' + messageOutput.body);
-        //         var messageDisplay = document.querySelector('#messageDisplay');
-        //         messageDisplay.innerHTML += messageOutput.body + '<br>';
-        //     });
-        //
-        //     // 사용자 알림 수신 구독
-        //     var userId = 2; // 예시로 1번 사용자를 설정합니다. 실제로는 동적으로 설정해야 합니다.
-        //     stompClient.subscribe('/sub/notifications/' + userId, function (notification) {
-        //         console.log('Notification received: ' + notification.body);
-        //         var notificationDisplay = document.querySelector('#notificationDisplay');
-        //         notificationDisplay.innerHTML += notification.body + '<br>';
-        //     });
-        // });
+            // 메시지 전송 함수
+            function sendMessage(base64Image) {
+                var messageInput = document.querySelector('#message');
+                var message = messageInput.value.trim();
+                if (message !== '' || base64Image !== null) {
+                    var senderId = 1;
+                    var chatRoomId = 1;
+                    var senderName = "이종현";
+                    var time = new Date().toISOString();
 
+                    stompClient.send("/pub/hello", {}, JSON.stringify({
+                        content: message,
+                        senderName: senderName,
+                        senderId: senderId,
+                        chatRoomId: chatRoomId,
+                        image: base64Image,
+                        localDateTime: time
+                    }));
+
+                    messageInput.value = '';
+                }
+            }
+
+            // 전송 버튼 클릭 시 메시지 전송
+            document.querySelector('#send').onclick = function () {
+                sendMessage(null); // 이미지 없이 메시지만 전송
+            };
+
+            // 메시지 수신
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/sub/chats/1', function (messageOutput) {
+                    console.log('Received: ' + messageOutput.body);
+                    var messageDisplay = document.querySelector('#messageDisplay');
+                    messageDisplay.innerHTML += messageOutput.body + '<br>';
+                });
+            });
+        }
     }
+
+
+    // // 메시지 및 알림 수신
+    // stompClient.connect({}, function (frame) {
+    //     console.log('Connected: ' + frame);
+    //
+    //     // 메시지 수신 구독
+    //     stompClient.subscribe('/sub/chats/1', function (messageOutput) {
+    //         console.log('Received: ' + messageOutput.body);
+    //         var messageDisplay = document.querySelector('#messageDisplay');
+    //         messageDisplay.innerHTML += messageOutput.body + '<br>';
+    //     });
+    //
+    //     // 사용자 알림 수신 구독
+    //     var userId = 2; // 예시로 1번 사용자를 설정합니다. 실제로는 동적으로 설정해야 합니다.
+    //     stompClient.subscribe('/sub/notifications/' + userId, function (notification) {
+    //         console.log('Notification received: ' + notification.body);
+    //         var notificationDisplay = document.querySelector('#notificationDisplay');
+    //         notificationDisplay.innerHTML += notification.body + '<br>';
+    //     });
+    // });
+
 
 </script>
 </body>

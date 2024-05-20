@@ -4,7 +4,7 @@ spring:
     level:
       org:
         springframework:
-          boot: info
+          boot: debug
 
   jpa:
     hibernate:

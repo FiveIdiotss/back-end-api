@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 
 import org.springframework.http.HttpStatus;
@@ -43,11 +44,11 @@ public class ChatController {
 
     private final ChatService chatService;
     private final MemberService memberService;
-    private final SimpMessagingTemplate websocketPublisher; //websocket에 전달하는 핸들러
+    private final SimpMessagingTemplate websocketPublisher;
     private final RedisPublisher redisPublisher;
-
     private final NotificationService notificationService;
     private final FCMNotificationService fcmNotificationService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
@@ -63,17 +64,11 @@ public class ChatController {
         //FCM 알림
         FcmDTO fcmDTO = fcmNotificationService.createChatFcmDTO(messageDTO);
         fcmNotificationService.sendMessageTo(fcmDTO);
-
-        //redis
-        //redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
-        //SSE 알림
-        //notificationService.sendNotification(receiverId, messageDTO);
     }
 
-    //video, picture, zip file, pdf file, 연락처
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
-    public ResponseEntity<String> sendFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> sendFileInChatRoom(@RequestParam("file") MultipartFile file) {
         // If file is not uploaded, return BAD_REQUEST error.
         if (file.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
 
