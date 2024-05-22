@@ -3,7 +3,7 @@
 //import com.mementee.api.domain.Member;
 //import com.mementee.api.domain.chat.ChatMessage;
 //import com.mementee.api.domain.chat.ChatRoom;
-//import com.mementee.api.repository.MemberRepository;
+//import com.mementee.api.repository.member.MemberRepository;
 //import com.mementee.api.service.MemberService;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;

@@ -8,7 +8,7 @@ import java.time.LocalTime;
 
 @AllArgsConstructor
 @Data
-public class MenTeeMatchingDTO {
+public class MatchingDTO {
     private Long matchingId;
     private Long applyId;
 

@@ -1,11 +1,15 @@
 package com.mementee.api.dto.boardDTO;
 
+import com.mementee.api.domain.Board;
+import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.BoardCategory;
+import com.mementee.api.dto.memberDTO.MemberDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import com.mementee.api.domain.enumtype.BoardType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -28,4 +32,18 @@ public class BoardDTO {
     private LocalDateTime writeTime;  ////작성 시간
 
     private boolean isFavorite;
+
+    public static BoardDTO createBoardDTO(Board board, boolean isFavorite) {
+        return new BoardDTO(board.getId(), board.getBoardCategory(), board.getTitle(), board.getIntroduce(),
+                board.getTarget(), board.getContent(), board.getMember().getYear(),
+                board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
+                board.getMember().getId(), board.getMember().getName(), board.getWriteTime(), isFavorite);
+    }
+
+    public static List<BoardDTO> createBoardDTOs(List<Board> boards, boolean isFavorite) {
+        return boards.stream()
+                .map(b -> createBoardDTO(b, isFavorite))
+                .toList();
+    }
+
 }

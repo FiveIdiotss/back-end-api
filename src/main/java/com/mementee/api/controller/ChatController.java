@@ -78,39 +78,35 @@ public class ChatController {
         if (file.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
 
         // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
-        return ResponseEntity.status(HttpStatus.OK).body(chatService.save(file));
+        return ResponseEntity.ok(chatService.save(file));
     }
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages/{chatRoomId}")
-    public Slice<ChatMessageDTO> findAllMessagesByChatRoom(@RequestParam int page, @RequestParam int size,
+    public ResponseEntity<Slice<ChatMessageDTO>> findAllMessagesByChatRoom(@RequestParam int page, @RequestParam int size,
                                                            @PathVariable Long chatRoomId) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차순(최신순)
         Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
 
-        return allMessages.map(message -> new ChatMessageDTO(
+        return ResponseEntity.ok(allMessages.map(message -> new ChatMessageDTO(
                 message.getContent(),
                 message.getSender().getName(),
                 message.getSender().getId(),
                 message.getChatRoom().getId(),
                 message.getLocalDateTime()
-        ));
+        )));
     }
 
     @Operation(description = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인(채팅방이 존재하지 않으면 새로 만듦)")
     @GetMapping("/chatRoom")
-    public ResponseEntity<?> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
-        try {
-            Member loginMember = memberService.getMemberByToken(authorizationHeader);
-            Member receiver = memberService.getMemberById(receiverId);
+    public ResponseEntity<ChatRoomDTO> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
+            Member loginMember = memberService.findMemberByToken(authorizationHeader);
+            Member receiver = memberService.findMemberById(receiverId);
 
             Optional<ChatRoom> chatRoom = chatService.findChatRoom(loginMember, receiver);
 
             ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.get().getId(), receiverId, receiver.getName());
             return ResponseEntity.ok(chatRoomDTO);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
     }
 
     @Operation(description = "특정 멤버가 속한 채팅방 모두 조회")

@@ -40,19 +40,11 @@ public class FCMNotificationService {
     private final MemberService memberService;
     private final BoardService boardService;
 
-    @Transactional
-    public void saveFCMNotification(Member member, String token) {
-        Optional<FCMNotification> fcmNotification = fcmNotificationRepository.findFCMNotification(member.getId());
-        if(fcmNotification.isEmpty())
-            fcmNotificationRepository.save(new FCMNotification(token, member));
-        else
-            fcmNotification.get().updateFCMToken(token);
-    }
-
     public FcmDTO createApplyFcmDTO(String authorizationHeader, Long boardId, ApplyRequest request){
-        Member sender = memberService.getMemberByToken(authorizationHeader);
-        Optional<Board> board = boardService.findById(boardId);
-        Long receiverId = board.get().getMember().getId();
+        Member sender = memberService.findMemberByToken(authorizationHeader);
+        Board board = boardService.findBoardById(boardId);
+
+        Long receiverId = board.getMember().getId();
         String parsingSenderId = String.valueOf(sender.getId());
 
         return new FcmDTO(receiverId, sender.getName(), request.getContent(),
@@ -60,7 +52,7 @@ public class FCMNotificationService {
     }
 
     public FcmDTO createChatFcmDTO(ChatMessageDTO messageDTO){
-        Member sender = memberService.getMemberById(messageDTO.getSenderId());
+        Member sender = memberService.findMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = chatService.findChatRoom(messageDTO.getChatRoomId());
         Long receiverId = chatService.getReceiverId(messageDTO.getSenderId(), chatRoom);
         String parsingSenderId = String.valueOf(sender.getId());
@@ -69,10 +61,20 @@ public class FCMNotificationService {
                 parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
     }
 
+    @Transactional
+    public void saveFCMNotification(Member member, String token) {
+        Optional<FCMNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMember(member);
+        if(fcmNotification.isEmpty())
+            fcmNotificationRepository.save(new FCMNotification(token, member));
+        else
+            fcmNotification.get().updateFCMToken(token);
+    }
+
     //채팅 알림 보내기
     public void sendMessageTo(FcmDTO fcmDTO) throws IOException {
+        Member member = memberService.findMemberById(fcmDTO.getTargetMemberId());
+        Optional<FCMNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMember(member);
 
-        Optional<FCMNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMemberId(fcmDTO.getTargetMemberId());
         if (fcmNotification.isEmpty())
             return;
 
@@ -90,7 +92,6 @@ public class FCMNotificationService {
                 .build();
 
         Response response = client.newCall(request).execute();
-
         log.info(response.body().string());
     }
 

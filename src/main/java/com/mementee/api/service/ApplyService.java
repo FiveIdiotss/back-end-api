@@ -3,11 +3,13 @@ package com.mementee.api.service;
 import com.mementee.api.domain.Apply;
 import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
-import com.mementee.api.dto.applyDTO.ApplyInfo;
-import com.mementee.api.dto.applyDTO.ReceiveApplyDTO;
-import com.mementee.api.dto.applyDTO.SendApplyDTO;
+import com.mementee.api.dto.applyDTO.ApplyInfoResponse;
 import com.mementee.api.repository.ApplyRepository;
-import com.mementee.api.repository.ApplyRepositorySub;
+import com.mementee.api.validation.ApplyValidation;
+import com.mementee.exception.ForbiddenException;
+import com.mementee.exception.conflict.ApplyConflictException;
+import com.mementee.exception.conflict.MyApplyConflictException;
+import com.mementee.exception.notFound.ApplyNotFound;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.domain.enumtype.SendReceive;
@@ -25,103 +27,52 @@ import java.util.Optional;
 public class ApplyService {
 
     private final ApplyRepository applicationRepository;
-    private final ApplyRepositorySub applicationRepositorySub;
     private final MemberService memberService;
     private final BoardService boardService;
 
-    //검증, 유효성
-    //신청 중복 체크
-    public void isDuplicateApply(Long sendMemberId, Long receiveMemberId, Long boardId){
-        Optional<Apply> duplicateApply = applicationRepository.isDuplicateApply(sendMemberId, receiveMemberId, boardId);
-        if(duplicateApply.isPresent()){
-            throw new IllegalArgumentException("이미 신청한 글 입니다.");
-        }
+    //하나의 게시물에 대한 신청 조회
+    public Optional<Apply> findApplyBySendMemberAndReceiveMemberAndBoard(Member sendMember, Member receiveMember, Board board){
+        return applicationRepository.findApplyBySendMemberAndReceiveMemberAndBoard(sendMember, receiveMember, board);
     }
 
-    //자신의 글에 신청 체크
-    public void isCheckMyBoard(Member member , Board board){
-        if(member == board.getMember())
-            throw new IllegalArgumentException("자신의 글에는 신청할 수 없습니다.");
+    //나의 신청 목록
+    public List<Apply> findMyApply(Member member, SendReceive sendReceive){
+        if(sendReceive.equals(SendReceive.SEND))
+            return applicationRepository.findAppliesBySendMember(member);
+        return applicationRepository.findAppliesByReceiveMember(member);
     }
 
-    //자신이 신청하거나 신청받은 지원글을 조회 할때
-    public void isCheckApply(String authorizationHeader, Long applyId){
-        Apply apply = applicationRepository.findApply(applyId);
-
-        Member sendMember = memberService.getMemberByToken(authorizationHeader);            //현재 로그인한 멤버 (신청한 사람)
-
-        if(sendMember != apply.getSendMember() && sendMember != apply.getReceiveMember())
-            throw new IllegalArgumentException("나에게 해당하는 지원 글이 아닙니다.");
+    //나의 신청 목록(Page)
+    public Page<Apply> findMyApplyByPage(Member member, SendReceive sendReceive, Pageable pageable){
+        if(sendReceive.equals(SendReceive.SEND))
+            return applicationRepository.findAppliesBySendMember(member, pageable);
+        return applicationRepository.findAppliesByReceiveMember(member, pageable);
     }
 
-    public List<ReceiveApplyDTO> createReceiveApplyDTO(List<Apply> applies){
-        return applies.stream()
-                .map(a -> new ReceiveApplyDTO(a.getId(), a.getBoard().getId(), a.getBoard().getTitle(), a.getContent(), a.getApplyState(),
-                        a.getSendMember().getId(), a.getSendMember().getName(),
-                        a.getDate(), a.getStartTime(), a.getApplyTime()))
-                .toList();
+    //id로 신청 조회
+    public Apply findApplyById(Long applyId){
+        Optional<Apply> apply = applicationRepository.findById(applyId);
+        if(apply.isEmpty())
+            throw new ApplyNotFound();
+        return apply.get();
     }
 
-    public List<SendApplyDTO> createSendApplyDTO(List<Apply> applies){
-        return applies.stream()
-                .map(a -> new SendApplyDTO(a.getId(), a.getBoard().getId(), a.getBoard().getTitle(), a.getContent(), a.getApplyState(),
-                        a.getReceiveMember().getId(), a.getReceiveMember().getName(),
-                        a.getDate(), a.getStartTime(), a.getApplyTime()))
-                .toList();
-    }
-
-    public ApplyInfo createApplyInfo(Apply apply){
-        return new ApplyInfo(apply.getId(), apply.getBoard().getId(),
-                apply.getContent(), apply.getBoard().getTitle(), apply.getApplyState(),
-                apply.getDate(), apply.getStartTime(), apply.getBoard().getMember().getId(),
-                apply.getBoard().getMember().getName(), apply.getBoard().getMember().getMemberImageUrl()
-                ,apply.getBoard().getMember().getMajor().getSchool().getName(),
-                apply.getBoard().getMember().getMajor().getName());
-    }
-
-    //기능 구현
-    //멘토 or 멘티 신청 하기
+    //멘토에게 신청하기
     @Transactional
     public void sendApply(String authorizationHeader, Long boardId, ApplyRequest request){
-        Board board = boardService.findOne(boardId);
-
-        Member sendMember = memberService.getMemberByToken(authorizationHeader);
+        Board board = boardService.findBoardById(boardId);
+        Member sendMember = memberService.findMemberByToken(authorizationHeader);
         Member receiveMember = board.getMember();
 
-        isCheckMyBoard(sendMember,board);
-        isDuplicateApply(sendMember.getId(), receiveMember.getId(), board.getId());
+        ApplyValidation.isCheckApplyOfMyBoard(sendMember,board);
+        ApplyValidation.isCheckDuplicateApply(findApplyBySendMemberAndReceiveMemberAndBoard(sendMember, receiveMember, board));
+
         Apply apply = new Apply(request.getDate(), request.getTime(), sendMember, receiveMember, board, request.getContent());
 
         sendMember.getSendApplies().add(apply);
         board.getMember().getReceiveApplies().add(apply);
         board.getApplies().add(apply);
 
-        applicationRepository.saveApply(apply);
-    }
-
-    //보낸/받은 신청 목록
-    public List<Apply> findMyApply(Long memberId, SendReceive sendReceive){
-        if(sendReceive.equals(SendReceive.SEND))
-            return findApplyBySendMember(memberId);
-        return findApplyByReceiveMember(memberId);
-    }
-
-    //Page 를 통한 보낸/받은 신청목록
-    public Page<Apply> findMyApplyByPage(Long memberId, SendReceive sendReceive, Pageable pageable){
-        if(sendReceive.equals(SendReceive.SEND))
-            return applicationRepositorySub.findMySendApplyByPage(memberId, pageable);
-        return applicationRepositorySub.findMyReceiveApplyByPage(memberId, pageable);
-    }
-
-    public List<Apply> findApplyBySendMember(Long memberId){
-        return applicationRepository.findApplicationBySendMember(memberId);
-    }
-
-    public List<Apply> findApplyByReceiveMember(Long memberId){
-        return applicationRepository.findApplicationByReceiveMember(memberId);
-    }
-
-    public Apply findApplication(Long applicationId){
-        return applicationRepository.findApply(applicationId);
+        applicationRepository.save(apply);
     }
 }

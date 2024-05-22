@@ -1,81 +1,29 @@
 package com.mementee.api.repository;
 
 import com.mementee.api.domain.Apply;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import com.mementee.api.domain.Board;
+import com.mementee.api.domain.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
-@RequiredArgsConstructor
-public class ApplyRepository {
+public interface ApplyRepository extends JpaRepository<Apply, Long> {
 
-    private final EntityManager em;
-
-    public void saveApply(Apply apply){
-        em.persist(apply);
-    }
-
-    public Apply findApply(Long applyId){
-        return em.find(Apply.class, applyId);
-    }
-
-
-    //중복 신청이 있는지
-    public Optional<Apply> isDuplicateApply(Long sendMemberId, Long receiveMemberId, Long boardId){
-        try {
-            Apply apply = em.createQuery("select a from Apply a where a.sendMember.id = :sendMemberId and a.receiveMember.id =: receiveMemberId and a.board.id =: boardId", Apply.class)
-                    .setParameter("sendMemberId", sendMemberId)
-                    .setParameter("receiveMemberId", receiveMemberId)
-                    .setParameter("boardId",boardId)
-                    .getSingleResult();
-            return Optional.ofNullable(apply);
-        } catch (NoResultException e) {
-            return Optional.empty();
-        }
-    }
-
-    //아직 처리하지 않은 나의 신청한 목록
-//    public List<Apply> findApplicationBySendMember(Long memberId){
-//        return em.createQuery("select a from Apply a where a.sendMember.id = :memberId and a.applyState = 'HOLDING'", Apply.class)
-//                .setParameter("memberId", memberId)
-//                .getResultList();
-//    }
-//
-//    //아직 처리하지 않은 나의 신청 받은 목록
-//    public List<Apply> findApplicationByReceiveMember(Long memberId){
-//        return em.createQuery("select a from Apply a where a.receiveMember.id = :memberId and a.applyState = 'HOLDING' ", Apply.class)
-//                .setParameter("memberId", memberId)
-//                .getResultList();
-//    }
+    //이미 신청한 글인지 체크를 위한 메서드
+    Optional<Apply> findApplyBySendMemberAndReceiveMemberAndBoard(Member sendMember, Member receiveMember, Board board);
 
     //나의 신청 한 목록
-    public List<Apply> findApplicationBySendMember(Long memberId){
-        return em.createQuery("select a from Apply a where a.sendMember.id = :memberId", Apply.class)
-                .setParameter("memberId", memberId)
-                .getResultList();
-    }
+    Page<Apply> findAppliesBySendMember(Member sendMember, Pageable pageable);
 
-    //나의 신청 받은 목록
-    public List<Apply> findApplicationByReceiveMember(Long memberId){
-        return em.createQuery("select a from Apply a where a.receiveMember.id = :memberId", Apply.class)
-                .setParameter("memberId", memberId)
-                .getResultList();
-    }
+    //나의 신청 한 목록
+    Page<Apply> findAppliesByReceiveMember(Member receiveMember, Pageable pageable);
 
+    List<Apply> findAppliesBySendMember(Member sendMember);
 
-    public void removeSendApply(Long sendMemberId){
-        em.createQuery("delete from Apply a where a.sendMember.id =: sendMemberId" , Apply.class)
-                .setParameter("sendMemberId", sendMemberId)
-                .executeUpdate();
-    }
+    //나의 신청 한 목록
+    List<Apply> findAppliesByReceiveMember(Member receiveMember);
 
-    public void removeReceiveApply(Long receiveMemberId){
-        em.createQuery("delete from Apply a where a.receiveMember.id =: receiveMemberId" , Apply.class)
-                .setParameter("receiveMemberId", receiveMemberId)
-                .executeUpdate();
-    }
 }

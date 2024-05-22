@@ -17,15 +17,11 @@ public class RefreshTokenController {
 
     private final RefreshTokenService refreshService;
 
-    //refreshToken을 이용한 accessToken 재발급
+    //refreshToken 을 이용한 accessToken 재발급
     @GetMapping("/api/refresh")
-    public ResponseEntity<?> updatedAccess(@RequestHeader("Authorization") String authorizationHeader) {
-        try {
+    public ResponseEntity<TokenDTO> updatedAccess(@RequestHeader("Authorization") String authorizationHeader) {
             TokenDTO tokenDTO = refreshService.getAccessKey(authorizationHeader);
             return ResponseEntity.ok().body(tokenDTO);
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
     }
 }
 

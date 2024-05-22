@@ -1,6 +1,7 @@
 package com.mementee.api.controller;
 
 import com.mementee.api.domain.enumtype.BoardCategory;
+import com.mementee.api.dto.PageInfo;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.dto.boardDTO.*;
 import com.mementee.api.domain.Board;
@@ -16,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.service.BoardService;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -62,7 +61,7 @@ public class BoardController {
             "  \"introduce\": \"string\",\n" +
             "  \"target\": \"string\",\n" +
             "  \"content\": \"string\",\n" +
-            "  \"consultTime\": 0,\n" +
+            "  \"consultTime\": 30,\n" +
             "  \"boardCategory\": \"이공\",\n" +
             "  \"times\": [\n" +
             "    {  \"startTime\": \"09:00:00\",\n" +
@@ -80,13 +79,9 @@ public class BoardController {
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping(value = "/api/board", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<String> saveBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
-                                            @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
-        try {
-            boardService.save(request, multipartFiles, authorizationHeader);
+                                            @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles) throws IOException {
+            boardService.saveBoard(request, multipartFiles, authorizationHeader);
             return ResponseEntity.ok().body("글 등록 성공");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
     }
 
     //게시글 조회 --------------------
@@ -108,15 +103,10 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "글 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "글 조회 실패")})
     @GetMapping("/api/board/{boardId}")
-    public ResponseEntity boardInfo(@PathVariable Long boardId,
+    public ResponseEntity<BoardInfoResponse> boardInfo(@PathVariable Long boardId,
                                     @RequestHeader(value = "Authorization", required = false) String authorizationHeader){
-        try {
-            Board board = boardService.findOne(boardId);
-            BoardInfoResponse response = boardService.createBoardInfoResponse(board, authorizationHeader);
+            BoardInfoResponse response = boardService.createBoardInfoResponse(boardId, authorizationHeader);
             return ResponseEntity.ok(response);
-        }catch (EmptyResultDataAccessException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("글 조회 실패");
-        }
     }
 
     //게시물 수정 ---------------
@@ -125,14 +115,10 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @PutMapping("/api/board/{boardId}")
-    public ResponseEntity boardModify(@RequestBody @Valid WriteBoardRequest request, @PathVariable Long boardId,
+    public ResponseEntity<String> boardModify(@RequestBody @Valid WriteBoardRequest request, @PathVariable Long boardId,
                                       @RequestHeader("Authorization") String authorizationHeader){
-        try {
             boardService.modifyBoard(request, authorizationHeader, boardId);
             return ResponseEntity.ok("수정 성공");
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
     }
 
     //Page 멘토 글 전체 조회 --------------
@@ -141,16 +127,16 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/pageBoards")
-    public ResponseEntity<PaginationResponseDto> pageBoardsList(@RequestParam int page, @RequestParam int size,
-                                                                @RequestHeader(value = "Authorization", required = false) String authorizationHeader){
+    public ResponseEntity<PaginationBoardResponse> pageBoardsList(@RequestParam int page, @RequestParam int size,
+                                                                  @RequestHeader(value = "Authorization", required = false) String authorizationHeader){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Page<Board> findBoards = boardService.findAllByPage(pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
 
         List<Board> response = findBoards.getContent();
-        List<BoardDTO> list = boardService.createBoardDTO(response, authorizationHeader);
-        return new ResponseEntity<>(new PaginationResponseDto(list, pageInfo), HttpStatus.OK);
+        List<BoardDTO> list = boardService.createBoardDTOs(response, authorizationHeader);
+        return new ResponseEntity<>(new PaginationBoardResponse(list, pageInfo), HttpStatus.OK);
     }
 
     //내 즐겨찾기 목록
@@ -159,16 +145,16 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "즐겨찾기 추가 성공"),
             @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
     @GetMapping("/api/boards/favorites")
-    public ResponseEntity<PaginationResponseDto> findFavoriteBoards(@RequestParam int page, @RequestParam int size,
-                                                                    @RequestHeader("Authorization") String authorizationHeader){
+    public ResponseEntity<PaginationBoardResponse> findFavoriteBoards(@RequestParam int page, @RequestParam int size,
+                                                                      @RequestHeader("Authorization") String authorizationHeader){
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
-        Page<Board> findBoards = boardService.findFavoriteBoards(authorizationHeader, pageable);
+        Page<Board> findBoards = boardService.findFavoritesByMember(authorizationHeader, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
 
         List<Board> response = findBoards.getContent();
-        List<BoardDTO> list = boardService.createBoardDTO(response, authorizationHeader);
-        return new ResponseEntity<>(new PaginationResponseDto(list, pageInfo), HttpStatus.OK);
+        List<BoardDTO> list = boardService.createBoardDTOs(response, authorizationHeader);
+        return new ResponseEntity<>(new PaginationBoardResponse(list, pageInfo), HttpStatus.OK);
     }
 
     //필터별 목록
@@ -178,21 +164,20 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "검색 성공"),
             @ApiResponse(responseCode = "fail", description = "검색 실패")})
     @GetMapping("/api/boards/filter")
-    public ResponseEntity<PaginationResponseDto> findBoards(@RequestParam int page, @RequestParam int size,
-                                                            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-                                                            @RequestParam(required = false) boolean schoolFilter,
-                                                            @RequestParam(required = false) boolean favoriteFilter,
-                                                            @RequestParam(required = false) BoardCategory boardCategory,
-                                                            @RequestParam(required = false) String keyWord)
+    public ResponseEntity<PaginationBoardResponse> findBoards(@RequestParam int page, @RequestParam int size,
+                                                              @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                                              @RequestParam(required = false) boolean schoolFilter,
+                                                              @RequestParam(required = false) boolean favoriteFilter,
+                                                              @RequestParam(required = false) BoardCategory boardCategory,
+                                                              @RequestParam(required = false) String keyWord)
     {
-
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
         Page<Board> findBoards = boardService.findBoardsByFilter(authorizationHeader, schoolFilter, favoriteFilter, boardCategory, keyWord, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
 
         List<Board> response = findBoards.getContent();
-        List<BoardDTO> list = boardService.createBoardDTO(response, authorizationHeader);
-        return new ResponseEntity<>(new PaginationResponseDto(list, pageInfo), HttpStatus.OK);
+        List<BoardDTO> list = boardService.createBoardDTOs(response, authorizationHeader);
+        return new ResponseEntity<>(new PaginationBoardResponse(list, pageInfo), HttpStatus.OK);
     }
 
     //특정 멤버가 쓴 글 목록
@@ -201,16 +186,16 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "글 리스트 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
     @GetMapping("/api/memberBoards/{memberId}")
-    public ResponseEntity<PaginationResponseDto> myBoards(@RequestParam int page, @RequestParam int size,
-                                                          @PathVariable("memberId") Long memberId,
-                                                          @RequestHeader(value = "Authorization", required = false) String authorizationHeader){
+    public ResponseEntity<PaginationBoardResponse> memberBoards(@RequestParam int page, @RequestParam int size,
+                                                                @PathVariable("memberId") Long memberId,
+                                                                @RequestHeader(value = "Authorization", required = false) String authorizationHeader){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
-        Page<Board> findBoards = boardService.findMemberBoards(memberId, pageable);
+        Page<Board> findBoards = boardService.findBoardsByMember(memberId, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
 
         List<Board> response = findBoards.getContent();
-        List<BoardDTO> list = boardService.createBoardDTO(response, authorizationHeader);
-        return new ResponseEntity<>(new PaginationResponseDto(list, pageInfo), HttpStatus.OK);
+        List<BoardDTO> list = boardService.createBoardDTOs(response, authorizationHeader);
+        return new ResponseEntity<>(new PaginationBoardResponse(list, pageInfo), HttpStatus.OK);
     }
 
     //게시물 즐겨찾기
@@ -222,12 +207,8 @@ public class BoardController {
     @PostMapping("/api/board/favorite/{boardId}")
     public ResponseEntity<String> addFavorite(@PathVariable Long boardId,
                                               @RequestHeader("Authorization") String authorizationHeader){
-        try {
             boardService.addFavoriteBoard(authorizationHeader, boardId);
             return ResponseEntity.ok("추가 성공");
-        }catch (IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
     }
 
     //즐겨찾기 삭제
@@ -238,12 +219,8 @@ public class BoardController {
     @DeleteMapping("/api/board/favorite/{boardId}")
     public ResponseEntity<String> removeFavorite(@PathVariable Long boardId,
                                                  @RequestHeader("Authorization") String authorizationHeader){
-        try {
             boardService.removeFavoriteBoard(authorizationHeader, boardId);
             return ResponseEntity.ok("삭제 성공");
-        }catch (IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
     }
 
     //신청 기능 -------------------
@@ -257,20 +234,11 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "신청 성공"),
             @ApiResponse(responseCode = "fail", description = "신청 실패")})
     @PostMapping("/api/board/{boardId}")
-    public ResponseEntity boardApply(@RequestBody @Valid ApplyRequest request, @PathVariable Long boardId,
-                                     @RequestHeader("Authorization") String authorizationHeader){
-        try {
+    public ResponseEntity<String> boardApply(@RequestBody @Valid ApplyRequest request, @PathVariable Long boardId,
+                                            @RequestHeader("Authorization") String authorizationHeader) throws IOException {
             applicationService.sendApply(authorizationHeader, boardId, request);
-
             FcmDTO fcmDTO = fcmNotificationService.createApplyFcmDTO(authorizationHeader, boardId, request);
             fcmNotificationService.sendMessageTo(fcmDTO);
-
-            //notificationService.sendNotification(boardService.findBoard(boardId).getMember().getId(), request);
             return ResponseEntity.ok("신청 성공");
-        }catch (IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
