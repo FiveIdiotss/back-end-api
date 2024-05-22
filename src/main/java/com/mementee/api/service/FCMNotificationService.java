@@ -68,6 +68,7 @@ public class FCMNotificationService {
 //        if(messageDTO.getImage() != null)
 //            return new FcmDTO(receiverId, sender.getName(), messageDTO.getImage(),
 //                    parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
+
         return new FcmDTO(receiverId, sender.getName(), messageDTO.getContent(),
                 parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
     }
