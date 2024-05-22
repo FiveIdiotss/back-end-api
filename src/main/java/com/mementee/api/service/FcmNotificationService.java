@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
 import com.mementee.api.domain.Board;
-import com.mementee.api.domain.FCMNotification;
+import com.mementee.api.domain.FcmDetail;
+import com.mementee.api.domain.FcmNotification;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.domain.enumtype.NotificationType;
@@ -13,12 +14,14 @@ import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.dto.notificationDTO.FcmMessage;
-import com.mementee.api.repository.FCMNotificationRepository;
+import com.mementee.api.repository.fcm.FcmDetailRepository;
+import com.mementee.api.repository.fcm.FcmNotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.springframework.boot.json.JsonParseException;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,11 +33,13 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FCMNotificationService {
+public class FcmNotificationService {
 
     private final String API_URL = "https://fcm.googleapis.com/v1/projects/menteetor-c278e/messages:send";
-    private final FCMNotificationRepository fcmNotificationRepository;
     private final ObjectMapper objectMapper;
+
+    private final FcmNotificationRepository fcmNotificationRepository;
+    private final FcmDetailRepository fcmDetailRepository;
 
     private final ChatService chatService;
     private final MemberService memberService;
@@ -42,11 +47,10 @@ public class FCMNotificationService {
 
     public FcmDTO createApplyFcmDTO(String authorizationHeader, Long boardId, ApplyRequest request){
         Member sender = memberService.findMemberByToken(authorizationHeader);
+
         Board board = boardService.findBoardById(boardId);
-
-        Long receiverId = board.getMember().getId();
         String parsingSenderId = String.valueOf(sender.getId());
-
+        Long receiverId = board.getMember().getId();
         return new FcmDTO(receiverId, sender.getName(), request.getContent(),
                 parsingSenderId, sender.getMemberImageUrl(), NotificationType.APPLY);
     }
@@ -60,20 +64,35 @@ public class FCMNotificationService {
                 parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
     }
 
+    public Page<FcmDetail> findFcmDetailsByReceiverMember(String authorizationHeader, Pageable pageable){
+        Member loginMember = memberService.findMemberByToken(authorizationHeader);
+        return fcmDetailRepository.findFcmDetailsByReceiveMember(loginMember, pageable);
+    }
+
     @Transactional
     public void saveFCMNotification(Member member, String token) {
-        Optional<FCMNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMember(member);
+        Optional<FcmNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMember(member);
         if(fcmNotification.isEmpty())
-            fcmNotificationRepository.save(new FCMNotification(token, member));
+            fcmNotificationRepository.save(new FcmNotification(token, member));
         else
             fcmNotification.get().updateFCMToken(token);
     }
+
+    @Transactional
+    public void saveFcmDetail(FcmDTO fcmDTO) {
+        Member targetMember = memberService.findMemberById(fcmDTO.getTargetMemberId());
+        Member sendMember = memberService.findMemberById(Long.parseLong(fcmDTO.getSenderId()));
+        FcmDetail fcmDetail = new FcmDetail(fcmDTO.getContent(),
+                fcmDTO.getNotificationType(), sendMember, targetMember);
+        fcmDetailRepository.save(fcmDetail);
+    }
+
 
     //채팅 알림 보내기
     public void sendMessageTo(FcmDTO fcmDTO){
         try {
             Member member = memberService.findMemberById(fcmDTO.getTargetMemberId());
-            Optional<FCMNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMember(member);
+            Optional<FcmNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMember(member);
 
             if (fcmNotification.isEmpty())
                 return;

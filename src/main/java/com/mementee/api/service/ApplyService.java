@@ -68,11 +68,6 @@ public class ApplyService {
         ApplyValidation.isCheckDuplicateApply(findApplyBySendMemberAndReceiveMemberAndBoard(sendMember, receiveMember, board));
 
         Apply apply = new Apply(request.getDate(), request.getTime(), sendMember, receiveMember, board, request.getContent());
-
-        sendMember.getSendApplies().add(apply);
-        board.getMember().getReceiveApplies().add(apply);
-        board.getApplies().add(apply);
-
         applicationRepository.save(apply);
     }
 }
