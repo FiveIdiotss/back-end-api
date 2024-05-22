@@ -4,6 +4,6 @@ import com.mementee.config.error.ErrorCode;
 
 public class FavoriteNotFound extends NotFoundException{
     public FavoriteNotFound() {
-        super(ErrorCode.MEMBER_NOT_FOUND);
+        super(ErrorCode.FAVORITE_BOARD_NOT_FOUND);
     }
 }
