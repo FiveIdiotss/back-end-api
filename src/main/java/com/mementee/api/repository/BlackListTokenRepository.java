@@ -1,33 +1,10 @@
 package com.mementee.api.repository;
 
 import com.mementee.api.domain.BlackListToken;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-@Repository
-@RequiredArgsConstructor
-public class BlackListTokenRepository {
-
-    private final EntityManager em;
-
-    //블랙 리스트에 access 등록
-    public void save(BlackListToken bt) {
-        em.persist(bt);
-    }
-
-    public Optional<BlackListToken> isCheckBlackList(String blackListToken) {
-        try {
-            BlackListToken bt = em.createQuery("select b from BlackListToken b where b.blackListToken = :blackListToken", BlackListToken.class)
-                    .setParameter("blackListToken", blackListToken)
-                    .getSingleResult();
-            return Optional.ofNullable(bt);
-        } catch (NoResultException e) {
-            return Optional.empty();
-        }
-    }
-
+public interface BlackListTokenRepository extends JpaRepository<BlackListToken, Long> {
+    Optional<BlackListToken>findBlackListTokenByBlackListToken(String blackListToken);
 }

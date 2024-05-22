@@ -18,7 +18,7 @@ public class SubBoardLike {
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "board_id")
+    @JoinColumn(name = "sub_board_id")
     private SubBoard subBoard;
 
     public SubBoardLike(Member member, SubBoard subBoard) {

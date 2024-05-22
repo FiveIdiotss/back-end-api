@@ -1,8 +1,8 @@
 package com.mementee.api.service;
 
 import com.mementee.api.domain.BlackListToken;
-import lombok.RequiredArgsConstructor;
 import com.mementee.api.repository.BlackListTokenRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +23,8 @@ public class BlackListTokenService {
     }
 
     public boolean isCheckBlackList(String accessToken){
-        Optional<BlackListToken> bt = blackListTokenRepository.isCheckBlackList(accessToken);
+        Optional<BlackListToken> bt = blackListTokenRepository.findBlackListTokenByBlackListToken(accessToken);
         return bt.isPresent();
     }
+
 }

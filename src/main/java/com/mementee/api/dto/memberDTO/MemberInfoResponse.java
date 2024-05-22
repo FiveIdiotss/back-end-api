@@ -1,6 +1,8 @@
 package com.mementee.api.dto.memberDTO;
 
+import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.Gender;
+import com.mementee.api.dto.CommonApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,4 +18,9 @@ public class MemberInfoResponse {
     private String schoolName;
     private String majorName;
     private String memberImageUrl;
+
+    public static MemberInfoResponse createMemberInfoResponse(Member member) {
+        return new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(), member.getYear(),
+                member.getGender(), member.getSchool().getName(), member.getMajor().getName(), member.getMemberImageUrl());
+    }
 }

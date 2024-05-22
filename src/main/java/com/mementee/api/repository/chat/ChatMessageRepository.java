@@ -1,52 +1,22 @@
 package com.mementee.api.repository.chat;
 
 import com.mementee.api.domain.chat.ChatMessage;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import com.mementee.api.domain.chat.ChatRoom;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-@Repository
-@RequiredArgsConstructor
-public class ChatMessageRepository {
 
-    private final EntityManager em;
+public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long>{
+    @Query("SELECT cm FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId ")
+    Slice<ChatMessage> findAllMessagesByChatRoomId(@Param("chatRoomId")Long chatRoomId, Pageable pageable);
 
-    // 메시지 저장
-    public void save(ChatMessage chatMessage) {
-        em.persist(chatMessage);
-    }
+    //채팅방에 속한 메세지들 조회
+    Slice<ChatMessage> findChatMessagesByChatRoom(ChatRoom chatRoom, Pageable pageable);
 
-    //id로 메시지 조회
-    public ChatMessage findMessageById(Long id) {
-        return em.find(ChatMessage.class, id);
-    }
-
-    //메시지 삭제
-    public void deleteMessageById(Long id) {
-        ChatMessage message = findMessageById(id);
-        em.remove(message);
-    }
-
-    public List<ChatMessage> findAllMessagesInChatRoom(Long chatRoomId) {
-        String query = "SELECT cm FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId";
-        return em.createQuery(query, ChatMessage.class)
-                .setParameter("chatRoomId", chatRoomId)
-                .getResultList();
-    }
-
-    @Transactional
-    public List<ChatMessage> findByChatRoomIdAndReadCount(Long chatRoomId, int readCount) {
-        String query = "SELECT cm FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId AND cm.readCount = :readCount";
-        return em.createQuery(query, ChatMessage.class)
-                .setParameter("chatRoomId", chatRoomId)
-                .setParameter("readCount", readCount)
-                .getResultList();
-    }
+    List<ChatMessage> findChatMessagesByChatRoom(ChatRoom chatRoom);
 }

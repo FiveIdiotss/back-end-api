@@ -111,10 +111,12 @@ public class Member{
 
     public void addSubBoardLike(SubBoardLike subBoardLike){
         this.getSubBoardLikes().add(subBoardLike);
+        subBoardLike.getSubBoard().plusLikeCount();
     }
 
     public void removeSubeBoardLike(SubBoardLike subBoardLike){
         this.getSubBoardLikes().remove(subBoardLike);
+        subBoardLike.getSubBoard().minusCount();
     }
 
     public Member updateMemberImage(String newMemberImageUrl) {

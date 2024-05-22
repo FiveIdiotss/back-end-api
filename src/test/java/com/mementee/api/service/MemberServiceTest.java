@@ -6,8 +6,8 @@
 //import com.mementee.api.controller.memberDTO.TokenDTO;
 //import com.mementee.api.domain.Member;
 //import com.mementee.api.domain.RefreshToken;
-//import com.mementee.api.repository.MemberRepository;
-//import com.mementee.api.repository.SchoolRepository;
+//import com.mementee.api.repository.member.MemberRepository;
+//import com.mementee.api.repository.member.SchoolRepository;
 //import jakarta.persistence.EntityManager;
 //import jakarta.transaction.Transactional;
 //import org.junit.jupiter.api.Test;

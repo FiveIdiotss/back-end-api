@@ -1,7 +1,10 @@
 package com.mementee.api.dto.boardDTO;
 
+import com.mementee.api.domain.Board;
+import com.mementee.api.domain.Member;
 import com.mementee.api.domain.subdomain.ScheduleTime;
 import com.mementee.api.domain.subdomain.UnavailableTime;
+import com.mementee.api.dto.memberDTO.MemberInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -21,4 +24,10 @@ public class BoardInfoResponse {
     private List<BoardImageDTO> boardImageUrls;       //게시물에 등록된 이미지
 
     //private List<LocalDate> availableDays;          //상담 가능한 요일
+
+
+    public static BoardInfoResponse createBoardInfoResponse(BoardDTO boardDTO, List<BoardImageDTO> boardImageDTOs, Board board) {
+        return new BoardInfoResponse(boardDTO, board.getConsultTime(), board.getTimes(),
+                board.getAvailableDays(), board.getUnavailableTimes(), boardImageDTOs);
+    }
 }
