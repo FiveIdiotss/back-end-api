@@ -1,5 +1,6 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.enumtype.FileType;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
@@ -19,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 
 import org.springframework.http.HttpStatus;
@@ -30,9 +30,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.mementee.api.domain.enumtype.FileType.*;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -46,14 +49,13 @@ public class ChatController {
     private final MemberService memberService;
     private final SimpMessagingTemplate websocketPublisher;
     private final RedisPublisher redisPublisher;
-    private final NotificationService notificationService;
     private final FCMNotificationService fcmNotificationService;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final FileService fileService;
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
         // redis에 publish
-        redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
+//        redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
 
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
@@ -68,13 +70,26 @@ public class ChatController {
 
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
-    public ResponseEntity<String> sendFileInChatRoom(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ChatMessageDTO> sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader, @RequestPart("file") MultipartFile file, @RequestParam Long chatRoomId) {
+        Member loginMember = memberService.getMemberByToken(authorizationHeader);
+        ChatMessageDTO messageDTO = new ChatMessageDTO(
+                fileService.getFileType(file.getContentType()),
+                chatService.save(file),
+                null,
+                loginMember.getName(),
+                loginMember.getId(),
+                chatRoomId,
+                LocalDateTime.now());
+
         // If file is not uploaded, return BAD_REQUEST error.
-        if (file.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
+        if (file.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 
         // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
-        return ResponseEntity.status(HttpStatus.OK).body(chatService.save(file));
+        log.info("messageDTO={}", messageDTO);
+        chatService.saveMessage(messageDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(messageDTO);
     }
+
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages/{chatRoomId}")

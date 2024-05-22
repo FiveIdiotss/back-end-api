@@ -15,11 +15,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
+    private final ChatService chatService;
+
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        log.info("TEST PRESEND");
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-
+        log.info("accessor.getCommand()={}", accessor.getCommand());
+        String chatRoomId = accessor.getFirstNativeHeader("chatRoomId");
+        System.out.println(chatRoomId + "thisone");
         return message;
     }
 

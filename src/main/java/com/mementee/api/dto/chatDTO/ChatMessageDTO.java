@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.mementee.api.domain.enumtype.FileType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,16 +16,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatMessageDTO {
+
+    private FileType fileType = FileType.MESSAGE;
+    private String fileURL;
     private String content;
     private String senderName;
     private Long senderId;
     private Long chatRoomId;
-    private int readCount;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @CreatedDate
     private LocalDateTime localDateTime = LocalDateTime.now();
+
 
     public ChatMessageDTO(String content, String senderName, Long senderId, Long chatRoomId, LocalDateTime localDateTime) {
         this.content = content;

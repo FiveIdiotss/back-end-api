@@ -34,13 +34,10 @@ public class ChatMessage {
 
     private LocalDateTime localDateTime;
 
-    private int readCount;
-
-    public ChatMessage(String content, Member sender, ChatRoom chatRoom, int readCount) {
+    public ChatMessage(String content, Member sender, ChatRoom chatRoom) {
         this.content = content;
         this.sender = sender;
         this.chatRoom = chatRoom;
         this.localDateTime = LocalDateTime.now();
-        this.readCount = readCount;
     }
 }

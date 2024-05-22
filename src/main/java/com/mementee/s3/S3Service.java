@@ -4,16 +4,16 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.mementee.api.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
 import java.io.*;
-import java.util.UUID;
+
+import static com.mementee.api.service.FileService.createObjectMetaData;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +21,8 @@ import java.util.UUID;
 public class S3Service {
 
     private final AmazonS3 amazonS3;
+    private final FileService fileService;
+
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
     @Value("${cloud.aws.s3.bucket_image}")
@@ -49,12 +51,13 @@ public class S3Service {
     }
 
     public String save(MultipartFile file) {
-        String bucketName = "fiveidiots-" + extractBucketName(file.getContentType());
+        String bucketName = "fiveidiots-" + fileService.getFileType(file.getContentType()).toString().toLowerCase();
         return saveToS3(file, bucketName);
     }
 
     private String saveToS3(MultipartFile file, String bucketName) {
-        String fileName = generateFileName(getExtension(file.getOriginalFilename()));
+        String extension = fileService.getExtension(file.getOriginalFilename());
+        String fileName = fileService.generateFileName(extension);
         try {
             return saveToS3(file.getInputStream(), file.getSize(), file.getContentType(), bucketName, fileName);
         } catch (IOException e) {
@@ -68,32 +71,6 @@ public class S3Service {
 
         amazonS3.putObject(new PutObjectRequest(bucketName, fileName, inputStream, metadata));
         return amazonS3.getUrl(bucketName, fileName).toString();
-    }
-
-    @NotNull
-    private static ObjectMetadata createObjectMetaData(Long contentLength, String contentType) {
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(contentLength);
-        metadata.setContentType(contentType);
-        return metadata;
-    }
-
-    private String generateFileName(String extension) {
-        return UUID.randomUUID() + "." + extension;
-    }
-
-    private String getExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
-    }
-
-    public String extractBucketName(String contentType) {
-        if (contentType.startsWith("image")) return "image";
-        if (contentType.startsWith("video")) return "video";
-        if ("application/pdf".equals(contentType)) return "pdf";
-        if ("application/zip".equals(contentType)) return "zip";
-        if ("text/vcard".equals(contentType)) return "vcard";
-
-        else throw new UnsupportedMediaTypeException("Unsupported file type.");
     }
 
 }
