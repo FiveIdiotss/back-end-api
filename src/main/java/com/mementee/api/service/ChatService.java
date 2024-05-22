@@ -76,7 +76,7 @@ public class ChatService {
         Member sender = memberService.getMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = findChatRoom(messageDTO.getChatRoomId());
 
-        return new ChatMessage(messageDTO.getContent(), sender, chatRoom);
+        return new ChatMessage(messageDTO.getFileType(), messageDTO.getFileURL(), messageDTO.getContent(), sender, chatRoom, messageDTO.getLocalDateTime());
     }
 
     @Transactional
