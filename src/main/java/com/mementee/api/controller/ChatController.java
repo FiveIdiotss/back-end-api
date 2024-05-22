@@ -27,7 +27,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +47,7 @@ public class ChatController {
     private final FileService fileService;
 
     @MessageMapping("/hello")
-    public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
+    public void sendMessage(ChatMessageDTO messageDTO) {
         // redis에 publish
 //        redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
 
