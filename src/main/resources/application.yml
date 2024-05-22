@@ -42,6 +42,7 @@ spring:
 #    url: jdbc:mysql://localhost:3306/member
 #    username: root
 #    password: asd990810
+
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   security:
