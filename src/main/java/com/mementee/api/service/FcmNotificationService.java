@@ -49,19 +49,17 @@ public class FcmNotificationService {
         Member sender = memberService.findMemberByToken(authorizationHeader);
 
         Board board = boardService.findBoardById(boardId);
-        String parsingSenderId = String.valueOf(sender.getId());
         Long receiverId = board.getMember().getId();
-        return new FcmDTO(receiverId, sender.getName(), request.getContent(),
-                parsingSenderId, sender.getMemberImageUrl(), NotificationType.APPLY);
+        return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
+                request.getContent(), NotificationType.APPLY);
     }
 
     public FcmDTO createChatFcmDTO(ChatMessageDTO messageDTO){
         Member sender = memberService.findMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = chatService.findChatRoomById(messageDTO.getChatRoomId());
         Member receiver = chatService.getReceiver(messageDTO.getSenderId(), chatRoom);
-        String parsingSenderId = String.valueOf(sender.getId());
-        return new FcmDTO(receiver.getId(), sender.getName(), messageDTO.getContent(),
-                parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
+        return new FcmDTO(receiver.getId(), sender.getId(), sender.getName(), sender.getMemberImageUrl(),
+                messageDTO.getContent(), NotificationType.CHAT);
     }
 
     public Page<FcmDetail> findFcmDetailsByReceiverMember(String authorizationHeader, Pageable pageable){
@@ -81,7 +79,7 @@ public class FcmNotificationService {
     @Transactional
     public void saveFcmDetail(FcmDTO fcmDTO) {
         Member targetMember = memberService.findMemberById(fcmDTO.getTargetMemberId());
-        Member sendMember = memberService.findMemberById(Long.parseLong(fcmDTO.getSenderId()));
+        Member sendMember = memberService.findMemberById(fcmDTO.getSenderId());
         FcmDetail fcmDetail = new FcmDetail(fcmDTO.getContent(),
                 fcmDTO.getNotificationType(), sendMember, targetMember);
         fcmDetailRepository.save(fcmDetail);
@@ -125,7 +123,7 @@ public class FcmNotificationService {
                                 "senderName", fcmDTO.getSenderName(),
                                 "content", fcmDTO.getContent(),
                                 "senderImageUrl", fcmDTO.getSenderImageUrl(),
-                                "senderId", fcmDTO.getSenderId(),
+                                "senderId", String.valueOf(fcmDTO.getSenderId()),
                                 "type", fcmDTO.getNotificationType().name()
                         ))
                         .build()).validateOnly(false).build();

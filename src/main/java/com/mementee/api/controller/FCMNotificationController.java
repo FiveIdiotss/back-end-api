@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
-@Tag(name = "push 알림 테스트 (안드로이드)")
+@Tag(name = "push 알림/목록")
 @Slf4j
 public class FCMNotificationController {
 

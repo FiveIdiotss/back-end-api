@@ -14,7 +14,7 @@ import java.util.List;
 public class FcmDTO {
     private Long targetMemberId;
 
-    private String senderId;
+    private Long senderId;
     private String senderName;
     private String senderImageUrl;
     private String content;
@@ -24,7 +24,7 @@ public class FcmDTO {
     public static List<FcmDTO> createFcmList(List<FcmDetail> fds){
         return fds.stream()
                 .map(fd -> new FcmDTO(fd.getReceiveMember().getId(),
-                        String.valueOf(fd.getSendMember().getId()),
+                        fd.getSendMember().getId(),
                         fd.getSendMember().getName(),
                         fd.getSendMember().getMemberImageUrl(),
                         fd.getContent(),
