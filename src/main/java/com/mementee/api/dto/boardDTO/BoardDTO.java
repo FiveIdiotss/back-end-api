@@ -28,6 +28,7 @@ public class BoardDTO {
 
     private Long memberId;      //작성자
     private String memberName;  //작성자
+    private String memberImageUrl;
 
     private LocalDateTime writeTime;  ////작성 시간
 
@@ -37,7 +38,8 @@ public class BoardDTO {
         return new BoardDTO(board.getId(), board.getBoardCategory(), board.getTitle(), board.getIntroduce(),
                 board.getTarget(), board.getContent(), board.getMember().getYear(),
                 board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
-                board.getMember().getId(), board.getMember().getName(), board.getWriteTime(), isFavorite);
+                board.getMember().getId(), board.getMember().getName(), board.getMember().getMemberImageUrl(),
+                board.getWriteTime(), isFavorite);
     }
 
     public static List<BoardDTO> createBoardDTOs(List<Board> boards, boolean isFavorite) {

@@ -31,19 +31,8 @@ public class MatchingController {
     @GetMapping("/api/matching")
     public ResponseEntity<List<MatchingDTO>> myMatchingList(@RequestHeader("Authorization") String authorizationHeader,
                                                             @RequestParam BoardType boardType) {
-        List<Matching> list = matchingService.findMatchingByMentorOrMentee(boardType, authorizationHeader);
-        if (boardType == BoardType.MENTOR) {
-        return ResponseEntity.ok(list.stream()
-                .map(m -> new MatchingDTO(m.getId(), m.getApply().getId(),
-                        m.getMentor().getId(), m.getMentor().getName(),
-                        m.getDate(), m.getStartTime()))
-                .toList());
-        }
-        return ResponseEntity.ok(list.stream()
-                .map(m -> new MatchingDTO(m.getId(), m.getApply().getId(),
-                        m.getMentee().getId(), m.getMentee().getName(),
-                        m.getDate(), m.getStartTime()))
-                                .toList());
+        List<Matching> list = matchingService.findMatchingsByMember(boardType, authorizationHeader);
+        return ResponseEntity.ok(MatchingDTO.createMatchingDTOs(list, boardType));
     }
 }
 

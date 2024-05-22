@@ -22,7 +22,7 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         log.info("accessor.getCommand()={}", accessor.getCommand());
         String chatRoomId = accessor.getFirstNativeHeader("chatRoomId");
-        System.out.println(chatRoomId + "thisone");
+        System.out.println(chatRoomId + ": thisone");
         return message;
     }
 
