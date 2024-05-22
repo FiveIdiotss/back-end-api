@@ -53,15 +53,10 @@ public class FCMNotificationService {
 
     public FcmDTO createChatFcmDTO(ChatMessageDTO messageDTO){
         Member sender = memberService.findMemberById(messageDTO.getSenderId());
-        ChatRoom chatRoom = chatService.findChatRoom(messageDTO.getChatRoomId());
-        Long receiverId = chatService.getReceiverId(messageDTO.getSenderId(), chatRoom);
+        ChatRoom chatRoom = chatService.findChatRoomById(messageDTO.getChatRoomId());
+        Member receiver = chatService.getReceiver(messageDTO.getSenderId(), chatRoom);
         String parsingSenderId = String.valueOf(sender.getId());
-
-//        if(messageDTO.getImage() != null)
-//            return new FcmDTO(receiverId, sender.getName(), messageDTO.getImage(),
-//                    parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
-
-        return new FcmDTO(receiverId, sender.getName(), messageDTO.getContent(),
+        return new FcmDTO(receiver.getId(), sender.getName(), messageDTO.getContent(),
                 parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
     }
 
@@ -75,31 +70,35 @@ public class FCMNotificationService {
     }
 
     //채팅 알림 보내기
-    public void sendMessageTo(FcmDTO fcmDTO) throws IOException {
-        Member member = memberService.findMemberById(fcmDTO.getTargetMemberId());
-        Optional<FCMNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMember(member);
+    public void sendMessageTo(FcmDTO fcmDTO){
+        try {
+            Member member = memberService.findMemberById(fcmDTO.getTargetMemberId());
+            Optional<FCMNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMember(member);
 
-        if (fcmNotification.isEmpty())
-            return;
+            if (fcmNotification.isEmpty())
+                return;
 
-        String targetToken = fcmNotification.get().getToken();
-        String message = makeMessage(targetToken, fcmDTO);
+            String targetToken = fcmNotification.get().getToken();
+            String message = makeMessage(targetToken, fcmDTO);
 
-        OkHttpClient client = new OkHttpClient();
-        RequestBody requestBody = RequestBody.create(message,
-                MediaType.get("application/json; charset=utf-8"));
-        Request request = new Request.Builder()
-                .url(API_URL)
-                .post(requestBody)
-                .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
-                .build();
+            OkHttpClient client = new OkHttpClient();
+            RequestBody requestBody = RequestBody.create(message,
+                    MediaType.get("application/json; charset=utf-8"));
+            Request request = new Request.Builder()
+                    .url(API_URL)
+                    .post(requestBody)
+                    .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
+                    .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
+                    .build();
 
-        Response response = client.newCall(request).execute();
-        log.info(response.body().string());
+            Response response = client.newCall(request).execute();
+            log.info(response.body().string());
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
-    private String makeMessage(String targetToken, FcmDTO fcmDTO) throws JsonParseException, JsonProcessingException {
+    private String makeMessage(String targetToken, FcmDTO fcmDTO) throws JsonProcessingException {
         FcmMessage fcmMessage = FcmMessage.builder()
                 .message(FcmMessage.Message.builder()
                         .token(targetToken)

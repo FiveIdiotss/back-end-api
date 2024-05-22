@@ -147,7 +147,6 @@ public class BoardController {
     @GetMapping("/api/boards/favorites")
     public ResponseEntity<PaginationBoardResponse> findFavoriteBoards(@RequestParam int page, @RequestParam int size,
                                                                       @RequestHeader("Authorization") String authorizationHeader){
-
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
         Page<Board> findBoards = boardService.findFavoritesByMember(authorizationHeader, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
@@ -169,8 +168,7 @@ public class BoardController {
                                                               @RequestParam(required = false) boolean schoolFilter,
                                                               @RequestParam(required = false) boolean favoriteFilter,
                                                               @RequestParam(required = false) BoardCategory boardCategory,
-                                                              @RequestParam(required = false) String keyWord)
-    {
+                                                              @RequestParam(required = false) String keyWord) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
         Page<Board> findBoards = boardService.findBoardsByFilter(authorizationHeader, schoolFilter, favoriteFilter, boardCategory, keyWord, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
@@ -235,7 +233,7 @@ public class BoardController {
             @ApiResponse(responseCode = "fail", description = "신청 실패")})
     @PostMapping("/api/board/{boardId}")
     public ResponseEntity<String> boardApply(@RequestBody @Valid ApplyRequest request, @PathVariable Long boardId,
-                                            @RequestHeader("Authorization") String authorizationHeader) throws IOException {
+                                            @RequestHeader("Authorization") String authorizationHeader){
             applicationService.sendApply(authorizationHeader, boardId, request);
             FcmDTO fcmDTO = fcmNotificationService.createApplyFcmDTO(authorizationHeader, boardId, request);
             fcmNotificationService.sendMessageTo(fcmDTO);

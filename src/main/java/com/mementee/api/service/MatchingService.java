@@ -80,7 +80,7 @@ public class MatchingService {
     }
 
     //멘토/멘티 매칭 목록
-    public List<Matching> findMatchingByMentorOrMentee(BoardType boardType, String authorizationHeader) {
+    public List<Matching> findMatchingsByMember(BoardType boardType, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         if(boardType.equals(BoardType.MENTOR)){
             return matchingRepository.findMatchingsByMentee(member);
