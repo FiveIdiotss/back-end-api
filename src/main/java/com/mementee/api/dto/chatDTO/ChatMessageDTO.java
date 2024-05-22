@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ChatMessageDTO {
 
-    private FileType fileType = FileType.MESSAGE;
+    private FileType fileType = FileType.MESSAGE; // 기본 설정: MESSAGE
     private String fileURL;
     private String content;
     private String senderName;
@@ -29,12 +29,4 @@ public class ChatMessageDTO {
     @CreatedDate
     private LocalDateTime localDateTime = LocalDateTime.now();
 
-
-    public ChatMessageDTO(String content, String senderName, Long senderId, Long chatRoomId, LocalDateTime localDateTime) {
-        this.content = content;
-        this.senderName = senderName;
-        this.senderId = senderId;
-        this.chatRoomId = chatRoomId;
-        this.localDateTime = localDateTime;
-    }
 }
