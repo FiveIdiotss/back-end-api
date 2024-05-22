@@ -99,6 +99,8 @@ public class ChatController {
         Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
 
         return allMessages.map(message -> new ChatMessageDTO(
+                message.getFileType(),
+                message.getFileURL(),
                 message.getContent(),
                 message.getSender().getName(),
                 message.getSender().getId(),
