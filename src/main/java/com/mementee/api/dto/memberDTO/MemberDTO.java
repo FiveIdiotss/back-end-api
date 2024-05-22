@@ -1,8 +1,12 @@
 package com.mementee.api.dto.memberDTO;
 
+import com.mementee.api.domain.Major;
+import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,4 +20,17 @@ public class MemberDTO {
     private String majorName;
 
     private String memberImageUrl;        //프로필 사진
+
+    public static MemberDTO createMemberDTO(Member member) {
+        return new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear(),
+                member.getGender(), member.getSchool().getName(),
+                member.getMajor().getName(),
+                member.getMemberImageUrl());
+    }
+
+    public static List<MemberDTO> createMemberDTOs(List<Member> members) {
+        return members.stream()
+                .map(MemberDTO::createMemberDTO)
+                .toList();
+    }
 }

@@ -9,6 +9,10 @@ import com.mementee.api.dto.boardDTO.WriteBoardRequest;
 import com.mementee.api.repository.board.BoardImageRepository;
 import com.mementee.api.repository.board.BoardRepository;
 import com.mementee.api.repository.board.FavoriteRepository;
+import com.mementee.api.validation.BoardValidation;
+import com.mementee.api.validation.MemberValidation;
+import com.mementee.exception.notFound.BoardNotFound;
+import com.mementee.exception.unauthorized.RequiredLoginException;
 import com.mementee.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,66 +33,76 @@ import java.util.stream.Collectors;
 public class BoardService {
 
     private final S3Service s3Service;
-    private final MemberService memberService;
     private final BoardRepository boardRepository;
     private final FavoriteRepository favoriteRepository;
     private final BoardImageRepository boardImageRepository;
+    private final MemberService memberService;
 
-    public void isCheckBoardMember(Member member, Optional<Board> board){
-        if(member != board.get().getMember())
-            throw new IllegalArgumentException("권한이 없습니다.");        //작성자가 아닐경우
+    //게시글 조회시 필요한 Info
+    public BoardInfoResponse createBoardInfoResponse(Long boardId, String authorizationHeader){
+        Board board = findBoardById(boardId);
+        List<BoardImageDTO> boardImageDTOs = BoardImageDTO.createBoardImageDTOs(findBoarImagesByBoard(board));
+        BoardDTO boardDTO = createBoardDTO(board, authorizationHeader);
+        return BoardInfoResponse.createBoardInfoResponse(boardDTO, boardImageDTOs, board);
     }
 
-    public List<BoardDTO> createBoardDTO(List<Board> boards, String authorizationHeader){
+    //게시글 조회시 필요한 DTO
+    public BoardDTO createBoardDTO(Board board, String authorizationHeader){
         if(authorizationHeader == null)
-            return boards.stream()
-                    .map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getTitle(), b.getIntroduce(), b.getTarget(), b.getContent(),
-                            b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
-                            b.getMember().getId(), b.getMember().getName(), b.getWriteTime(), false))
-                    .collect(Collectors.toList());
+            return BoardDTO.createBoardDTO(board, false);
 
-        Member member = memberService.getMemberByToken(authorizationHeader);
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        return BoardDTO.createBoardDTO(board, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, board)));
+    }
+
+    //게시글 목록시 필요한 DTO List
+    public List<BoardDTO> createBoardDTOs(List<Board> boards, String authorizationHeader){
+        if(authorizationHeader == null)
+            return BoardDTO.createBoardDTOs(boards, false);
+        Member member = memberService.findMemberByToken(authorizationHeader);
         return boards.stream()
-                .map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getTitle(), b.getIntroduce(), b.getTarget(), b.getContent(),
-                        b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(),
-                        b.getMember().getId(), b.getMember().getName(), b.getWriteTime(), isFavorite(member, b)))
+                .map(b -> BoardDTO.createBoardDTO(b, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, b))))
                 .collect(Collectors.toList());
     }
 
-    public BoardInfoResponse createBoardInfoResponse(Board board, String authorizationHeader){
-        List<BoardImage> boardImages = getBoardImages(board);
-        List<BoardImageDTO> boardImageDTOS = boardImages.stream().
-                map(b -> new BoardImageDTO(b.getBoardImageUrl()))
-                .collect(Collectors.toList());
-
-        BoardDTO boardDTO;
-        if(authorizationHeader == null) {
-           boardDTO = new BoardDTO(board.getId(), board.getBoardCategory(), board.getTitle(), board.getIntroduce(),
-                    board.getTarget(), board.getContent(), board.getMember().getYear(),
-                    board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
-                    board.getMember().getId(), board.getMember().getName(), board.getWriteTime(), false);
-        } else {
-            Member member = memberService.getMemberByToken(authorizationHeader);
-            boardDTO = new BoardDTO(board.getId(), board.getBoardCategory(), board.getTitle(), board.getIntroduce(),
-                    board.getTarget(), board.getContent(), board.getMember().getYear(),
-                    board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
-                    board.getMember().getId(), board.getMember().getName(), board.getWriteTime(),isFavorite(member, board));
-        }
-
-        return new BoardInfoResponse(boardDTO, board.getConsultTime(), board.getTimes(),
-                board.getAvailableDays(), board.getUnavailableTimes(), boardImageDTOS);
+    //id로 Board 조회
+    public Board findBoardById(Long boardId){
+        Optional<Board> board = boardRepository.findById(boardId);
+        if(board.isEmpty())
+            throw new BoardNotFound();
+        return board.get();
     }
 
-
-    //이미지
-    //이미지 조회
-    public List<BoardImage> getBoardImages(Board board){
+    //게시물에 속한 이미지 조회
+    public List<BoardImage> findBoarImagesByBoard(Board board){
         return boardImageRepository.findBoardImagesByBoard(board);
+    }
+
+    //잔체 게시물 조회
+    public Page<Board> findAllByPage(Pageable pageable){
+        return boardRepository.findAll(pageable);
+    }
+
+    //로그인한 유저가 즐겨찾기한 게시물 목록
+    public Page<Board> findFavoritesByMember(String authorizationHeader, Pageable pageable){
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        return boardRepository.findFavoritesByMember(member, pageable);
+    }
+
+    //특정 멤버가 쓴 글목록
+    public Page<Board> findBoardsByMember(Long memberId, Pageable pageable){
+        Member member = memberService.findMemberById(memberId);
+        return boardRepository.findBoardsByMember(member, pageable);
+    }
+
+    //Member 와 Board 에 대한 즐겨찾기 조회
+    public Optional<Favorite> findFavoriteByMemberAndBoard(Member member, Board board){
+        return favoriteRepository.findFavoriteByMemberAndBoard(member, board);
     }
 
     //게시물 등록시 이미지 추출 후 엔티티 생성
     @Transactional
-    public List<BoardImage> getBoardImageUrl(List<MultipartFile> multipartFiles) throws IOException {
+    public List<BoardImage> saveBoardImageUrl(List<MultipartFile> multipartFiles) {
         List<BoardImage> boardImages = new ArrayList<>();
         if (multipartFiles == null) {
             return boardImages;
@@ -102,11 +116,11 @@ public class BoardService {
         return boardImages;
     }
 
-    //-------------
+    //게시물 등록
     @Transactional
-    public Long save(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) throws IOException {
-        Member member = memberService.getMemberByToken(authorizationHeader);
-        List<BoardImage> boardImages = getBoardImageUrl(multipartFiles);
+    public void saveBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) throws IOException {
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        List<BoardImage> boardImages = saveBoardImageUrl(multipartFiles);
         Board board;
         if(boardImages.isEmpty()){
             board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
@@ -120,64 +134,29 @@ public class BoardService {
                 boardImage.setBoard(board);
             }
         }
-
         member.addBoard(board);
         boardRepository.save(board);
-        return board.getId();
     }
 
-    //-----------
+    //게시물 수정
     @Transactional
-    public Long modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId) {
-        Member member = memberService.getMemberByToken(authorizationHeader);
-        Optional<Board> board = findById(boardId);
+    public void modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId) {
+        Board board = findBoardById(boardId);
+        MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), board.getMember());
 
-        isCheckBoardMember(member, board);
-
-        board.get().modifyBoards(request.getTitle(), request.getIntroduce(), request.getTarget(),
+        board.modifyBoards(request.getTitle(), request.getIntroduce(), request.getTarget(),
                 request.getContent(), request.getConsultTime(), request.getBoardCategory(),
                  request.getTimes(), request.getAvailableDays());
-
-        return board.get().getId();
     }
 
-    public Optional<Board> findById(Long boardId){
-        return boardRepository.findById(boardId);
-    }
-
-    public Board findOne(Long boardId){
-        return boardRepository.findOne(boardId);
-    }
-
-
-
-    //즐겨찾기
-    //즐겨찾기 검증
-    public boolean isFavorite(Member member, Board board){
-        Optional<Favorite> favorite = favoriteRepository.findFavoriteByMemberAndBoard(member, board);
-        return favorite.isPresent();
-    }
-
-    public void isCheckFavorite(Member member, Board board){
-        Optional<Favorite> favorite = favoriteRepository.findFavoriteByMemberAndBoard(member, board);
-        if(favorite.isPresent())
-            throw new IllegalArgumentException("이미 즐겨찾기한 게시물 입니다.");
-    }
-
-    public Optional<Favorite> isCheckMyFavorite(Member member, Board board){
-        Optional<Favorite> favorite = favoriteRepository.findFavoriteByMemberAndBoard(member, board);
-        if(favorite.isEmpty())
-            throw new IllegalArgumentException("즐겨찾기에 존재하지 않는 게시글입니다.");
-        return favorite;
-    }
 
     //즐겨찾기 추가
     @Transactional
     public void addFavoriteBoard(String authorizationHeader, Long boardId){
-        Member member = memberService.getMemberByToken(authorizationHeader);
-        Board board = boardRepository.findOne(boardId);
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        Board board = findBoardById(boardId);
 
-        isCheckFavorite(member, board);
+        BoardValidation.isCheckAddFavorite(findFavoriteByMemberAndBoard(member,board));
 
         Favorite favorite = new Favorite(member, board);
         member.addFavoriteBoard(favorite);
@@ -185,42 +164,18 @@ public class BoardService {
         favoriteRepository.save(favorite);
     }
 
+    //즐겨찾기 제거
     @Transactional
     public void removeFavoriteBoard(String authorizationHeader, Long boardId){
-        Member member = memberService.getMemberByToken(authorizationHeader);
-        Board board = findOne(boardId);
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        Board board = findBoardById(boardId);
 
-        Optional<Favorite> favorite = isCheckMyFavorite(member, board);
-        Favorite myFavorite = favoriteRepository.findOne(favorite.get().getId());
+        Favorite favorite = BoardValidation.isCheckRemoveFavorite(findFavoriteByMemberAndBoard(member, board));
 
-        member.removeFavoriteBoard(myFavorite);
-        favoriteRepository.delete(myFavorite);
+        member.removeFavoriteBoard(favorite);
+        favoriteRepository.delete(favorite);
     }
 
-    //Page 사용---------------------------------
-
-    //잔체 목록
-    public Page<Board> findAllByPage(Pageable pageable){
-        return boardRepository.findAll(pageable);
-    }
-
-    //즐겨찾기 목록
-    public Page<Board> findFavoriteBoards(String authorizationHeader, Pageable pageable){
-        Member member = memberService.getMemberByToken(authorizationHeader);
-        return boardRepository.findFavorite(member, pageable);
-    }
-
-    //멤버가 쓴 글목록
-    public Page<Board> findMemberBoards(Long memberId, Pageable pageable){
-        Member member = memberService.getMemberById(memberId);
-        return boardRepository.findBoardsByMember(member, pageable);
-    }
-
-    public String isContainKeyWord(String keyWord){
-        if(keyWord == null)
-            return null;
-        return '%' + keyWord + '%';
-    }
 
     public Page<Board> findBoardsByFilter(String authorizationHeader,
                                           boolean schoolFilter,
@@ -230,12 +185,15 @@ public class BoardService {
                                           Pageable pageable){
         Member member = null;
         School school = null;
+
         if(schoolFilter || favoriteFilter){
-            member = memberService.getMemberByToken(authorizationHeader);
-            school = member. getSchool();
+            if(authorizationHeader == null)
+                throw new RequiredLoginException();
+            member = memberService.findMemberByToken(authorizationHeader);
+            school = member.getSchool();
         }
 
-        String searchKeyWord = isContainKeyWord(keyWord);
+        String searchKeyWord = BoardValidation.isContainKeyWord(keyWord);
 
         //카테고리
         if (boardCategory != null && searchKeyWord == null && !schoolFilter && !favoriteFilter)
@@ -245,17 +203,19 @@ public class BoardService {
         if (boardCategory == null && searchKeyWord != null && !schoolFilter && !favoriteFilter)
             return boardRepository.findBoardsByKeyWord(searchKeyWord, pageable);
 
+
         //내 학교
         if (boardCategory == null && searchKeyWord == null && schoolFilter && !favoriteFilter)
             return boardRepository.findBoardsByMemberSchool(school, pageable);
 
         //즐겨찾기
         if (boardCategory == null && searchKeyWord == null && !schoolFilter && favoriteFilter )
-            return boardRepository.findFavorite(member, pageable);
+            return boardRepository.findFavoritesByMember(member, pageable);
 
         //카테고리, 검색
         if (boardCategory != null && searchKeyWord != null && !schoolFilter && !favoriteFilter)
             return boardRepository.findBoardsByBoardCategoryAndKeyWord(boardCategory, searchKeyWord, pageable);
+
 
         //카테고리, 내 학교
         if (boardCategory != null && searchKeyWord == null && schoolFilter && !favoriteFilter)

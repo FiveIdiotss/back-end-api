@@ -92,11 +92,11 @@ public class InitDb {
                 em.persist(school);
             }
 
-            School ICT폴리텍대학 = schoolService.findOne(1L);
-            School 가야대학교 = schoolService.findOne(2L);
-            School 가천대학교 = schoolService.findOne(3L);
-            School 서경대학교 = schoolService.findOne(138L);
-            School 삼육대학교 = schoolService.findOne(133L);
+            School ICT폴리텍대학 = schoolService.findSchoolById(1L);
+            School 가야대학교 = schoolService.findSchoolById(2L);
+            School 가천대학교 = schoolService.findSchoolById(3L);
+            School 서경대학교 = schoolService.findSchoolById(138L);
+            School 삼육대학교 = schoolService.findSchoolById(133L);
 
 
             List<String> 가천대과목록 = Arrays.asList("국어국문학과", "영어영문학과", "동양어문학과", "유럽어문학과", "법학과", "행정학과",
