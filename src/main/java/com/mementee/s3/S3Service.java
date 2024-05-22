@@ -1,6 +1,7 @@
 package com.mementee.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
@@ -52,6 +53,7 @@ public class S3Service {
 
     public String save(MultipartFile file) {
         String bucketName = "fiveidiots-" + fileService.getFileType(file.getContentType()).toString().toLowerCase();
+        System.out.println(bucketName);
         return saveToS3(file, bucketName);
     }
 
@@ -68,8 +70,8 @@ public class S3Service {
 
     private String saveToS3(InputStream inputStream, Long contentLength, String contentType, String bucketName, String fileName) {
         ObjectMetadata metadata = createObjectMetaData(contentLength, contentType);
-
         amazonS3.putObject(new PutObjectRequest(bucketName, fileName, inputStream, metadata));
+
         return amazonS3.getUrl(bucketName, fileName).toString();
     }
 

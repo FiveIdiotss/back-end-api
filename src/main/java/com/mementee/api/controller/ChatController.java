@@ -93,7 +93,16 @@ public class ChatController {
                                                                            @PathVariable Long chatRoomId) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차순(최신순)
         Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
-        return ResponseEntity.ok(ChatMessageDTO.creatChatMessageDTO(allMessages));
+
+        return allMessages.map(message -> new ChatMessageDTO(
+                message.getFileType(),
+                message.getFileURL(),
+                message.getContent(),
+                message.getSender().getName(),
+                message.getSender().getId(),
+                message.getChatRoom().getId(),
+                message.getLocalDateTime()
+        ));
     }
 
     @Operation(description = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인")
