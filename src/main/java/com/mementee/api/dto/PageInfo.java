@@ -1,4 +1,4 @@
-package com.mementee.api.dto.boardDTO;
+package com.mementee.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

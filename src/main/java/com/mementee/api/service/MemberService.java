@@ -2,9 +2,14 @@ package com.mementee.api.service;
 
 import com.mementee.api.domain.*;
 import com.mementee.api.dto.memberDTO.*;
-import com.mementee.api.repository.MemberRepository;
+import com.mementee.api.repository.member.MemberRepository;
+import com.mementee.api.validation.MemberValidation;
+import com.mementee.exception.ForbiddenException;
+import com.mementee.exception.conflict.EmailConflictException;
+import com.mementee.exception.unauthorized.LoginFailedException;
+import com.mementee.exception.conflict.ProfileConflictException;
+import com.mementee.exception.notFound.MemberNotFound;
 import com.mementee.s3.S3Service;
-import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import com.mementee.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -34,82 +37,50 @@ public class MemberService {
     private final BlackListTokenService blackListTokenService;
     private final S3Service s3Service;
 
-
-    //검증, 확인, 편리 메소드--------------------
-    public Member getMemberByToken(String authorizationHeader) {
-        if (authorizationHeader == null)
-            throw  new IllegalArgumentException("로그인이 필요 합니다.");
-
-        String token = authorizationHeader.split(" ")[1];
-        String email = JwtUtil.getMemberEmail(token, secretKey);
-        return findMemberByEmail(email);
-    }
-
-    public Member getMemberById(Long id) {
-        try {
-            return memberRepository.findOne(id);
-        } catch (NoResultException e) {
-            throw new NoSuchElementException("특정 멤버가 존재하지 않습니다.");
-        }
-    }
-
-    //현재 로그인한 유저와 내 정보에 대한 일치 여부
-    public Member isCheckMe(String authorizationHeader, Long memberId) {
-        Member serverMember = getMemberByToken(authorizationHeader);
-        Member member = findOne(memberId);
-
-        if (member != serverMember)
-            throw new IllegalArgumentException("권한 없음.");
-        return member;
-    }
-
-    //비밀번호 맞는지 체크
-    private void matchPassWord(String requestPw, String memberPw) {
-        if (!passwordEncoder.matches(requestPw, memberPw))
-            throw new IllegalArgumentException("비밀번호 불 일치");
-    }
-
-    //중복 이메일 검증
-    private void emailDuplicateCheck(String email) {
-        List<Member> findMembers = memberRepository.emailDuplicateCheck(email);
-        if (!findMembers.isEmpty()) {
-            throw new IllegalArgumentException("이미 존재하는 회원입니다.");
-        }
-    }
-
-    //이미 기본 이미지 인지
-    private void isCheckDefaultImage(Member member, String imageUrl){
-        if(member.getMemberImageUrl().equals(imageUrl))
-            throw new IllegalArgumentException("이미 기본이미지 입니다.");
-    }
-
-    //로그인 시 회원 정보
-    private MemberDTO getMemberDTO(Member member) {
-        return new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear(),
-                member.getGender(), member.getSchool().getName(),
-                member.getMajor().getName(),
-                member.getMemberImageUrl());
-    }
-
-    //로그인 시 토큰
-    public TokenDTO getTokenDTO(Member member) {
+    //로그인 시 토큰 TokenDTO 발급
+    public TokenDTO createTokenDTO(Member member) {
         String newAccessToken = JwtUtil.createAccessToken(member.getEmail(), secretKey);
         String newRefreshToken = JwtUtil.createRefreshToken(secretKey);
         return new TokenDTO(newAccessToken, newRefreshToken);
     }
 
-    public MemberInfoResponse createMemberInfoResponse(Member member){
-        return new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(), member.getYear(),
-                member.getGender(), member.getSchool().getName(), member.getMajor().getName(), member.getMemberImageUrl());
+    //토큰으로 회원 찾기
+    public Member findMemberByToken(String authorizationHeader) {
+        String token = authorizationHeader.split(" ")[1];
+        String email = JwtUtil.getMemberEmail(token, secretKey);
+        return findMemberByEmail(email);
     }
 
-    //구현 메소드 --------------------
+    //회원 id 값으로 조회
+    public Member findMemberById(Long memberId) {
+        Optional<Member> member = memberRepository.findById(memberId);
+        if(member.isEmpty())
+            throw new MemberNotFound();
+        return member.get();
+    }
+
+
+    //로그인 시 이메일로 회원 조회
+    public Member findMemberByEmail(String email) {
+        Optional<Member> member = memberRepository.findMemberByEmail(email);
+        if(member.isEmpty())
+            throw new MemberNotFound();
+        return member.get();
+    }
+
+    //회원 전체 조회
+    public List<Member> findAll() {
+        return memberRepository.findAll();
+    }
+
+    //회원 가입, 로그인, 로그아웃
     @Transactional
     public void join(CreateMemberRequest request) {
-        School school = schoolService.findNameOne(request.getSchoolName());
-        Major major = majorService.findOne(request.getMajorId());
+        School school = schoolService.findSchoolByName(request.getSchoolName());
+        Major major = majorService.findMajorById(request.getMajorId());
 
-        emailDuplicateCheck(request.getEmail());
+        //이미 있는 Email 있는지
+        MemberValidation.isDuplicateCheck(memberRepository.findMemberByEmail(request.getEmail()));
 
         //회원가입시 기본 이미지로 설정
         String defaultPhotoUrl = s3Service.getImageUrl("defaultImage.jpg");
@@ -124,28 +95,13 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    //회원 조회
-    private Member findOne(Long memberId) {
-        return memberRepository.findOne(memberId);
-    }
-
-    //회원 전체 조회
-    public List<Member> findMembers() {
-        return memberRepository.findAll();
-    }
-
-    //로그인 시 이메일로 회원 조회
-    public Member findMemberByEmail(String email) {
-        return memberRepository.findMemberByEmail(email);
-    }
-
     @Transactional
     public LoginMemberResponse login(LoginMemberRequest request) {
         Member member = findMemberByEmail(request.getEmail());
-        matchPassWord(request.getPassword(), member.getPassword());
 
-        TokenDTO tokenDTO = getTokenDTO(member);
+        MemberValidation.isMatchPassWord(passwordEncoder.matches(request.getPassword(), member.getPassword()));
 
+        TokenDTO tokenDTO = createTokenDTO(member);
         Optional<RefreshToken> token = refreshTokenService.findRefreshTokenByEmail(member.getEmail());
 
         if (token.isPresent()) {
@@ -154,28 +110,24 @@ public class MemberService {
             RefreshToken newToken = new RefreshToken(tokenDTO.getRefreshToken(), member.getEmail());
             refreshTokenService.save(newToken);
         }
-
-        return new LoginMemberResponse(getMemberDTO(member), tokenDTO);
+        return LoginMemberResponse.createLoginMemberResponse(MemberDTO.createMemberDTO(member), tokenDTO);
     }
 
     @Transactional
     public void logout(String authorizationHeader) {
         String accessToken = authorizationHeader.split(" ")[1];
 
-        Member member = getMemberByToken(authorizationHeader);
+        Member member = findMemberByToken(authorizationHeader);
         Optional<RefreshToken> refreshToken = refreshTokenService.findRefreshTokenByEmail(member.getEmail());
 
         blackListTokenService.addBlackList(accessToken);
         refreshTokenService.deleteRefreshToken(refreshToken);
     }
 
-
-    //프로필 사진-----------
-
     //프로필 사진 변경
     @Transactional
-    public String updatedMemberImage(String authorizationHeader, MultipartFile image) throws IOException {
-        Member member = getMemberByToken(authorizationHeader);
+    public String updatedMemberImage(String authorizationHeader, MultipartFile image){
+        Member member = findMemberByToken(authorizationHeader);
 
         String imageUrl = s3Service.saveFile(image);
         member.updateMemberImage(imageUrl);
@@ -185,10 +137,10 @@ public class MemberService {
     //프로필 기본 이미지로 변경
     @Transactional
     public String updatedDefaultMemberImage(String authorizationHeader) {
-        Member member = getMemberByToken(authorizationHeader);
+        Member member = findMemberByToken(authorizationHeader);
         String imageUrl = s3Service.getImageUrl("defaultImage.jpg");
 
-        isCheckDefaultImage(member, imageUrl);
+        MemberValidation.isCheckDefaultImage(member, imageUrl);
         member.updateMemberImage(imageUrl);
         return imageUrl;
     }

@@ -13,8 +13,6 @@ public interface SubBoardRepository extends JpaRepository<SubBoard, Long> {
     @NotNull
     Page<SubBoard> findAll(@NotNull Pageable pageable);
 
-    @Query("SELECT b FROM SubBoard b WHERE b.id = :subBoardId")
-    SubBoard findOne(@Param("subBoardId")Long subBoardId);
 
     //특정 멤버가 작성한 게시물
     Page<SubBoard> findSubBoardsByMember(Member member, Pageable pageable);

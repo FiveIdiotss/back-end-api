@@ -9,7 +9,6 @@ import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.api.repository.chat.ChatRoomRepositorySub;
-import com.mementee.config.chat.RedisSubscriber;
 import com.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -73,7 +70,7 @@ public class ChatService {
     }
 
     public ChatMessage createMessageByDTO(ChatMessageDTO messageDTO) {
-        Member sender = memberService.getMemberById(messageDTO.getSenderId());
+        Member sender = memberService.findMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = findChatRoom(messageDTO.getChatRoomId());
 
         return new ChatMessage(messageDTO.getFileType(), messageDTO.getFileURL(), messageDTO.getContent(), sender, chatRoom, messageDTO.getLocalDateTime());
@@ -117,7 +114,7 @@ public class ChatService {
 
     public ChatRoomDTO createChatRoomDTO(Long memberId, ChatRoom chatRoom) {
         Long receiverId = chatRoom.getReceiver().getId().equals(memberId) ? chatRoom.getSender().getId() : chatRoom.getReceiver().getId();
-        Member member = memberService.getMemberById(receiverId);
+        Member member = memberService.findMemberById(receiverId);
         String receiverName = member.getName();
 
         Optional<ChatMessage> latestChatMessage = findLatestChatMessage(chatRoom.getId());

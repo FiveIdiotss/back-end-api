@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
@@ -30,9 +28,9 @@ public class FCMNotificationController {
     @PostMapping("/api/fcm")
     public ResponseEntity<String> saveFCMToken(@RequestHeader("Authorization") String authorizationHeader,
                                                @RequestParam String myToken){
-        Member member = memberService.getMemberByToken(authorizationHeader);
+        Member member = memberService.findMemberByToken(authorizationHeader);
         fcmNotificationService.saveFCMNotification(member, myToken);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("저장 성공");
     }
 
 //    @Operation(description = "알림 받을 상대방 ID 입력 (테스트용)")

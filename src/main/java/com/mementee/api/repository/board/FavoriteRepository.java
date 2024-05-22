@@ -12,9 +12,6 @@ import java.util.Optional;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
-    @Query("SELECT f FROM Favorite f WHERE f.id = :favoriteId")
-    Favorite findOne(@Param("favoriteId") Long favoriteId);
-
     Optional<Favorite> findFavoriteByMemberAndBoard(Member member, Board board);
 
 }

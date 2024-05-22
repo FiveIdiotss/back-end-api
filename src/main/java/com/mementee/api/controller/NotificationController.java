@@ -25,11 +25,11 @@ public class NotificationController {
 
     @Operation(description = "구독 시 만료시간동안 발생한 알림 반환, 추 후 jwt 토큰으로 변경 예정")
     @GetMapping(value = "/subscribe/{memberId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribe(//@RequestHeader("Authorization") String authorizationHeader,
+    public ResponseEntity<SseEmitter> subscribe(//@RequestHeader("Authorization") String authorizationHeader,
                                                 @PathVariable("memberId") Long memberId,
                                                 @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
         //Member member = memberService.getMemberByToken(authorizationHeader);
-        return notificationService.subscribe(memberId);
+        return ResponseEntity.ok(notificationService.subscribe(memberId));
     }
 
     @Operation(description = "해당 memberId 에 알림 보내기 (테스트용)")

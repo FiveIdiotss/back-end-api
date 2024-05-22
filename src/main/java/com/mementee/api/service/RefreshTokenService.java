@@ -1,12 +1,13 @@
 package com.mementee.api.service;
 
 import com.mementee.api.dto.memberDTO.TokenDTO;
+import com.mementee.api.repository.RefreshTokenRepository;
+import com.mementee.api.validation.TokenValidation;
+import com.mementee.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.domain.RefreshToken;
-import com.mementee.api.repository.RefreshTokenRepository;
 import com.mementee.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,28 +22,25 @@ public class RefreshTokenService {
     private String secretKey;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public Optional<RefreshToken> isStoredRefreshToken(String authorizationHeader){
-        String refreshToken = authorizationHeader.split(" ")[1];
+    public Optional<RefreshToken> findRefreshTokenByEmail(String email){
+        return refreshTokenRepository.findRefreshTokenByEmail(email);
+    }
 
-        Optional<RefreshToken> storedRefreshToken = refreshTokenRepository.findRefreshTokenByRefreshToken(refreshToken);
-
-        if(storedRefreshToken.isEmpty()){
-            throw new IllegalArgumentException("잘못된 접근");
-        }
-        return storedRefreshToken;
+    public Optional<RefreshToken> findRefreshTokenByRefreshToken(String refreshToken){
+        return refreshTokenRepository.findRefreshTokenByRefreshToken(refreshToken);
     }
 
     @Transactional
     public TokenDTO getAccessKey(String authorizationHeader){
-        Optional<RefreshToken> storedRefreshToken = isStoredRefreshToken(authorizationHeader);
+        RefreshToken storedRefreshToken = TokenValidation.isCheckStoredRefreshToken(findRefreshTokenByRefreshToken(authorizationHeader.split(" ")[1]));
 
         // 리프레시 토큰이 유효하면 새로운 액세스 토큰 생성, refreshToken 업데이트
-        String email = storedRefreshToken.get().getEmail();
+        String email = storedRefreshToken.getEmail();
 
         String newAccessToken = JwtUtil.createAccessToken(email, secretKey);
         String newRefreshToken =  JwtUtil.createRefreshToken(secretKey);
 
-        storedRefreshToken.get().updateToken(newRefreshToken);
+        storedRefreshToken.updateToken(newRefreshToken);
 
         return new TokenDTO(newAccessToken, newRefreshToken);
     }
@@ -52,11 +50,8 @@ public class RefreshTokenService {
         refreshTokenRepository.save(refreshToken);
     }
 
-    public Optional<RefreshToken> findRefreshTokenByEmail(String email){
-        return refreshTokenRepository.findRefreshTokenByEmail(email);
-    }
-
+    @Transactional
     public void deleteRefreshToken(Optional<RefreshToken> refreshToken){
-        refreshTokenRepository.deleteRefreshToken(refreshToken);
+        refreshToken.ifPresent(refreshTokenRepository::delete);
     }
 }
