@@ -39,5 +39,6 @@ public class ChatMessage {
         this.sender = sender;
         this.chatRoom = chatRoom;
         this.localDateTime = LocalDateTime.now();
+        this.readCount = 2;
     }
 }
