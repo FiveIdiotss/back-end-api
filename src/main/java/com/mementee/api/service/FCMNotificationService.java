@@ -65,6 +65,10 @@ public class FCMNotificationService {
         Long receiverId = chatService.getReceiverId(messageDTO.getSenderId(), chatRoom);
         String parsingSenderId = String.valueOf(sender.getId());
 
+//        if(messageDTO.getImage() != null)
+//            return new FcmDTO(receiverId, sender.getName(), messageDTO.getImage(),
+//                    parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
+
         return new FcmDTO(receiverId, sender.getName(), messageDTO.getContent(),
                 parsingSenderId, sender.getMemberImageUrl(), NotificationType.CHAT);
     }
