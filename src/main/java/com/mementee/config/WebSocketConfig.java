@@ -1,13 +1,19 @@
 package com.mementee.config;
 
+import com.mementee.api.interceptor.WebSocketChannelInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
 @EnableWebSocket
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final WebSocketChannelInterceptor webSocketChannelInterceptor;
 
     @Override
     public void configureMessageBroker(final MessageBrokerRegistry registry) {
@@ -22,7 +28,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOrigins("*");
     }
 
-
     // websocket으로 전송할 수 있는 메시지 크기 설정.
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
@@ -30,4 +35,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setSendTimeLimit(20 * 10000); // 20초의 타임아웃을 설정합니다.
         registry.setSendBufferSizeLimit(3 * 512 * 1024); // 버퍼 크기 제한을 설정합니다.
     }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(webSocketChannelInterceptor);
+    }
+
 }

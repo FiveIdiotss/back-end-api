@@ -4,11 +4,11 @@ spring:
     level:
       org:
         springframework:
-          boot: info
+          boot: debug
 
   jpa:
     hibernate:
-      #ddl-auto: create
+#      ddl-auto: create
       ddl-auto: update
     properties:
       hibernate:

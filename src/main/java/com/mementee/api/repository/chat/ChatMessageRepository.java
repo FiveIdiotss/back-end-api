@@ -2,6 +2,7 @@ package com.mementee.api.repository.chat;
 
 import com.mementee.api.domain.chat.ChatMessage;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,9 +41,9 @@ public class ChatMessageRepository {
                 .getResultList();
     }
 
-    public List<ChatMessage> findByChatRoomIdAndReadCountGreaterThan(Long chatRoomId, int readCount) {
-        String query = "SELECT cm FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId AND cm.readCount > :readCount";
-
+    @Transactional
+    public List<ChatMessage> findByChatRoomIdAndReadCount(Long chatRoomId, int readCount) {
+        String query = "SELECT cm FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId AND cm.readCount = :readCount";
         return em.createQuery(query, ChatMessage.class)
                 .setParameter("chatRoomId", chatRoomId)
                 .setParameter("readCount", readCount)
