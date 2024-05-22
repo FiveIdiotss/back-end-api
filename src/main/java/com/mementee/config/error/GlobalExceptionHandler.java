@@ -8,6 +8,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
 @Slf4j
 @RestControllerAdvice   //모든 컨트롤러에서 발생하는 예외를 잡아서 처리
@@ -27,6 +29,20 @@ public class GlobalExceptionHandler {
         return createErrorResponseEntity(ErrorCode.BAD_REQUEST);
     }
 
+    //MultiPart 관련
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    protected ResponseEntity<CommonApiResponse<?>> handle(MaxUploadSizeExceededException e) {
+        log.error("MaxUploadSizeExceededException", e);
+        return createErrorResponseEntity(ErrorCode.MAX_MULTIPART);
+    }
+
+
+    @ExceptionHandler(UnsupportedMediaTypeException.class)
+    protected ResponseEntity<CommonApiResponse<?>> handle(UnsupportedMediaTypeException e) {
+        log.error("UnsupportedMediaTypeException", e);
+        return createErrorResponseEntity(ErrorCode.UNSUPPORTED_MULTIPART);
+    }
+
 
     //커스텀한 Exception Handler
     @ExceptionHandler(BaseException.class)
@@ -35,6 +51,7 @@ public class GlobalExceptionHandler {
         return createErrorResponseEntity(e.getErrorCode());
     }
 
+
     //BaseException 을 상속받지 않은 Exception 은 이 부분에서 처리
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<CommonApiResponse<?>> handle(Exception e) {
@@ -42,6 +59,7 @@ public class GlobalExceptionHandler {
         log.error("Exception", e);
         return createErrorResponseEntity(ErrorCode.SERVER_ERROR);
     }
+
 
     private ResponseEntity<CommonApiResponse<?>> createErrorResponseEntity(ErrorCode errorCode) {
         return ResponseEntity.status(errorCode.getStatus()).body(CommonApiResponse.createError(errorCode.getMessage()));

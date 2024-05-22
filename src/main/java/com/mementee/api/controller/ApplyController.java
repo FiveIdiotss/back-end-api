@@ -79,12 +79,8 @@ public class ApplyController {
     @PostMapping("/api/apply/{applyId}")
     public ResponseEntity<String> boardApply(@PathVariable Long applyId,
                                              @RequestHeader("Authorization") String authorizationHeader){
-        try {
             matchingService.saveMatching(applyId, authorizationHeader);
             return ResponseEntity.ok("신청 수락 성공");
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("신청 수락 실패");
-        }
     }
 
     //신청 거절
@@ -94,12 +90,8 @@ public class ApplyController {
             @ApiResponse(responseCode = "fail", description = "거절 실패")})
     @PostMapping("/api/reject/{applyId}")
     public ResponseEntity<String> boardDeny(@PathVariable Long applyId, @RequestHeader("Authorization") String authorizationHeader){
-        try {
             matchingService.declineMatching(applyId, authorizationHeader);
             return ResponseEntity.ok("신청 거절 성공");
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("신청 거절 실패");
-        }
     }
 
     //신청 글 조회

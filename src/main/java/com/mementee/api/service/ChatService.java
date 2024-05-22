@@ -8,7 +8,7 @@ import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
-import com.mementee.api.repository.chat.ChatRoomRepositorySub;
+import com.mementee.exception.notFound.ChatRoomNotFound;
 import com.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,6 @@ public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
-    private final ChatRoomRepositorySub chatRoomRepositorySub;
     private final MemberService memberService;
     private final S3Service s3Service;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -57,52 +56,28 @@ public class ChatService {
 //        return redisTemplate.opsForSet().members(key);
 //    }
 
-
-    //회원 조회 로직, memberId는 Sender
-    public Long getReceiverId(Long memberId, ChatRoom chatRoom) {
-        if (Objects.equals(memberId, chatRoom.getSender().getId()))
-            return chatRoom.getReceiver().getId();
-        return chatRoom.getSender().getId();
-    }
-
-    public ChatRoom findChatRoom(Long chatRoomId) {
-        return chatRoomRepository.findChatRoomById(chatRoomId);
+    public ChatRoomDTO createChatRoomDTO(Member loginMember, ChatRoom chatRoom) {
+        Member receiver = getReceiver(loginMember.getId(), chatRoom);
+        LatestMessageDTO latestMessageDTO = LatestMessageDTO.createLatestMessageDTO(findLatestChatMessage(chatRoom.getId()));
+        return ChatRoomDTO.createChatRoomDTO(loginMember, receiver, chatRoom, latestMessageDTO);
     }
 
     public ChatMessage createMessageByDTO(ChatMessageDTO messageDTO) {
         Member sender = memberService.findMemberById(messageDTO.getSenderId());
-        ChatRoom chatRoom = findChatRoom(messageDTO.getChatRoomId());
-
+        ChatRoom chatRoom = findChatRoomById(messageDTO.getChatRoomId());
         return new ChatMessage(messageDTO.getFileType(), messageDTO.getFileURL(), messageDTO.getContent(), sender, chatRoom, messageDTO.getLocalDateTime());
     }
 
-    @Transactional
-    public void saveMessage(ChatMessageDTO messageDTO) {
-        ChatMessage chatMessage = createMessageByDTO(messageDTO);
-        chatMessageRepository.save(chatMessage);
-    }
-
-    // 채팅방 ID로 채팅방 메세지 조회
-    public Slice<ChatMessage> findAllMessagesByChatRoomId(Long chatRoomId, Pageable pageable) {
-        return chatRoomRepositorySub.findAllMessagesByChatRoomId(chatRoomId, pageable);
-    }
-
-    // 특정 멤버가 속한 모든 채팅방 조회
-    public List<ChatRoom> findAllChatRoomByMemberId(Long memberId) {
-        return chatRoomRepository.findAllChatRoomsByMemberId(memberId);
-    }
-
-    // 상대방 아이디로 해당 채팅방 조회
-    public Optional<ChatRoom> findChatRoom(Member loginMember, Member receiver) {
-        Optional<ChatRoom> chatRoom = chatRoomRepository.findChatRoomById(loginMember, receiver);
-        if (chatRoom.isPresent())
-            return chatRoom;
-
-        throw new IllegalArgumentException("둘 사이에 채팅방이 존재하지 않습니다.");
+    //회원 조회 로직, memberId는 Sender
+    public Member getReceiver(Long loginMemberId, ChatRoom chatRoom) {
+        if (Objects.equals(loginMemberId, chatRoom.getSender().getId()))
+            return chatRoom.getReceiver();
+        return chatRoom.getSender();
     }
 
     public Optional<ChatMessage> findLatestChatMessage(Long chatRoomId) {
-        List<ChatMessage> messages = chatRoomRepository.findAllMessagesInChatRoom(chatRoomId);
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        List<ChatMessage> messages = chatMessageRepository.findChatMessagesByChatRoom(chatRoom);
         if (!messages.isEmpty()) {
             messages.sort(Comparator.comparing(ChatMessage::getLocalDateTime).reversed());
             return Optional.of(messages.get(0));
@@ -112,28 +87,39 @@ public class ChatService {
         }
     }
 
-    public ChatRoomDTO createChatRoomDTO(Long memberId, ChatRoom chatRoom) {
-        Long receiverId = chatRoom.getReceiver().getId().equals(memberId) ? chatRoom.getSender().getId() : chatRoom.getReceiver().getId();
-        Member member = memberService.findMemberById(receiverId);
-        String receiverName = member.getName();
-
-        Optional<ChatMessage> latestChatMessage = findLatestChatMessage(chatRoom.getId());
-
-        LatestMessageDTO latestMessageDTO = latestChatMessage.map(chatMessage ->
-                        new LatestMessageDTO(chatMessage.getContent(), chatMessage.getLocalDateTime()))
-                .orElse(new LatestMessageDTO(" ", null));
-
-        return new ChatRoomDTO(chatRoom.getId(), receiverId, receiverName, latestMessageDTO,
-                member.getMemberImageUrl(),
-                chatRoom.getMatching().getBoard().getTitle(),
-                chatRoom.getMatching().getDate(),
-                chatRoom.getMatching().getStartTime());
+    public ChatRoom findChatRoomById(Long chatRoomId) {
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chatRoomId);
+        if(chatRoom.isEmpty())
+            throw new ChatRoomNotFound();
+        return chatRoom.get();
     }
 
-    public String save(MultipartFile file) {
+    // 상대방 아이디로 해당 채팅방 조회
+    public ChatRoom findChatRoomBySenderAndReceiver(Member loginMember, Member receiver) {
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findChatRoomBySenderAndReceiver(loginMember, receiver);
+        if (chatRoom.isPresent())
+            return chatRoom.get();
+        throw new ChatRoomNotFound();
+    }
+
+    // 채팅방 ID로 채팅방 메세지 조회
+    public Slice<ChatMessage> findAllMessagesByChatRoomId(Long chatRoomId, Pageable pageable) {
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+        return chatMessageRepository.findChatMessagesByChatRoom(chatRoom, pageable);
+    }
+
+    // 특정 멤버가 속한 모든 채팅방 조회
+    public List<ChatRoom> findAllChatRoomByMember(Member member) {
+        return chatRoomRepository.findChatRoomsByMember(member);
+    }
+
+    @Transactional
+    public void saveMessage(ChatMessageDTO messageDTO) {
+        ChatMessage chatMessage = createMessageByDTO(messageDTO);
+        chatMessageRepository.save(chatMessage);
+    }
+
+    public String saveMultipartFile(MultipartFile file) {
         return s3Service.save(file);
     }
-
-
-
 }

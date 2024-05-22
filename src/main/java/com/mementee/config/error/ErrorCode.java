@@ -29,6 +29,8 @@ public enum ErrorCode {
     APPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "E404007", "존재하지 않는 신청입니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "E404008", "존재하지 않는 신청입니다."),
     LIKE_SUB_BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "E404009", "좋아요을 누르지 않았습니다."),
+    CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "E404010", "채팅방이 존재하지 않습니다."),
+
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "E2", "잘못된 HTTP 메서드를 호출했습니다."),
@@ -41,6 +43,12 @@ public enum ErrorCode {
     APPLY_BOARD_CONFLICT(HttpStatus.CONFLICT, "E409004", "이미 신청한 게시판 입니다."),
     MY_APPLY_BOARD_CONFLICT(HttpStatus.CONFLICT, "E409005", "자신의 글에는 신청할 수 없습니다."),
     LIKE_SUB_BOARD_CONFLICT(HttpStatus.CONFLICT, "E409006", "이미 좋아요를 눌렀습니다."),
+
+    //413
+    MAX_MULTIPART(HttpStatus.REQUEST_ENTITY_TOO_LARGE, "E413001", "파일 사이즈가 너무 큽니다"),
+
+    //415
+    UNSUPPORTED_MULTIPART(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "E415001", "지원하지 않는 파일 형식입니다."),
 
     //500
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E500001", "서버 에러가 발생했습니다.");
