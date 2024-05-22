@@ -27,6 +27,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ public class ChatController {
     private final MemberService memberService;
     private final SimpMessagingTemplate websocketPublisher;
     private final RedisPublisher redisPublisher;
-    private final FCMNotificationService fcmNotificationService;
+    private final FcmNotificationService fcmNotificationService;
     private final FileService fileService;
 
     @MessageMapping("/hello")
@@ -60,6 +61,7 @@ public class ChatController {
         //FCM 알림
         FcmDTO fcmDTO = fcmNotificationService.createChatFcmDTO(messageDTO);
         fcmNotificationService.sendMessageTo(fcmDTO);
+        fcmNotificationService.saveFcmDetail(fcmDTO);
     }
 
     @Operation(description = "파일 전송 처리")

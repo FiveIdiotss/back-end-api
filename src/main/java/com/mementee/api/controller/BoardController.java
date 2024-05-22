@@ -1,5 +1,6 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.BoardCategory;
 import com.mementee.api.dto.PageInfo;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
@@ -7,7 +8,7 @@ import com.mementee.api.dto.boardDTO.*;
 import com.mementee.api.domain.Board;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.ApplyService;
-import com.mementee.api.service.FCMNotificationService;
+import com.mementee.api.service.FcmNotificationService;
 import com.mementee.api.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,7 +37,7 @@ public class BoardController {
     private final BoardService boardService;
     private final ApplyService applicationService;
     private final NotificationService notificationService;
-    private final FCMNotificationService fcmNotificationService;
+    private final FcmNotificationService fcmNotificationService;
 
     //Slice 글 리스트로 전체 조회---------------
     //멘토,멘티 글 전체 조회
@@ -234,9 +235,10 @@ public class BoardController {
     @PostMapping("/api/board/{boardId}")
     public ResponseEntity<String> boardApply(@RequestBody @Valid ApplyRequest request, @PathVariable Long boardId,
                                             @RequestHeader("Authorization") String authorizationHeader){
-            applicationService.sendApply(authorizationHeader, boardId, request);
-            FcmDTO fcmDTO = fcmNotificationService.createApplyFcmDTO(authorizationHeader, boardId, request);
-            fcmNotificationService.sendMessageTo(fcmDTO);
-            return ResponseEntity.ok("신청 성공");
+        applicationService.sendApply(authorizationHeader, boardId, request);
+        FcmDTO fcmDTO = fcmNotificationService.createApplyFcmDTO(authorizationHeader, boardId, request);
+        fcmNotificationService.sendMessageTo(fcmDTO);
+        fcmNotificationService.saveFcmDetail(fcmDTO);
+        return ResponseEntity.ok("신청 성공");
     }
 }
