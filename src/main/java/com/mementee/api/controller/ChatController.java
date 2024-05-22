@@ -27,6 +27,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ public class ChatController {
     private final FileService fileService;
 
     @MessageMapping("/hello")
-    public void sendMessage(ChatMessageDTO messageDTO) {
+    public void sendMessage(ChatMessageDTO messageDTO) throws IOException {
         // redis에 publish
 //        redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
 
@@ -101,6 +102,23 @@ public class ChatController {
                 message.getChatRoom().getId(),
                 message.getLocalDateTime()
         ));
+    }
+
+    @Operation(description = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인" +
+            "존재하지 않으면 null 반환")
+    @GetMapping("/chatRoom")
+    public ResponseEntity<?> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            Member loginMember = memberService.findMemberByToken(authorizationHeader);
+            Member receiver = memberService.findMemberById(receiverId);
+
+            ChatRoom chatRoom = chatService.findChatRoomBySenderAndReceiver(loginMember, receiver);
+
+            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getId(), receiverId, receiver.getName());
+            return ResponseEntity.ok(chatRoomDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @Operation(description = "특정 멤버가 속한 채팅방 모두 조회")
