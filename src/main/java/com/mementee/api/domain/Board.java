@@ -60,12 +60,6 @@ public class Board {
 
     private LocalDateTime writeTime;            //작성 시간
 
-    @OneToMany(mappedBy = "board")
-    private List<Apply> applies = new ArrayList<>();
-
-    @OneToMany(mappedBy = "board")
-    private List<Matching> matchings = new ArrayList<>();
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private List<DayOfWeek> availableDays = new ArrayList<>();              //상담 가능한 요일

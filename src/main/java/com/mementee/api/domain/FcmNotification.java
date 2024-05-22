@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class FCMNotification {
+public class FcmNotification {
 
     @Id
     @GeneratedValue
@@ -20,7 +20,7 @@ public class FCMNotification {
 
     private String token;
 
-    public FCMNotification(String token, Member member) {
+    public FcmNotification(String token, Member member) {
         this.token = token;
         this.member = member;
     }
