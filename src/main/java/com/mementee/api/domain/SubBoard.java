@@ -45,6 +45,7 @@ public class SubBoard {
         this.content = content;
         this.member = member;
         this.writeTime = LocalDateTime.now();
+        this.likeCount = 0;
     }
 
     public SubBoard(String title, String content, Member member, List<SubBoardImage> subBoardImages) {
@@ -53,6 +54,7 @@ public class SubBoard {
         this.member = member;
         this.subBoardImages = subBoardImages;
         this.writeTime = LocalDateTime.now();
+        this.likeCount = 0;
     }
 
     public void addSubBoardImage(List<SubBoardImage> subBoardImages){
@@ -63,7 +65,11 @@ public class SubBoard {
         }
     }
 
-    public void addLikeCount(){
+    public void plusLikeCount(){
         likeCount++;
+    }
+
+    public void minusCount(){
+        likeCount--;
     }
 }

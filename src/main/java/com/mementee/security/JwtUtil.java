@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public abstract class JwtUtil {
     private static final long ACCESS_TIME = 60 * 60 * 1000L;                  //1시간

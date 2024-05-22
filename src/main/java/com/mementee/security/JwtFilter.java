@@ -1,6 +1,10 @@
 package com.mementee.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.service.BlackListTokenService;
+import com.mementee.config.error.ErrorCode;
+import com.mementee.exception.unauthorized.InvalidTokenException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -37,7 +41,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
             //토큰이 없거나 Bearer으로 시작 안할시
             if (authorization == null || !authorization.startsWith("Bearer ")) {
-                //System.out.println("authentication 을 잘 못 보냈습니다.");
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -47,8 +50,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
             //AccessToken이 BlackList에 있을 때
             if (bt.isCheckBlackList(token)) {
-                filterChain.doFilter(request, response);
-                return;
+                log.info("블랙리스트에 있는 ACCESS TOKEN 입니다.");
+                throw new InvalidTokenException();
             }
 
             //MemberEmail Token 에서 꺼내기
@@ -68,18 +71,13 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
             filterChain.doFilter(request, response);
-        } catch (ExpiredJwtException e) {
-            log.info("Token Expired");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token Expired");
-        } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
-        } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unsupported JWT Token");
-        } catch (IllegalArgumentException e) {
-            log.info("JWT claims Empty");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT claims Empty");
+        } catch (InvalidTokenException | ExpiredJwtException | SecurityException | MalformedJwtException | UnsupportedJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+
+            CommonApiResponse<?> commonApiResponse = CommonApiResponse.createError(ErrorCode.INVALID_TOKEN.getMessage());
+            response.getWriter().write(new ObjectMapper().writeValueAsString(commonApiResponse));
         }
     }
 }

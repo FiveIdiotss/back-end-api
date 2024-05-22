@@ -35,9 +35,10 @@
 
     {
         window.onload = function () {
-            var ws = new WebSocket('ws://localhost:8080/ws');
+            //var ws = new WebSocket('ws://localhost:8080/ws');
+            var ws = new WebSocket('ws://menteetor.site:8080/ws');
             var stompClient = Stomp.over(ws);
-            // var ws = new WebSocket('ws://menteetor.site:8080/ws');
+
 
             // 파일 업로드 함수
             document.getElementById('uploadButton').addEventListener('click', function() {
@@ -46,7 +47,9 @@
 
                 // Authorization 헤더 설정
                 var headers = new Headers();
-                headers.append('Authorization', 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6IjExMSIsImlhdCI6MTcxNjM4NTI5OCwiZXhwIjoxNzE2Mzg4ODk4fQ.1vduIlXG6RggaKsbCpRFUKHRoTOQXwuwsh8FeEzEg9o'); // 여기에 실제 토큰을 넣으세요
+              
+                headers.append('Authorization', 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6IjExMSIsImlhdCI6MTcxNjM4NDg0MSwiZXhwIjoxNzE2Mzg4NDQxfQ.oUazgYdfXH7eEWUY03BMoq44si8gHVRdL_BXWSCry6g'); // 여기에 실제 토큰을 넣으세요
+
 
                 fetch('/api/chat/sendFile', {
                     method: 'POST',

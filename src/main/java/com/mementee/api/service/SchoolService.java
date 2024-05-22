@@ -1,12 +1,14 @@
 package com.mementee.api.service;
 
 import com.mementee.api.domain.School;
-import com.mementee.api.repository.SchoolRepository;
+import com.mementee.api.repository.member.SchoolRepository;
+import com.mementee.exception.notFound.SchoolNotFound;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -16,23 +18,23 @@ public class SchoolService {
     private final SchoolRepository schoolRepository;
 
     //학교 id로 조회
-    public School findOne(Long schoolId) {
-        return schoolRepository.findOne(schoolId);
+    public School findSchoolById(Long schoolId) {
+        Optional<School> school = schoolRepository.findById(schoolId);
+        if (school.isEmpty())
+            throw new SchoolNotFound();
+        return school.get();
     }
 
     //학교 이름으로 조회
-    public School findNameOne(String schoolName){
-        return schoolRepository.findNameOne(schoolName);
+    public School findSchoolByName(String schoolName){
+        Optional<School> school = schoolRepository.findSchoolByName(schoolName);
+        if(school.isEmpty())
+            throw new SchoolNotFound();
+        return school.get();
     }
-
 
     //학교 전체 조회
-    public List<School> findSchools() {
-        return schoolRepository.findSchools();
-    }
-
-    //학교 검색 조회
-    public List<School> findSchoolsByKeyWord(String keyWord) {
-        return schoolRepository.findSchoolsByKeyWord(keyWord);
+    public List<School> findAll() {
+        return schoolRepository.findAll();
     }
 }
