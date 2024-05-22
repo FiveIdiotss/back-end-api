@@ -21,6 +21,9 @@ public class ChatMessage {
     @Column(name = "chat_message_id")
     private Long id;
 
+    private FileType fileType;
+    private String fileURL;
+
     @Column
     private String content;
 
@@ -34,10 +37,12 @@ public class ChatMessage {
 
     private LocalDateTime localDateTime;
 
-    public ChatMessage(String content, Member sender, ChatRoom chatRoom) {
+    public ChatMessage(FileType fileType, String fileURL, String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime) {
+        this.fileType = fileType;
+        this.fileURL = fileURL;
         this.content = content;
         this.sender = sender;
         this.chatRoom = chatRoom;
-        this.localDateTime = LocalDateTime.now();
+        this.localDateTime = localDateTime;
     }
 }
