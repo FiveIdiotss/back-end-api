@@ -23,6 +23,7 @@ public class ChatMessageDTO {
     private String senderName;
     private Long senderId;
     private Long chatRoomId;
+    private int readCount = 1;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

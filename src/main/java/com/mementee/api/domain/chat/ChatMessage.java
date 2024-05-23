@@ -35,6 +35,8 @@ public class ChatMessage {
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
 
+    private int readCount = 1;
+
     private LocalDateTime localDateTime;
 
     public ChatMessage(FileType fileType, String fileURL, String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime) {

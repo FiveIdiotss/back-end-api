@@ -35,6 +35,7 @@ public class ChatService {
 
 
     public void userEnterChatRoom(Long chatRoomId, Long userId) {
+        log.info(userId + "번 유저가 " + chatRoomId + "번 채팅방에 입장하였습니다.");
         String key = "chatRoom" + chatRoomId;
         redisTemplate.opsForSet().add(key, userId);
         // 읽지 않은 메시지 모두 읽음 처리
@@ -42,6 +43,7 @@ public class ChatService {
     }
 
     public void userLeaveChatRoom(Long chatRoomId, Long userId) {
+        log.info(userId + "번 유저가 " + chatRoomId + "번 채팅방에서 퇴장하였습니다.");
         String key = "chatRoom" + chatRoomId;
         redisTemplate.opsForSet().remove(key, userId);
     }
