@@ -13,15 +13,14 @@
 
 <ul>
     <li><a href="#" onclick="enterChatRoom(1)">채팅방 1 입장</a></li>
-    <li><a href="/chatroom/2">채팅방 2 입장</a></li>
-    <li><a href="/chatroom/3">채팅방 3 입장</a></li>
+    <li><a href="#" onclick="enterChatRoom(2)">채팅방 2 입장</a></li>
+    <li><a href="#" onclick="enterChatRoom(3)">채팅방 3 입장</a></li>
     <!-- 각 채팅방의 ID를 URL에 포함하여 링크를 생성 -->
 </ul>
 
-<form id="uploadForm" method="post" enctype="multipart/form-data">
+<form id="uploadForm" enctype="multipart/form-data">
     <input type="file" name="file" id="fileInput">
-    <input type="hidden" id="chatRoomId" name="chatRoomId" value="1"> <!-- 채팅방 ID를 여기에 설정 -->
-    <button type="button" id="uploadButton">이미지 업로드</button>
+    <button type="button" onclick="uploadFile()">파일 업로드</button>
 </form>
 
 <input type="text" id="message" placeholder="메시지를 입력하세요">
@@ -30,89 +29,208 @@
 <button id="send">전송</button>
 <div id="messageDisplay"></div>
 <div id="imageDisplay"></div>
-
 <script>
+    var stompClient = null;
+    var chatRoomId = null;
 
-    {
-        window.onload = function () {
-            // var ws = new WebSocket('ws://localhost:8080/ws');
-            var ws = new WebSocket('ws://menteetor.site:8080/ws');
-            var stompClient = Stomp.over(ws);
+    function enterChatRoom(id) {
+        chatRoomId = id;
 
+        var ws = new WebSocket('ws://menteetor.site:8080/ws');
+        // var ws = new WebSocket('ws://localhost:8080/ws');
+        stompClient = Stomp.over(ws);
 
-            // 파일 업로드 함수
-            document.getElementById('uploadButton').addEventListener('click', function() {
-                var form = document.getElementById('uploadForm');
-                var formData = new FormData(form);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
 
-                // Authorization 헤더 설정
-                var headers = new Headers();
-              
-                headers.append('Authorization', 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6IjExMSIsImlhdCI6MTcxNjM5MjY2OCwiZXhwIjoxNzE2Mzk2MjY4fQ.5w5nKXDxNeRPDk3NInnZs6mGiEMJqvymVT8YmUCcCsI'); // 여기에 실제 토큰을 넣으세요
-
-
-                fetch('/api/chat/sendFile', {
-                    method: 'POST',
-                    headers: headers,
-                    body: formData
-                }).then(function(response) {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('파일 업로드 실패');
-                    }
-                }).then(function(data) {
-                    document.getElementById('messageDisplay').innerHTML = '파일 업로드 성공: ' + JSON.stringify(data);
-                }).catch(function(error) {
-                    document.getElementById('messageDisplay').innerHTML = '파일 업로드 실패: ' + error.message;
-                });
+            // 특정 주제(채팅방)에 구독 설정 (SUBSCRIBE)
+            stompClient.subscribe('/sub/chats/' + chatRoomId, function (messageOutput) {
+                console.log('Received: ' + messageOutput.body);
+                var messageDisplay = document.querySelector('#messageDisplay');
+                messageDisplay.innerHTML += messageOutput.body + '<br>';
+            }, {
+                'senderId': '1',
+                'chatRoomId': chatRoomId.toString()
             });
+        });
+    }
 
-            // 메시지 전송 함수
-            function sendMessage() {
-                var messageInput = document.querySelector('#message');
-                var message = messageInput.value.trim();
+    // 메시지 전송 함수
+    function sendMessage() {
+        var messageInput = document.querySelector('#message');
+        var message = messageInput.value.trim();
 
-                if (message !== '') {
-                    var senderId = 1;
-                    var chatRoomId = 1;
-                    var senderName = "이종현";
-                    var time = new Date().toISOString();
+        if (message !== '') {
+            var senderId = 1;
+            var senderName = "이종현";
+            var time = new Date().toISOString();
 
-                    stompClient.send("/pub/hello", {
-                        'senderId': senderId.toString(),
-                        'chatRoomId': chatRoomId.toString()
-                    }, JSON.stringify({
-                        content: message,
-                        senderName: senderName,
-                        senderId: senderId,
-                        chatRoomId: chatRoomId,
-                        localDateTime: time
-                    }));
+            stompClient.send("/pub/hello", {
+                'senderId': senderId.toString(),
+                'chatRoomId': chatRoomId.toString()
+            }, JSON.stringify({
+                content: message,
+                senderName: senderName,
+                senderId: senderId,
+                chatRoomId: chatRoomId,
+                localDateTime: time
+            }));
 
-                    messageInput.value = '';
-                }
-            }
-
-            // 전송 버튼 클릭 시 메시지 전송
-            document.querySelector('#send').onclick = function () {
-                sendMessage(null); // 이미지 없이 메시지만 전송
-            };
-
-            // 메시지 수신
-            stompClient.connect({}, function (frame) {
-                console.log('Connected: ' + frame);
-                stompClient.subscribe('/sub/chats/1', function (messageOutput) {
-                    console.log('Received: ' + messageOutput.body);
-                    var messageDisplay = document.querySelector('#messageDisplay');
-                    messageDisplay.innerHTML += messageOutput.body + '<br>';
-                });
-            });
+            messageInput.value = '';
         }
     }
+
+    // 파일 업로드 함수
+    function uploadFile() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('chatRoomId', chatRoomId);
+
+        fetch('/api/chat/sendFile', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer YOUR_ACCESS_TOKEN' // 여기에 실제 액세스 토큰을 넣으세요.
+            },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById('messageDisplay').innerText = '파일 업로드 성공: ' + JSON.stringify(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById('messageDisplay').innerText = '파일 업로드 실패: ' + error;
+            });
+    }
+
+    // 전송 버튼 클릭 시 메시지 전송
+    document.querySelector('#send').onclick = function () {
+        sendMessage(); // 이미지 없이 메시지만 전송
+    };
 </script>
 </body>
 </html>
+<!--<!DOCTYPE html>-->
+<!--<html lang="ko">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>WebSocket Test</title>-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>-->
+<!--</head>-->
+<!--<body>-->
+<!--<a href="notification.html">SSE 테스트 페이지</a><br>-->
+<!--<h1>WebSocket 연결 테스트 페이지입니다.</h1>-->
+
+<!--<ul>-->
+<!--    <li><a href="#" onclick="enterChatRoom(1)">채팅방 1 입장</a></li>-->
+<!--    <li><a href="/chatroom/2">채팅방 2 입장</a></li>-->
+<!--    <li><a href="/chatroom/3">채팅방 3 입장</a></li>-->
+<!--    &lt;!&ndash; 각 채팅방의 ID를 URL에 포함하여 링크를 생성 &ndash;&gt;-->
+<!--</ul>-->
+
+<!--<form id="uploadForm" method="post" enctype="multipart/form-data">-->
+<!--    <input type="file" name="file" id="fileInput">-->
+<!--    <input type="hidden" id="chatRoomId" name="chatRoomId" value="1"> &lt;!&ndash; 채팅방 ID를 여기에 설정 &ndash;&gt;-->
+<!--    <button type="button" id="uploadButton">이미지 업로드</button>-->
+<!--</form>-->
+
+<!--<input type="text" id="message" placeholder="메시지를 입력하세요">-->
+<!--<input type="file" id="imageInput" style="display: none;">-->
+<!--<button id="attachImage">이미지 첨부</button>-->
+<!--<button id="send">전송</button>-->
+<!--<div id="messageDisplay"></div>-->
+<!--<div id="imageDisplay"></div>-->
+
+<!--<script>-->
+
+<!--    {-->
+<!--        window.onload = function () {-->
+<!--            //connect 시점-->
+<!--            var ws = new WebSocket('ws://localhost:8080/ws');-->
+<!--            // var ws = new WebSocket('ws://menteetor.site:8080/ws');-->
+
+<!--            //SUBSCRIBE 시점-->
+<!--            var stompClient = Stomp.over(ws);-->
+
+
+<!--            // 파일 업로드 함수-->
+<!--            document.getElementById('uploadButton').addEventListener('click', function() {-->
+<!--                var form = document.getElementById('uploadForm');-->
+<!--                var formData = new FormData(form);-->
+
+<!--                // Authorization 헤더 설정-->
+<!--                var headers = new Headers();-->
+<!--              -->
+<!--                headers.append('Authorization', 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6IjExMSIsImlhdCI6MTcxNjQwOTkyOCwiZXhwIjoxNzE2NDEzNTI4fQ.DnVghtktsMrRyBs8DNrzKDbnsmDTsEiUyIzczJwDgDs'); // 여기에 실제 토큰을 넣으세요-->
+
+
+<!--                fetch('/api/chat/sendFile', {-->
+<!--                    method: 'POST',-->
+<!--                    headers: headers,-->
+<!--                    body: formData-->
+<!--                }).then(function(response) {-->
+<!--                    if (response.ok) {-->
+<!--                        return response.json();-->
+<!--                    } else {-->
+<!--                        throw new Error('파일 업로드 실패');-->
+<!--                    }-->
+<!--                }).then(function(data) {-->
+<!--                    document.getElementById('messageDisplay').innerHTML = '파일 업로드 성공: ' + JSON.stringify(data);-->
+<!--                }).catch(function(error) {-->
+<!--                    document.getElementById('messageDisplay').innerHTML = '파일 업로드 실패: ' + error.message;-->
+<!--                });-->
+<!--            });-->
+
+<!--            // 메시지 전송 함수-->
+<!--            function sendMessage() {-->
+<!--                var messageInput = document.querySelector('#message');-->
+<!--                var message = messageInput.value.trim();-->
+
+<!--                if (message !== '') {-->
+<!--                    var senderId = 1;-->
+<!--                    var chatRoomId = 1;-->
+<!--                    var senderName = "이종현";-->
+<!--                    var time = new Date().toISOString();-->
+
+<!--                    stompClient.send("/pub/hello", {-->
+<!--                        'senderId': senderId.toString(),-->
+<!--                        'chatRoomId': chatRoomId.toString()-->
+<!--                    }, JSON.stringify({-->
+<!--                        content: message,-->
+<!--                        senderName: senderName,-->
+<!--                        senderId: senderId,-->
+<!--                        chatRoomId: chatRoomId,-->
+<!--                        localDateTime: time-->
+<!--                    }));-->
+
+<!--                    messageInput.value = '';-->
+<!--                }-->
+<!--            }-->
+
+<!--            // 전송 버튼 클릭 시 메시지 전송-->
+<!--            document.querySelector('#send').onclick = function () {-->
+<!--                sendMessage(null); // 이미지 없이 메시지만 전송-->
+<!--            };-->
+
+<!--            // 메시지 수신-->
+<!--            stompClient.connect({}, function (frame) {-->
+<!--                console.log('Connected: ' + frame);-->
+<!--                stompClient.subscribe('/sub/chats/1', function (messageOutput) {-->
+<!--                    console.log('Received: ' + messageOutput.body);-->
+<!--                    var messageDisplay = document.querySelector('#messageDisplay');-->
+<!--                    messageDisplay.innerHTML += messageOutput.body + '<br>';-->
+<!--                });-->
+<!--            });-->
+<!--        }-->
+<!--    }-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
 
 
 <!--<!DOCTYPE html>-->
