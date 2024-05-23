@@ -73,6 +73,7 @@ public class ChatController {
                 loginMember.getName(),
                 loginMember.getId(),
                 chatRoomId,
+                1,
                 LocalDateTime.now());
 
         // If file is not uploaded, return BAD_REQUEST error.
@@ -99,6 +100,7 @@ public class ChatController {
                 message.getSender().getName(),
                 message.getSender().getId(),
                 message.getChatRoom().getId(),
+                1,
                 message.getLocalDateTime()
         ));
     }

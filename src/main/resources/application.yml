@@ -34,9 +34,9 @@ spring:
     #    kdy
     url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
     username : admin
+    password: ehd5765613
     #url: jdbc:mysql://localhost:3306/kdy
     #username: root
-    password: ehd5765613
 
     #    JHL
 #    url: jdbc:mysql://localhost:3306/member
@@ -100,7 +100,6 @@ spring:
 
 api:
   univcert:
-    #    key: ce6dc2f8-3d83-44ca-923a-7143022e5f3d
     key: fc3b5c45-85eb-4fd6-8309-a5725170a2c8
 
 cloud:

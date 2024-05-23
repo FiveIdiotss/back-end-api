@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
@@ -19,10 +20,35 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
+        // accessor stomp메시지의 헤더 정보에 접근할 수 있도록 도와주는 유틸리티
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        log.info("accessor.getCommand()={}", accessor.getCommand());
-        String chatRoomId = accessor.getFirstNativeHeader("chatRoomId");
-        System.out.println(chatRoomId + ": thisone");
+
+        if (accessor != null) {
+            // SUBSCRIBE 시점에 구독자를 채팅방에 입장시킴.
+            if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+
+                long chatRoomId = Long.parseLong(accessor.getFirstNativeHeader("chatRoomId"));
+                long senderId = Long.parseLong(accessor.getFirstNativeHeader("senderId"));
+
+                log.info("유저 번호 : " + accessor.getFirstNativeHeader("senderId"));
+                log.info("채팅방 번호 : " + accessor.getFirstNativeHeader("chatRoomId"));
+
+                accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
+                accessor.getSessionAttributes().put("senderId", senderId);
+
+                chatService.userEnterChatRoom(chatRoomId, senderId);
+            }
+
+            // 웹소켓 DISCONNECT 시점에 해당 채팅방에 입장했던 유저를 퇴장시킴.
+            if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
+
+                long chatRoomId = (Long) accessor.getSessionAttributes().get("chatRoomId");
+                long senderId = (Long) accessor.getSessionAttributes().get("senderId");
+
+                chatService.userLeaveChatRoom(chatRoomId, senderId);
+            }
+        }
+
         return message;
     }
 
