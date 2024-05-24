@@ -49,7 +49,7 @@ public class ChatService {
     }
 
     public Long getNumberOfUserInChatRoom(Long chatRoodId) {
-        String key = "chatRoomd" + chatRoodId;
+        String key = "chatRoom" + chatRoodId;
         return redisTemplate.opsForSet().size(key);
     }
 
