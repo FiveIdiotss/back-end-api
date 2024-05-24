@@ -7,7 +7,6 @@ import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.*;
-import com.mementee.config.chat.RedisPublisher;
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -42,16 +41,13 @@ public class ChatController {
     private final ChatService chatService;
     private final MemberService memberService;
     private final SimpMessagingTemplate websocketPublisher;
-    private final RedisPublisher redisPublisher;
     private final FCMNotificationService fcmNotificationService;
     private final FileService fileService;
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageDTO messageDTO) {
-        // redis에 publish
-//        redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
-
-        // 동시에 접속 해있을 때만 readcount 2로 보내라
+        // If the chatRoom has two users, set the readCount as 2.
+        chatService.setMessageReadCount(messageDTO);
 
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
@@ -63,6 +59,8 @@ public class ChatController {
         FcmDTO fcmDTO = fcmNotificationService.createChatFcmDTO(messageDTO);
         fcmNotificationService.sendMessageTo(fcmDTO);
     }
+
+
 
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
@@ -77,6 +75,9 @@ public class ChatController {
                 chatRoomId,
                 1,
                 LocalDateTime.now());
+
+        // If two users in the chatRoom, set the readCount as 2.
+        chatService.setMessageReadCount(messageDTO);
 
         // If file is not uploaded, return BAD_REQUEST error.
         if (file.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
