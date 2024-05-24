@@ -2,9 +2,7 @@ package com.mementee.api.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,6 +26,7 @@ public class SubBoard {
     private String content;
 
     private int likeCount;
+    private int replyCount;
 
     private LocalDateTime writeTime;            //작성 시간
 
@@ -55,6 +54,7 @@ public class SubBoard {
         this.subBoardImages = subBoardImages;
         this.writeTime = LocalDateTime.now();
         this.likeCount = 0;
+        this.replyCount = 0;
     }
 
     public void addSubBoardImage(List<SubBoardImage> subBoardImages){
@@ -69,7 +69,15 @@ public class SubBoard {
         likeCount++;
     }
 
-    public void minusCount(){
+    public void minusLikeCount(){
         likeCount--;
+    }
+
+    public void plusReplyCount(){
+        replyCount++;
+    }
+
+    public void minusReplyCount(){
+        replyCount--;
     }
 }
