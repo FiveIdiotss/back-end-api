@@ -33,7 +33,6 @@ public class ChatService {
     private final S3Service s3Service;
     private final RedisTemplate<String, Object> redisTemplate;
 
-
     public void userEnterChatRoom(Long chatRoomId, Long userId) {
         log.info(userId + "번 유저가 " + chatRoomId + "번 채팅방에 입장하였습니다.");
         String key = "chatRoom" + chatRoomId;
@@ -65,17 +64,6 @@ public class ChatService {
 
         chatMessageRepository.markMessageAsRead(chatRoomId, userId);
     }
-
-//
-//    public boolean isUserInChatRoom(Long chatRoomId, Long userId) {
-//        String key = "chatRoom:" + chatRoomId;
-//        return redisTemplate.opsForSet().isMember(key, userId);
-//    }
-//
-//    public Set<Object> getUsersInChatRoom(Long chatRoomId) {
-//        String key = "chatRoom:" + chatRoomId;
-//        return redisTemplate.opsForSet().members(key);
-//    }
 
     public ChatRoomDTO createChatRoomDTO(Member loginMember, ChatRoom chatRoom) {
         Member receiver = getReceiver(loginMember.getId(), chatRoom);

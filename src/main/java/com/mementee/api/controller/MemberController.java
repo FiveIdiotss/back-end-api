@@ -28,8 +28,6 @@ public class MemberController {
     private final MemberService memberService;
     private final SchoolService schoolService;
     private final MajorService majorService;
-
-
     //회원정보 수정 필요
 
     //회원가입--------------------------------------
