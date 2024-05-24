@@ -46,7 +46,7 @@ public class ChatController {
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageDTO messageDTO) {
-        // If the chatRoom has two users, set the readCount as 2.
+        // If both users are in the chat room, set the readCount to 2.
         chatService.setMessageReadCount(messageDTO);
 
         // webSocket에 보내기
@@ -76,7 +76,7 @@ public class ChatController {
                 1,
                 LocalDateTime.now());
 
-        // If two users in the chatRoom, set the readCount as 2.
+        // If both users are in the chat room, set the readCount to 2.
         chatService.setMessageReadCount(messageDTO);
 
         // If file is not uploaded, return BAD_REQUEST error.
