@@ -8,6 +8,8 @@ public enum ErrorCode {
 
     //400
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "E4000001", "올바르지 않은 입력값입니다."),
+    REQUEST_PARAM_MISSING_BAD_REQUEST(HttpStatus.BAD_REQUEST, "E400002","RequestParam Missing."),
+    REQUEST_HEADER_MISSING_BAD_REQUEST(HttpStatus.BAD_REQUEST, "E400002","RequestHeader Missing."),
 
     //401
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "E401001", "인증 실패"),
@@ -30,6 +32,7 @@ public enum ErrorCode {
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "E404008", "존재하지 않는 신청입니다."),
     LIKE_SUB_BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "E404009", "좋아요을 누르지 않았습니다."),
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "E404010", "채팅방이 존재하지 않습니다."),
+    REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "E404011", "댓글이 존재하지 않습니다."),
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "E2", "잘못된 HTTP 메서드를 호출했습니다."),

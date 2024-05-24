@@ -112,7 +112,6 @@ public class InitDb {
             for (String m : 가천대과목록) {
                 Major major = new Major(m, 가천대학교);
                 em.persist(major);
-                가천대학교.getMajors().add(major);
             }
 
             Major major1 = new Major("컴퓨터공학과", ICT폴리텍대학);
@@ -123,13 +122,6 @@ public class InitDb {
 
             Major major5 = new Major("컴퓨터공학과", 서경대학교);
             Major major6 = new Major("메카트로닉스학과", 삼육대학교);
-
-            ICT폴리텍대학.getMajors().add(major1);
-            ICT폴리텍대학.getMajors().add(major2);
-            가야대학교.getMajors().add(major3);
-            가야대학교.getMajors().add(major4);
-            서경대학교.getMajors().add(major5);
-            삼육대학교.getMajors().add(major6);
 
             em.persist(major1);
             em.persist(major2);

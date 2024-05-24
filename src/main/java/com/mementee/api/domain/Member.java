@@ -49,17 +49,6 @@ public class Member{
     @JoinColumn(name = "major_id")
     private Major major;
 
-    @OneToMany(mappedBy = "member")
-    private List<Board> boards = new ArrayList<>();
-
-
-    //--------------
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Favorite> likes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<SubBoardLike> subBoardLikes = new ArrayList<>();
-
     public Member(String email, String name, String password, int year, String defaultMemberImageUrl,
                   Gender gender, School school, Major major) {
         this.email = email;
@@ -80,28 +69,6 @@ public class Member{
         this.password = password;
         this.year = year;
         this.gender = gender;
-    }
-
-    public void addBoard(Board board){
-        this.getBoards().add(board);
-    }
-
-    public void addFavoriteBoard(Favorite favorite){
-        this.getLikes().add(favorite);
-    }
-
-    public void removeFavoriteBoard(Favorite favorite){
-        this.getLikes().remove(favorite);
-    }
-
-    public void addSubBoardLike(SubBoardLike subBoardLike){
-        this.getSubBoardLikes().add(subBoardLike);
-        subBoardLike.getSubBoard().plusLikeCount();
-    }
-
-    public void removeSubeBoardLike(SubBoardLike subBoardLike){
-        this.getSubBoardLikes().remove(subBoardLike);
-        subBoardLike.getSubBoard().minusLikeCount();
     }
 
     public Member updateMemberImage(String newMemberImageUrl) {

@@ -25,9 +25,6 @@ public class Major {
     @JoinColumn(name = "school_id")
     private School school;
 
-    @OneToMany(mappedBy = "major")
-    private List<Member> members = new ArrayList<>();
-
     public Major(String name, School school) {
         this.name = name;
         this.school = school;

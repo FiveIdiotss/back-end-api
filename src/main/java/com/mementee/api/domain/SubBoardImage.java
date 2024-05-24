@@ -24,7 +24,8 @@ public class SubBoardImage {
     @JoinColumn(name = "sub_board_id")
     private SubBoard subBoard;
 
-    public SubBoardImage(String subBoardImageUrl) {
+    public SubBoardImage(String subBoardImageUrl, SubBoard subBoard) {
         this.subBoardImageUrl = subBoardImageUrl;
+        this.subBoard = subBoard;
     }
 }
