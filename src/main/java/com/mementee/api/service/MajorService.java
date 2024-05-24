@@ -1,6 +1,7 @@
 package com.mementee.api.service;
 
 import com.mementee.api.domain.Major;
+import com.mementee.api.domain.School;
 import com.mementee.api.repository.member.MajorRepository;
 import com.mementee.exception.notFound.MajorNotFound;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.Optional;
 public class MajorService {
 
     private final MajorRepository majorRepository;
+    private final SchoolService schoolService;
 
     public Major findMajorById(Long majorId) {
         Optional<Major> major = majorRepository.findById(majorId);
@@ -25,7 +27,8 @@ public class MajorService {
     }
 
     //학교에 속한 전공 과목 조회 ------
-    public List<Major> findAllByName(String name) {
-        return majorRepository.findAllByName(name);
+    public List<Major> findAllBySchoolName(String name) {
+        School school = schoolService.findSchoolByName(name);
+        return majorRepository.findAllBySchool(school);
     }
 }

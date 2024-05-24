@@ -157,7 +157,10 @@ public class SubBoardService {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = findSubBoardById(subBoardId);
         Reply reply = new Reply(request.getContent(), member, subBoard);
+
+        subBoard.plusReplyCount();
         replyRepository.save(reply);
     }
 
+    //댓글 삭제, 수정 추가
 }
