@@ -1,12 +1,9 @@
 package com.mementee.api.dto.boardDTO;
 
 import com.mementee.api.domain.Board;
-import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.BoardCategory;
-import com.mementee.api.dto.memberDTO.MemberDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.mementee.api.domain.enumtype.BoardType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +11,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class BoardDTO {
+
     private Long boardId;
     private BoardCategory boardCategory;
 

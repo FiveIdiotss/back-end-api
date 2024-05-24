@@ -225,7 +225,7 @@ public class BoardController {
     //신청 기능 -------------------
     @Operation(description = "멘토/멘티 신청 - 이미 신청한 글이거나, 자신이 쓴 글에 신청 할 경우 BAD_REQUEST" +
             "{\n" +
-            "  \"content\": \"구민회 탈머\",\n" +
+            "  \"content\": \"구민회 탈모\",\n" +
             "  \"date\": \"2024-02-11\",\n" +
             "  \"time\": \"09:00:00\"\n" +
             "} 이런식으로 보내면 됨")

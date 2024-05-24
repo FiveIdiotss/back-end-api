@@ -39,10 +39,12 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
             // 웹소켓 DISCONNECT 시점에 해당 채팅방에 입장했던 유저를 퇴장시킴.
             if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
 
-                long chatRoomId = (Long) accessor.getSessionAttributes().get("chatRoomId");
-                long senderId = (Long) accessor.getSessionAttributes().get("senderId");
+                Long chatRoomId = (Long) accessor.getSessionAttributes().get("chatRoomId");
+                Long senderId = (Long) accessor.getSessionAttributes().get("senderId");
 
-                chatService.userLeaveChatRoom(chatRoomId, senderId);
+                if (chatRoomId != null && senderId != null) {
+                    chatService.userLeaveChatRoom(chatRoomId, senderId);
+                }
             }
         }
 
