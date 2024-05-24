@@ -54,7 +54,7 @@ public class ChatService {
     }
 
     public void setMessageReadCount(ChatMessageDTO messageDTO) {
-        // 만약에 채팅방에 두 유저 모두 접속 중이라면 readCount를 2로 설정
+        // If both users are in the chat room, set the readCount to 2.
         Long userNumber = getNumberOfUserInChatRoom(messageDTO.getChatRoomId());
         if (userNumber == 2) messageDTO.setReadCount(2);
     }
