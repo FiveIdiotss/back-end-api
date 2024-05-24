@@ -3,13 +3,10 @@ package com.mementee.api.domain.chat;
 import com.mementee.api.domain.Matching;
 import com.mementee.api.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
-@Getter @Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatRoom {
