@@ -84,10 +84,6 @@ public class MemberService {
         String encodePw = passwordEncoder.encode(request.getPassword()); //비밀번호 암호화
         Member member = new Member(request.getEmail(), request.getName(), encodePw, request.getYear(),
                 defaultPhotoUrl, request.getGender(), school, major);
-
-        school.getMembers().add(member);
-        major.getMembers().add(member);
-
         memberRepository.save(member);
     }
 

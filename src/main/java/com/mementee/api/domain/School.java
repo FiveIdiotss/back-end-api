@@ -20,12 +20,6 @@ public class School {
     @Column(length = 45, nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "school")
-    private List<Member> members = new ArrayList<>();
-
-    @OneToMany(mappedBy = "school")
-    private List<Major> majors = new ArrayList<>();
-
     public School(String name) {
         this.name = name;
     }

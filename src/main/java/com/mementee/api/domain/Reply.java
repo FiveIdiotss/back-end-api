@@ -1,5 +1,6 @@
 package com.mementee.api.domain;
 
+import com.mementee.api.dto.subBoardDTO.ReplyRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,5 +39,10 @@ public class Reply {
         this.writeTime = LocalDateTime.now();
         this.member = member;
         this.subBoard = subBoard;
+    }
+
+    public void modifyReply(ReplyRequest request){
+        this.content = request.getContent();
+        this.writeTime = LocalDateTime.now();
     }
 }

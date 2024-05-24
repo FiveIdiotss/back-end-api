@@ -104,8 +104,8 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "글 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "글 조회 실패")})
     @GetMapping("/api/board/{boardId}")
-    public ResponseEntity<BoardInfoResponse> boardInfo(@PathVariable Long boardId,
-                                    @RequestHeader(value = "Authorization", required = false) String authorizationHeader){
+    public ResponseEntity<BoardInfoResponse> boardInfo(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                                       @PathVariable Long boardId){
             BoardInfoResponse response = boardService.createBoardInfoResponse(boardId, authorizationHeader);
             return ResponseEntity.ok(response);
     }
@@ -117,7 +117,7 @@ public class BoardController {
             @ApiResponse(responseCode = "fail")})
     @PutMapping("/api/board/{boardId}")
     public ResponseEntity<String> boardModify(@RequestBody @Valid WriteBoardRequest request, @PathVariable Long boardId,
-                                      @RequestHeader("Authorization") String authorizationHeader){
+                                              @RequestHeader("Authorization") String authorizationHeader){
             boardService.modifyBoard(request, authorizationHeader, boardId);
             return ResponseEntity.ok("수정 성공");
     }

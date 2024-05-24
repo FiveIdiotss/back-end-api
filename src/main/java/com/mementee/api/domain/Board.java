@@ -74,28 +74,8 @@ public class Board {
     @CollectionTable(name = "board_unavailable_times", joinColumns = @JoinColumn(name = "board_id"))
     private List<UnavailableTime> unavailableTimes = new ArrayList<>();
 
-    //게시물 사진
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
-    private List<BoardImage> boardImages = new ArrayList<>();
-
     public Board(String title, String introduce, String target, String content,
                  int consultTime, BoardCategory boardCategory, Member member,
-                 List<ScheduleTime> times, List<DayOfWeek> availableDays, List<BoardImage> boardImages) {
-        this.title = title;
-        this.introduce = introduce;
-        this.target = target;
-        this.content = content;
-        this.consultTime = consultTime;
-        this.times = times;
-        this.availableDays = availableDays;
-        this.boardCategory = boardCategory;
-        this.member = member;
-        this.boardImages = boardImages;
-        this.writeTime = LocalDateTime.now();
-    }
-
-    public Board(String title, String introduce, String target, String content, int consultTime,
-                 BoardCategory boardCategory, Member member,
                  List<ScheduleTime> times, List<DayOfWeek> availableDays) {
         this.title = title;
         this.introduce = introduce;
@@ -105,7 +85,6 @@ public class Board {
         this.times = times;
         this.availableDays = availableDays;
         this.boardCategory = boardCategory;
-        this.boardType = BoardType.MENTOR;
         this.member = member;
         this.writeTime = LocalDateTime.now();
     }
@@ -114,17 +93,9 @@ public class Board {
         this.getUnavailableTimes().add(new UnavailableTime(date, startTime));
     }
 
-    public void addBoardImage(List<BoardImage> boardImages){
-        if (boardImages.isEmpty())
-            return;
-        for (BoardImage boardImage : boardImages){
-            this.getBoardImages().add(boardImage);
-        }
-    }
-
-    public void modifyBoards(String title, String introduce, String target,
-                             String content, int consultTime, BoardCategory boardCategory,
-                             List<ScheduleTime> times, List<DayOfWeek> availableDays){
+    public void modifyBoard(String title, String introduce, String target,
+                            String content, int consultTime, BoardCategory boardCategory,
+                            List<ScheduleTime> times, List<DayOfWeek> availableDays){
         this.title = title;
         this.introduce = introduce;
         this.target = target;

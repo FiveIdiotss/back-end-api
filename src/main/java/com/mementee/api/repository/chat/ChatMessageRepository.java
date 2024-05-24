@@ -1,5 +1,6 @@
 package com.mementee.api.repository.chat;
 
+import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import jakarta.transaction.Transactional;
