@@ -38,7 +38,6 @@ public class ChatService {
         log.info(userId + "번 유저가 " + chatRoomId + "번 채팅방에 입장하였습니다.");
         String key = "chatRoom" + chatRoomId;
         redisTemplate.opsForSet().add(key, userId);
-
         // 읽지 않은 메시지 모두 읽음 처리
         markAllMessagesAsRead(chatRoomId, userId);
     }
@@ -47,6 +46,17 @@ public class ChatService {
         log.info(userId + "번 유저가 " + chatRoomId + "번 채팅방에서 퇴장하였습니다.");
         String key = "chatRoom" + chatRoomId;
         redisTemplate.opsForSet().remove(key, userId);
+    }
+
+    public Long getNumberOfUserInChatRoom(Long chatRoodId) {
+        String key = "chatRoomd" + chatRoodId;
+        return redisTemplate.opsForSet().size(key);
+    }
+
+    public void setMessageReadCount(ChatMessageDTO messageDTO) {
+        // If both users are in the chat room, set the readCount to 2.
+        Long userNumber = getNumberOfUserInChatRoom(messageDTO.getChatRoomId());
+        if (userNumber == 2) messageDTO.setReadCount(2);
     }
 
     @Transactional
