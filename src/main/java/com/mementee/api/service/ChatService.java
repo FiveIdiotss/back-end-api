@@ -38,8 +38,9 @@ public class ChatService {
         log.info(userId + "번 유저가 " + chatRoomId + "번 채팅방에 입장하였습니다.");
         String key = "chatRoom" + chatRoomId;
         redisTemplate.opsForSet().add(key, userId);
+
         // 읽지 않은 메시지 모두 읽음 처리
-//        markAllMessagesAsRead(chatRoomId, userId);
+        markAllMessagesAsRead(chatRoomId, userId);
     }
 
     public void userLeaveChatRoom(Long chatRoomId, Long userId) {
@@ -47,6 +48,14 @@ public class ChatService {
         String key = "chatRoom" + chatRoomId;
         redisTemplate.opsForSet().remove(key, userId);
     }
+
+    @Transactional
+    public void markAllMessagesAsRead(Long chatRoomId, Long userId) {
+        System.out.println("실행됌");
+
+        chatMessageRepository.markMessageAsRead(chatRoomId, userId);
+    }
+
 //
 //    public boolean isUserInChatRoom(Long chatRoomId, Long userId) {
 //        String key = "chatRoom:" + chatRoomId;

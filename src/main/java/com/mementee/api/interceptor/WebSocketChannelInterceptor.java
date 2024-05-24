@@ -20,7 +20,7 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        // accessor stomp메시지의 헤더 정보에 접근할 수 있도록 도와주는 유틸리티
+        // accessor stomp메시지의 헤더 정보에 접근할 수 있도록 도와주는 유틸리티 클래스
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         if (accessor != null) {
@@ -29,9 +29,6 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
                 long chatRoomId = Long.parseLong(accessor.getFirstNativeHeader("chatRoomId"));
                 long senderId = Long.parseLong(accessor.getFirstNativeHeader("senderId"));
-
-                log.info("유저 번호 : " + accessor.getFirstNativeHeader("senderId"));
-                log.info("채팅방 번호 : " + accessor.getFirstNativeHeader("chatRoomId"));
 
                 accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
                 accessor.getSessionAttributes().put("senderId", senderId);
