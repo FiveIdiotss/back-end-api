@@ -60,8 +60,6 @@ public class ChatController {
         fcmNotificationService.sendMessageTo(fcmDTO);
     }
 
-
-
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
     public ResponseEntity<ChatMessageDTO> sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader, @RequestPart("file") MultipartFile file, @RequestParam Long chatRoomId) {
