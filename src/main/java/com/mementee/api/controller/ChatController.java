@@ -42,7 +42,7 @@ public class ChatController {
     private final ChatService chatService;
     private final MemberService memberService;
     private final SimpMessagingTemplate websocketPublisher;
-    private final FCMNotificationService fcmNotificationService;
+    private final FcmNotificationService fcmNotificationService;
     private final FileService fileService;
 
     @MessageMapping("/hello")
