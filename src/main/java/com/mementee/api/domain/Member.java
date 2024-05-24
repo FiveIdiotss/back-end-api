@@ -101,7 +101,7 @@ public class Member{
 
     public void removeSubeBoardLike(SubBoardLike subBoardLike){
         this.getSubBoardLikes().remove(subBoardLike);
-        subBoardLike.getSubBoard().minusCount();
+        subBoardLike.getSubBoard().minusLikeCount();
     }
 
     public Member updateMemberImage(String newMemberImageUrl) {

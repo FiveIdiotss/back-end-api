@@ -61,7 +61,7 @@ public class MemberController {
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/school/{schoolName}")
     public CommonApiResponse<List<MajorDTO>> majorList(@PathVariable String schoolName) {
-        List<MajorDTO> collect = MajorDTO.createMajorDTOs(majorService.findAllByName(schoolName));
+        List<MajorDTO> collect = MajorDTO.createMajorDTOs(majorService.findAllBySchoolName(schoolName));
         return CommonApiResponse.createSuccess(collect);
     }
 
