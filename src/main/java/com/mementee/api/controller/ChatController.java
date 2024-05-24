@@ -51,6 +51,8 @@ public class ChatController {
         // redis에 publish
 //        redisPublisher.publish(ChannelTopic.of("chatRoom" + messageDTO.getChatRoomId()), messageDTO);
 
+        // 동시에 접속 해있을 때만 readcount 2로 보내라
+
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
 
