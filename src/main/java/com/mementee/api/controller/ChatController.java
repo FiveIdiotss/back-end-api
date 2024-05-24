@@ -83,7 +83,6 @@ public class ChatController {
         if (file.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 
         // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
-        log.info("messageDTO={}", messageDTO);
         chatService.saveMessage(messageDTO);
         return ResponseEntity.status(HttpStatus.OK).body(messageDTO);
     }
