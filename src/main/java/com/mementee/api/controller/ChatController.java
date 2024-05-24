@@ -26,6 +26,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,6 +59,7 @@ public class ChatController {
         //FCM 알림
         FcmDTO fcmDTO = fcmNotificationService.createChatFcmDTO(messageDTO);
         fcmNotificationService.sendMessageTo(fcmDTO);
+        fcmNotificationService.saveFcmDetail(fcmDTO);
     }
 
     @Operation(description = "파일 전송 처리")

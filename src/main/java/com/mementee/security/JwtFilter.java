@@ -7,6 +7,7 @@ import com.mementee.config.error.ErrorCode;
 import com.mementee.exception.unauthorized.InvalidTokenException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -71,7 +72,8 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
             filterChain.doFilter(request, response);
-        } catch (InvalidTokenException | ExpiredJwtException | SecurityException | MalformedJwtException | UnsupportedJwtException e) {
+        } catch (InvalidTokenException | ExpiredJwtException | SecurityException | MalformedJwtException |
+                 SignatureException | UnsupportedJwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");

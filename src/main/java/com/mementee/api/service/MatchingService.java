@@ -56,10 +56,6 @@ public class MatchingService {
 
         ChatRoom chatRoom = new ChatRoom(mentor, mentee, matching);
 
-        board.getMatchings().add(matching);
-        mentor.getMyMenteeMatching().add(matching);
-        mentee.getMyMentorMatching().add(matching);
-
         board.addUnavailableTimes(consultDate, consultTime);
         apply.updateState();
 

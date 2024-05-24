@@ -52,23 +52,8 @@ public class Member{
     @OneToMany(mappedBy = "member")
     private List<Board> boards = new ArrayList<>();
 
-    @OneToMany(mappedBy = "sendMember")
-    @Column(name = "send_member")
-    private List<Apply> sendApplies = new ArrayList<>();
-
-    @OneToMany(mappedBy = "receiveMember")
-    @Column(name = "receive_member")
-    private List<Apply> receiveApplies = new ArrayList<>();
 
     //--------------
-    @OneToMany(mappedBy = "mentor")
-    @Column(name = "mentor")
-    private List<Matching> myMentorMatching = new ArrayList<>();
-
-    @OneToMany(mappedBy = "mentee")
-    @Column(name = "mentee")
-    private List<Matching> myMenteeMatching = new ArrayList<>();
-
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Favorite> likes = new ArrayList<>();
 
