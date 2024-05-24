@@ -10,8 +10,10 @@ import com.mementee.api.repository.subBoard.SubBoardImageRepository;
 import com.mementee.api.repository.subBoard.SubBoardLikeRepository;
 import com.mementee.api.repository.subBoard.SubBoardRepository;
 import com.mementee.api.validation.BoardValidation;
+import com.mementee.api.validation.MemberValidation;
 import com.mementee.api.validation.SubBoardValidation;
 import com.mementee.exception.notFound.BoardNotFound;
+import com.mementee.exception.notFound.ReplyNotFound;
 import com.mementee.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -88,6 +91,14 @@ public class SubBoardService {
         return subBoardLikeRepository.findSubBoardLikeByMemberAndSubBoard(member, subBoard);
     }
 
+    //게시글 조회
+    public Reply findReplyById(Long replyId){
+        Optional<Reply> reply = replyRepository.findById(replyId);
+        if(reply.isEmpty())
+            throw new ReplyNotFound();
+        return reply.get();
+    }
+
     //게시글에 속한 댓글 목록
     public Page<Reply> findAllReply(Long subBoardId, Pageable pageable){
         SubBoard subBoard = findSubBoardById(subBoardId);
@@ -95,39 +106,64 @@ public class SubBoardService {
     }
 
     //게시글에 속한 이미지 저장
-    @Transactional
-    public List<SubBoardImage> saveSubBoardImageUrl(List<MultipartFile> multipartFiles) {
-        List<SubBoardImage> subBoardImages = new ArrayList<>();
-        if (multipartFiles == null) {
-            return subBoardImages;
-        }
+    public void saveSubBoardImageUrl(List<MultipartFile> multipartFiles, SubBoard subBoard) {
+        if(multipartFiles == null) return;
         for(MultipartFile multipartFile : multipartFiles){
             String url = s3Service.saveFile(multipartFile);
-            SubBoardImage boardImage = new SubBoardImage(url);
-            subBoardImages.add(boardImage);
+            SubBoardImage boardImage = new SubBoardImage(url, subBoard);
             subBoardImageRepository.save(boardImage);
         }
-        return subBoardImages;
+    }
+
+    //게시글에 속한 이미지 수정
+    public void modifySubBoardImage(List<MultipartFile> multipartFiles, SubBoard subBoard){
+        if(multipartFiles == null) return;
+        // 기존 이미지 목록
+        List<SubBoardImage> existingImages = subBoardImageRepository.findSubBoardImageBySubBoard(subBoard);
+
+        // 새 이미지 URL 목록 생성
+        List<String> newImageUrls = new ArrayList<>();
+        for (MultipartFile imageFile : multipartFiles) {
+            String imageUrl = s3Service.saveFile(imageFile); // S3에 이미지 업로드 후 URL 반환
+            newImageUrls.add(imageUrl);
+        }
+
+        // 기존 이미지 목록에서 삭제할 이미지 식별
+        List<SubBoardImage> imagesToRemove = existingImages.stream()
+                .filter(existingImage -> !newImageUrls.contains(existingImage.getSubBoardImageUrl()))
+                .toList();
+
+        // 식별된 이미지 삭제
+        subBoardImageRepository.deleteAll(imagesToRemove);
+
+        // 새로운 이미지 추가
+        for (String url : newImageUrls) {
+            if (existingImages.stream().noneMatch(image -> image.getSubBoardImageUrl().equals(url))) {
+                SubBoardImage newImage = new SubBoardImage(url, subBoard);
+                subBoardImageRepository.save(newImage); // 데이터베이스에 저장
+            }
+        }
     }
 
     //게시글 등록
     @Transactional
-    public void saveSubBoard(WriteSubBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) throws IOException {
+    public void saveSubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> multipartFiles){
         Member member = memberService.findMemberByToken(authorizationHeader);
-        List<SubBoardImage> subBoardImages = saveSubBoardImageUrl(multipartFiles);
-        SubBoard subBoard;
-        if(subBoardImages.isEmpty()){
-            subBoard = new SubBoard(request.getTitle(), request.getContent(), member);
-        }else {
-            subBoard = new SubBoard(request.getTitle(), request.getContent(), member, subBoardImages);
-            subBoard.addSubBoardImage(subBoardImages);
-
-            for(SubBoardImage subBoardImage : subBoardImages){
-                subBoardImage.setSubBoard(subBoard);
-            }
-        }
+        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member);
+        saveSubBoardImageUrl(multipartFiles, subBoard);
         subBoardRepository.save(subBoard);
     }
+
+    //게시물 수정
+    @Transactional
+    public void modifySubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> updatedImages, Long subBoardId){
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        SubBoard subBoard = findSubBoardById(subBoardId);
+        MemberValidation.isCheckMe(member, subBoard.getMember());
+        modifySubBoardImage(updatedImages, subBoard);
+        subBoard.modifySubBoard(request);
+    }
+
 
     //좋아요 누르기
     @Transactional
@@ -136,7 +172,7 @@ public class SubBoardService {
         SubBoard subBoard = findSubBoardById(subBoardId);
         SubBoardValidation.isCheckAddSubBordLike(findSubBoardLikeByMemberAndBoard(member, subBoard));
         SubBoardLike subBoardLike = new SubBoardLike(member, subBoard);
-        member.addSubBoardLike(subBoardLike);
+        subBoard.plusLikeCount();
         subBoardLikeRepository.save(subBoardLike);
     }
 
@@ -146,10 +182,19 @@ public class SubBoardService {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = findSubBoardById(subBoardId);
         SubBoardLike subBoardLike = SubBoardValidation.isCheckRemoveSubBoardLike(findSubBoardLikeByMemberAndBoard(member,subBoard));
-        member.removeSubeBoardLike(subBoardLike);
+        subBoard.minusLikeCount();
         subBoardLikeRepository.delete(subBoardLike);
     }
 
+
+    //댓글 수정
+    @Transactional
+    public void modifyReply(ReplyRequest request, Long replyId, String authorizationHeader){
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        Reply reply = findReplyById(replyId);
+        MemberValidation.isCheckMe(member, reply.getMember());
+        reply.modifyReply(request);
+    }
 
     //댓글 등록
     @Transactional
@@ -157,10 +202,17 @@ public class SubBoardService {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = findSubBoardById(subBoardId);
         Reply reply = new Reply(request.getContent(), member, subBoard);
-
         subBoard.plusReplyCount();
         replyRepository.save(reply);
     }
 
-    //댓글 삭제, 수정 추가
+    //댓글 삭제
+    @Transactional
+    public void removeReply(Long replyId, String authorizationHeader){
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        Reply reply = findReplyById(replyId);
+        MemberValidation.isCheckMe(member, reply.getMember());
+        reply.getSubBoard().minusReplyCount();
+        replyRepository.delete(reply);
+    }
 }

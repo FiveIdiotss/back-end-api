@@ -2,6 +2,7 @@ package com.mementee.api.controller;
 
 import com.mementee.api.domain.Reply;
 import com.mementee.api.domain.SubBoard;
+import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.PageInfo;
 import com.mementee.api.dto.subBoardDTO.*;
 import com.mementee.api.service.MemberService;
@@ -34,7 +35,6 @@ import java.util.stream.Collectors;
 public class SubBoardController {
 
     private final SubBoardService subBoardService;
-    private final MemberService memberService;
 
     @Operation(description = "글 쓰기 -" +
             "  {\"title\": \"string\",\n" +
@@ -44,9 +44,23 @@ public class SubBoardController {
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping(value = "/api/subBoard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<String> saveSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
-                                               @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles) throws IOException {
-            subBoardService.saveSubBoard(request, multipartFiles, authorizationHeader);
+                                               @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
+            subBoardService.saveSubBoard(request, authorizationHeader, multipartFiles);
             return ResponseEntity.ok().body("글 등록 성공");
+    }
+
+    @Operation(description = "글 수정 -" +
+            "  {\"title\": \"string\",\n" +
+            "  \"content\": \"string\" }\n")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail", description = "실패")})
+    @PutMapping(value = "/api/subBoard/{subBoardId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public CommonApiResponse<?> modifySubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
+                                               @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles,
+                                               @PathVariable Long subBoardId){
+        subBoardService.modifySubBoard(request, authorizationHeader, multipartFiles, subBoardId);
+        return CommonApiResponse.createSuccess();
     }
 
     //Page 자유 게시판 글 전체 조회 --------------
@@ -71,14 +85,14 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "글 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "글 조회 실패")})
     @GetMapping("/api/subBoard/{subBoardId}")
-    public ResponseEntity<SubBoardInfoResponse> subBoardInfo(@PathVariable Long subBoardId,
-                                          @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    public ResponseEntity<SubBoardInfoResponse> subBoardInfo(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                                             @PathVariable Long subBoardId) {
             SubBoardInfoResponse response = subBoardService.createSubBoardInfoResponse(subBoardId, authorizationHeader);
             return ResponseEntity.ok(response);
     }
 
     //댓글 기능
-    @Operation(description = "댓글")
+    @Operation(description = "댓글 달기")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail", description = "실패")})
@@ -89,6 +103,31 @@ public class SubBoardController {
             return ResponseEntity.ok("댓글 작성 성공");
     }
 
+    //댓글 수정
+    @Operation(description = "댓글 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail", description = "실패")})
+    @PutMapping("/api/reply/{replyId}")
+    public CommonApiResponse<?> modifyReply(@RequestBody ReplyRequest request, @RequestHeader("Authorization") String authorizationHeader,
+                                                 @PathVariable Long replyId) {
+        subBoardService.modifyReply(request, replyId, authorizationHeader);
+        return CommonApiResponse.createSuccess();
+    }
+
+    //댓글 삭제
+    @Operation(description = "댓글 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail", description = "실패")})
+    @DeleteMapping("/api/reply/{replyId}")
+    public CommonApiResponse<?> deleteReply(@RequestHeader("Authorization") String authorizationHeader,
+                                              @PathVariable Long replyId) {
+        subBoardService.removeReply(replyId, authorizationHeader);
+        return CommonApiResponse.createSuccess();
+    }
+
+    //댓글 목록
     @Operation(description = "페이지 단위로 댓글보기")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),

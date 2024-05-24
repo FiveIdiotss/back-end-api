@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -27,6 +29,19 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<CommonApiResponse<?>> handle(HttpMessageNotReadableException e) {
         log.error("HttpMessageNotReadableException", e);
         return createErrorResponseEntity(ErrorCode.BAD_REQUEST);
+    }
+
+    //Param, Header 관련 MissingServletRequestParameterException
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    protected ResponseEntity<CommonApiResponse<?>> handle(MissingServletRequestParameterException e) {
+        log.error("MissingServletRequestParameterException", e);
+        return createErrorResponseEntity(ErrorCode.REQUEST_PARAM_MISSING_BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    protected ResponseEntity<CommonApiResponse<?>> handle(MissingRequestHeaderException e) {
+        log.error("MissingRequestHeaderException", e);
+        return createErrorResponseEntity(ErrorCode.REQUEST_HEADER_MISSING_BAD_REQUEST);
     }
 
     //MultiPart 관련

@@ -1,5 +1,6 @@
 package com.mementee.api.domain;
 
+import com.mementee.api.dto.subBoardDTO.WriteSubBoardRequest;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,35 +35,18 @@ public class SubBoard {
     @JoinColumn(name = "member_id")
     private Member member;
 
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sub_board_image_id")
-    private List<SubBoardImage> subBoardImages = new ArrayList<>();
-
     public SubBoard(String title, String content, Member member) {
         this.title = title;
         this.content = content;
         this.member = member;
         this.writeTime = LocalDateTime.now();
         this.likeCount = 0;
-    }
-
-    public SubBoard(String title, String content, Member member, List<SubBoardImage> subBoardImages) {
-        this.title = title;
-        this.content = content;
-        this.member = member;
-        this.subBoardImages = subBoardImages;
-        this.writeTime = LocalDateTime.now();
-        this.likeCount = 0;
         this.replyCount = 0;
     }
 
-    public void addSubBoardImage(List<SubBoardImage> subBoardImages){
-        if (subBoardImages.isEmpty())
-            return;
-        for (SubBoardImage subBoardImage : subBoardImages){
-            this.getSubBoardImages().add(subBoardImage);
-        }
+    public void modifySubBoard(WriteSubBoardRequest request){
+        this.title = request.getTitle();
+        this.content = request.getContent();
     }
 
     public void plusLikeCount(){

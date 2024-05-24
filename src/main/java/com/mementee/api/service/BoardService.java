@@ -127,14 +127,11 @@ public class BoardService {
                     request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
         }else {
             board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
-                    request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays(), boardImages);
-            board.addBoardImage(boardImages);
-
+                    request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
             for(BoardImage boardImage : boardImages){
                 boardImage.setBoard(board);
             }
         }
-        member.addBoard(board);
         boardRepository.save(board);
     }
 
@@ -143,8 +140,7 @@ public class BoardService {
     public void modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId) {
         Board board = findBoardById(boardId);
         MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), board.getMember());
-
-        board.modifyBoards(request.getTitle(), request.getIntroduce(), request.getTarget(),
+        board.modifyBoard(request.getTitle(), request.getIntroduce(), request.getTarget(),
                 request.getContent(), request.getConsultTime(), request.getBoardCategory(),
                  request.getTimes(), request.getAvailableDays());
     }
@@ -159,8 +155,6 @@ public class BoardService {
         BoardValidation.isCheckAddFavorite(findFavoriteByMemberAndBoard(member,board));
 
         Favorite favorite = new Favorite(member, board);
-        member.addFavoriteBoard(favorite);
-
         favoriteRepository.save(favorite);
     }
 
@@ -171,8 +165,6 @@ public class BoardService {
         Board board = findBoardById(boardId);
 
         Favorite favorite = BoardValidation.isCheckRemoveFavorite(findFavoriteByMemberAndBoard(member, board));
-
-        member.removeFavoriteBoard(favorite);
         favoriteRepository.delete(favorite);
     }
 
