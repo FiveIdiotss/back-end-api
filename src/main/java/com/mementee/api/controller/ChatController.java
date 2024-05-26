@@ -1,5 +1,6 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
@@ -7,6 +8,7 @@ import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.*;
+import com.mementee.exception.notFound.FileNotFound;
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -64,7 +66,7 @@ public class ChatController {
 
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
-    public ResponseEntity<ChatMessageDTO> sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader, @RequestPart("file") MultipartFile file, @RequestParam Long chatRoomId) {
+    public CommonApiResponse<ChatMessageDTO> sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader, @RequestPart("file") MultipartFile file, @RequestParam Long chatRoomId) {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
         ChatMessageDTO messageDTO = new ChatMessageDTO(
                 fileService.getFileType(file.getContentType()),
@@ -80,22 +82,22 @@ public class ChatController {
         chatService.setMessageReadCount(messageDTO);
 
         // If file is not uploaded, return BAD_REQUEST error.
-        if (file.isEmpty()) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (file.isEmpty()) throw new FileNotFound();
 
         // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
         chatService.saveMessage(messageDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(messageDTO);
+        return CommonApiResponse.createSuccess(messageDTO);
     }
 
 
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages/{chatRoomId}")
-    public Slice<ChatMessageDTO> findAllMessagesByChatRoom(@RequestParam int page, @RequestParam int size,
+    public CommonApiResponse<Slice<ChatMessageDTO>> findAllMessagesByChatRoom(@RequestParam int page, @RequestParam int size,
                                                            @PathVariable Long chatRoomId) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차순(최신순)
         Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
 
-        return allMessages.map(message -> new ChatMessageDTO(
+        return CommonApiResponse.createSuccess(allMessages.map(message -> new ChatMessageDTO(
                 message.getFileType(),
                 message.getFileURL(),
                 message.getContent(),
@@ -104,29 +106,25 @@ public class ChatController {
                 message.getChatRoom().getId(),
                 1,
                 message.getLocalDateTime()
-        ));
+        )));
     }
 
     @Operation(description = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인" +
             "존재하지 않으면 null 반환")
     @GetMapping("/chatRoom")
-    public ResponseEntity<?> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
-        try {
+    public CommonApiResponse<?> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
             Member loginMember = memberService.findMemberByToken(authorizationHeader);
             Member receiver = memberService.findMemberById(receiverId);
 
             ChatRoom chatRoom = chatService.findChatRoomBySenderAndReceiver(loginMember, receiver);
 
             ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getId(), receiverId, receiver.getName());
-            return ResponseEntity.ok(chatRoomDTO);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+            return CommonApiResponse.createSuccess(chatRoomDTO);
     }
 
     @Operation(description = "특정 멤버가 속한 채팅방 모두 조회")
     @GetMapping("/chatRooms")
-    public ResponseEntity<List<ChatRoomDTO>> findAllChatRoomsByMemberId(@RequestParam Long memberId) {
+    public CommonApiResponse<List<ChatRoomDTO>> findAllChatRoomsByMemberId(@RequestParam Long memberId) {
         Member member = memberService.findMemberById(memberId);
         List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMember(member);
 
@@ -134,6 +132,6 @@ public class ChatController {
                 .map(chatRoom -> chatService.createChatRoomDTO(member, chatRoom))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(chatRoomDTOs);
+        return CommonApiResponse.createSuccess(chatRoomDTOs);
     }
 }

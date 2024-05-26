@@ -1,6 +1,7 @@
 package com.mementee.api.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.service.social.OAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,13 +23,13 @@ public class SocialController {
 
     @Operation(description = "해당 URL 클릭 시 해당 소셜 로그인 페이지로 이동")
     @GetMapping("/{socialLoginType}")
-    public ResponseEntity<String> socialLogin(@PathVariable(name = "socialLoginType") SocialLoginType socialLoginType) {
+    public CommonApiResponse<?> socialLogin(@PathVariable(name = "socialLoginType") SocialLoginType socialLoginType) {
         String url = oAuthService.requestAuthorizedURL(socialLoginType);
-        return ResponseEntity.ok().body(url);
+        return CommonApiResponse.createSuccess(url);
     }
 
     @GetMapping("/oauth2/code/{socialLoginType}")
-    public SocialMember socialLogins(@PathVariable SocialLoginType socialLoginType, @RequestParam String code) throws JsonProcessingException {
-        return oAuthService.oAuthLogin(code, socialLoginType);
+    public CommonApiResponse<SocialMember> socialLogins(@PathVariable SocialLoginType socialLoginType, @RequestParam String code) throws JsonProcessingException {
+        return CommonApiResponse.createSuccess(oAuthService.oAuthLogin(code, socialLoginType));
     }
 }

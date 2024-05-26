@@ -43,10 +43,10 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping(value = "/api/subBoard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<String> saveSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
+    public CommonApiResponse<?> saveSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
                                                @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
             subBoardService.saveSubBoard(request, authorizationHeader, multipartFiles);
-            return ResponseEntity.ok().body("글 등록 성공");
+            return CommonApiResponse.createSuccess();
     }
 
     @Operation(description = "글 수정 -" +
@@ -69,7 +69,7 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/pageSubBoards")
-    public ResponseEntity<PaginationSubBoardResponse> pageBoardsList(@RequestParam int page, @RequestParam int size,
+    public CommonApiResponse<PaginationSubBoardResponse> pageBoardsList(@RequestParam int page, @RequestParam int size,
                                                                      @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
@@ -77,7 +77,7 @@ public class SubBoardController {
         PageInfo pageInfo = new PageInfo(page, size, (int) findSubBoards.getTotalElements(), findSubBoards.getTotalPages());
         List<SubBoard> response = findSubBoards.getContent();
         List<SubBoardDTO> list = subBoardService.createSubBoardDTOs(response, authorizationHeader);
-        return new ResponseEntity<>(new PaginationSubBoardResponse(list, pageInfo), HttpStatus.OK);
+        return CommonApiResponse.createSuccess(new PaginationSubBoardResponse(list, pageInfo));
     }
 
     //글 조회
@@ -85,10 +85,10 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "글 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "글 조회 실패")})
     @GetMapping("/api/subBoard/{subBoardId}")
-    public ResponseEntity<SubBoardInfoResponse> subBoardInfo(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+    public CommonApiResponse<SubBoardInfoResponse> subBoardInfo(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                                              @PathVariable Long subBoardId) {
             SubBoardInfoResponse response = subBoardService.createSubBoardInfoResponse(subBoardId, authorizationHeader);
-            return ResponseEntity.ok(response);
+            return CommonApiResponse.createSuccess(response);
     }
 
     //댓글 기능
@@ -97,10 +97,10 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail", description = "실패")})
     @PostMapping("/api/reply/{subBoardId}")
-    public ResponseEntity<String> saveReply(@RequestBody ReplyRequest request, @RequestHeader("Authorization") String authorizationHeader,
+    public CommonApiResponse<?> saveReply(@RequestBody ReplyRequest request, @RequestHeader("Authorization") String authorizationHeader,
                                             @PathVariable Long subBoardId) {
             subBoardService.saveReply(request, subBoardId, authorizationHeader);
-            return ResponseEntity.ok("댓글 작성 성공");
+            return CommonApiResponse.createSuccess();
     }
 
     //댓글 수정
@@ -133,13 +133,13 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/reply/{subBoardId}")
-    public ResponseEntity<PaginationReplyResponse> pageReply(@RequestParam int page, @RequestParam int size,
+    public CommonApiResponse<PaginationReplyResponse> pageReply(@RequestParam int page, @RequestParam int size,
                                                              @PathVariable Long subBoardId) {
             Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id")); //내림차 순(최신순)
             Page<Reply> findReplies = subBoardService.findAllReply(subBoardId, pageable);
             PageInfo pageInfo = new PageInfo(page, size, (int) findReplies.getTotalElements(), findReplies.getTotalPages());
             List<ReplyDTO> list = ReplyDTO.createReplyDTOs(findReplies.getContent());
-            return new ResponseEntity<>(new PaginationReplyResponse(list, pageInfo), HttpStatus.OK);
+            return CommonApiResponse.createSuccess(new PaginationReplyResponse(list, pageInfo));
     }
 
     //좋아요 누르기
@@ -148,10 +148,10 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail", description = "실패")})
     @PostMapping("/api/like/{subBoardId}")
-    public ResponseEntity<String> addLikeCount(@RequestHeader("Authorization") String authorizationHeader,
+    public CommonApiResponse<?> addLikeCount(@RequestHeader("Authorization") String authorizationHeader,
                                                @PathVariable Long subBoardId) {
             subBoardService.addSubBoardLike(subBoardId, authorizationHeader);
-            return ResponseEntity.ok("좋아요 성공");
+            return CommonApiResponse.createSuccess();
     }
 
     //좋아요 취소
@@ -160,10 +160,10 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "즐겨찾기 삭제 성공"),
             @ApiResponse(responseCode = "fail", description = "즐겨찾기 삭제 실패")})
     @DeleteMapping("/api/like/{subBoardId}")
-    public ResponseEntity<String> removeFavorite(@RequestHeader("Authorization") String authorizationHeader,
+    public CommonApiResponse<?> removeFavorite(@RequestHeader("Authorization") String authorizationHeader,
                                                  @PathVariable Long subBoardId){
             subBoardService.removeSubBoardLike(subBoardId, authorizationHeader);
-            return ResponseEntity.ok("좋아요 취소 성공");
+            return CommonApiResponse.createSuccess();
     }
 }
 
