@@ -6,6 +6,7 @@ import com.mementee.api.dto.boardDTO.BoardDTO;
 import com.mementee.api.dto.boardDTO.BoardImageDTO;
 import com.mementee.api.dto.boardDTO.BoardInfoResponse;
 import com.mementee.api.dto.boardDTO.WriteBoardRequest;
+import com.mementee.api.dto.subBoardDTO.WriteSubBoardRequest;
 import com.mementee.api.repository.board.BoardImageRepository;
 import com.mementee.api.repository.board.BoardRepository;
 import com.mementee.api.repository.board.FavoriteRepository;
@@ -101,50 +102,64 @@ public class BoardService {
     }
 
     //게시물 등록시 이미지 추출 후 엔티티 생성
-    @Transactional
-    public List<BoardImage> saveBoardImageUrl(List<MultipartFile> multipartFiles) {
-        List<BoardImage> boardImages = new ArrayList<>();
-        if (multipartFiles == null) {
-            return boardImages;
-        }
+    public void saveBoardImageUrl(List<MultipartFile> multipartFiles, Board board) {
+        if (multipartFiles == null) return ;
         for(MultipartFile multipartFile : multipartFiles){
             String url = s3Service.saveFile(multipartFile);
-            BoardImage boardImage = new BoardImage(url);
-            boardImages.add(boardImage);
+            BoardImage boardImage = new BoardImage(board, url);
             boardImageRepository.save(boardImage);
         }
-        return boardImages;
+    }
+
+    //게시글에 속한 이미지 수정
+    public void modifyBoardImage(List<MultipartFile> multipartFiles, Board board){
+        if(multipartFiles == null) return;
+        // 기존 이미지 목록
+        List<BoardImage> existingImages = boardImageRepository.findBoardImagesByBoard(board);
+
+        // 새 이미지 URL 목록 생성
+        List<String> newImageUrls = new ArrayList<>();
+        for (MultipartFile imageFile : multipartFiles) {
+            String imageUrl = s3Service.saveFile(imageFile); // S3에 이미지 업로드 후 URL 반환
+            newImageUrls.add(imageUrl);
+        }
+
+        // 기존 이미지 목록에서 삭제할 이미지 식별
+        List<BoardImage> imagesToRemove = existingImages.stream()
+                .filter(existingImage -> !newImageUrls.contains(existingImage.getBoardImageUrl()))
+                .toList();
+
+        // 식별된 이미지 삭제
+        boardImageRepository.deleteAll(imagesToRemove);
+
+        // 새로운 이미지 추가
+        for (String url : newImageUrls) {
+            if (existingImages.stream().noneMatch(image -> image.getBoardImageUrl().equals(url))) {
+                BoardImage newImage = new BoardImage(board, url);
+                boardImageRepository.save(newImage); // 데이터베이스에 저장
+            }
+        }
     }
 
     //게시물 등록
     @Transactional
     public void saveBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) throws IOException {
         Member member = memberService.findMemberByToken(authorizationHeader);
-        List<BoardImage> boardImages = saveBoardImageUrl(multipartFiles);
-        Board board;
-        if(boardImages.isEmpty()){
-            board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
-                    request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
-        }else {
-            board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
-                    request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
-            for(BoardImage boardImage : boardImages){
-                boardImage.setBoard(board);
-            }
-        }
+        Board board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
+                request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
+        saveBoardImageUrl(multipartFiles, board);
         boardRepository.save(board);
+
     }
 
     //게시물 수정
     @Transactional
-    public void modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId) {
+    public void modifyBoard(WriteBoardRequest request, String authorizationHeader, List<MultipartFile> updatedImages, Long boardId) {
         Board board = findBoardById(boardId);
         MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), board.getMember());
-        board.modifyBoard(request.getTitle(), request.getIntroduce(), request.getTarget(),
-                request.getContent(), request.getConsultTime(), request.getBoardCategory(),
-                 request.getTimes(), request.getAvailableDays());
+        modifyBoardImage(updatedImages, board);
+        board.modifyBoard(request);
     }
-
 
     //즐겨찾기 추가
     @Transactional

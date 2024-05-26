@@ -23,12 +23,7 @@ public class BoardImage {
     @JoinColumn(name = "board_id")
     private Board board;
 
-    public BoardImage(String boardImageUrl) {
+    public BoardImage(Board board, String boardImageUrl) {
         this.boardImageUrl = boardImageUrl;
-    }
-
-    public BoardImage updateBoardImage(String newBoardImageUrl) {
-        this.boardImageUrl = newBoardImageUrl;
-        return this;
     }
 }

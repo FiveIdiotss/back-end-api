@@ -2,6 +2,7 @@ package com.mementee.api.domain;
 
 import com.mementee.api.domain.enumtype.BoardCategory;
 import com.mementee.api.domain.subdomain.UnavailableTime;
+import com.mementee.api.dto.boardDTO.WriteBoardRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -93,17 +94,17 @@ public class Board {
         this.getUnavailableTimes().add(new UnavailableTime(date, startTime));
     }
 
-    public void modifyBoard(String title, String introduce, String target,
-                            String content, int consultTime, BoardCategory boardCategory,
-                            List<ScheduleTime> times, List<DayOfWeek> availableDays){
-        this.title = title;
-        this.introduce = introduce;
-        this.target = target;
-        this.content = content;
-        this.consultTime = consultTime;
-        this.boardCategory = boardCategory;
-        this.times = times;
-        this.availableDays = availableDays;
+    public void modifyBoard(WriteBoardRequest request){
+        this.title = request.getTitle();
+        this.introduce = request.getIntroduce();
+        this.target = request.getTarget();
+        this.content = request.getContent();
+        this.consultTime = request.getConsultTime();
+        this.boardCategory = request.getBoardCategory();
+        this.times = request.getTimes();
+        this.availableDays = request.getAvailableDays();
         this.writeTime = LocalDateTime.now();
     }
+
+
 }
