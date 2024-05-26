@@ -1,6 +1,7 @@
 package com.mementee.api.controller;
 
 import com.mementee.api.domain.Apply;
+import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.applyDTO.*;
 import com.mementee.api.dto.PageInfo;
 import com.mementee.api.service.ApplyService;
@@ -41,13 +42,13 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/myApply")
-    public ResponseEntity<List<?>> applyList(@RequestHeader("Authorization") String authorizationHeader,
-                                             @RequestParam SendReceive sendReceive){
+    public CommonApiResponse<List<ApplyDTO>> applyList(@RequestHeader("Authorization") String authorizationHeader,
+                                                       @RequestParam SendReceive sendReceive){
         List<Apply> list = applyService.findMyApply(memberService.findMemberByToken(authorizationHeader), sendReceive);
         if(sendReceive == SendReceive.RECEIVE) {
-            return ResponseEntity.ok(ApplyDTO.createReceiveApplyDTOs(list));
+            return CommonApiResponse.createSuccess(ApplyDTO.createReceiveApplyDTOs(list));
         }
-        return ResponseEntity.ok(ApplyDTO.createSendApplyDTOs(list));
+        return CommonApiResponse.createSuccess(ApplyDTO.createSendApplyDTOs(list));
     }
 
     @Operation(description = "page 를 통한 내가 신청 한/받은 글 리스트")
@@ -55,7 +56,7 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/pageMyApply")
-    public ResponseEntity<?> pageApplyList(@RequestHeader("Authorization") String authorizationHeader, @RequestParam SendReceive sendReceive,
+    public CommonApiResponse<?> pageApplyList(@RequestHeader("Authorization") String authorizationHeader, @RequestParam SendReceive sendReceive,
                                         @RequestParam int page, @RequestParam int size){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
@@ -65,10 +66,10 @@ public class ApplyController {
 
         if(sendReceive == SendReceive.RECEIVE) {
             List<ApplyDTO> list = ApplyDTO.createReceiveApplyDTOs(response);
-            return new ResponseEntity<>(new PaginationApplyResponse(list, pageInfo), HttpStatus.OK);
+            return CommonApiResponse.createSuccess(new PaginationApplyResponse(list, pageInfo));
         }
         List<ApplyDTO> list = ApplyDTO.createSendApplyDTOs(response);
-        return new ResponseEntity<>(new PaginationApplyResponse(list, pageInfo), HttpStatus.OK);
+        return CommonApiResponse.createSuccess((new PaginationApplyResponse(list, pageInfo)));
     }
 
     //신청 받기
@@ -89,9 +90,9 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "거절 성공"),
             @ApiResponse(responseCode = "fail", description = "거절 실패")})
     @PostMapping("/api/reject/{applyId}")
-    public ResponseEntity<String> boardDeny(@PathVariable Long applyId, @RequestHeader("Authorization") String authorizationHeader){
+    public CommonApiResponse<?> boardDeny(@PathVariable Long applyId, @RequestHeader("Authorization") String authorizationHeader){
             matchingService.declineMatching(applyId, authorizationHeader);
-            return ResponseEntity.ok("신청 거절 성공");
+            return CommonApiResponse.createSuccess();
     }
 
     //신청 글 조회
@@ -100,10 +101,10 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "지원 글 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "지원 글 조회 실패")})
     @GetMapping("/api/apply/{applyId}")
-    public ResponseEntity<ApplyInfoResponse> applyInfo(@RequestHeader("Authorization") String authorizationHeader,
+    public CommonApiResponse<ApplyInfoResponse> applyInfo(@RequestHeader("Authorization") String authorizationHeader,
                                                        @PathVariable Long applyId){
         Apply apply = applyService.findApplyById(applyId);
         ApplyValidation.isCheckContainMyApply(apply, memberService.findMemberByToken(authorizationHeader));
-        return ResponseEntity.ok(ApplyInfoResponse.createApplyInfo(apply));
+        return CommonApiResponse.createSuccess(ApplyInfoResponse.createApplyInfo(apply));
     }
 }

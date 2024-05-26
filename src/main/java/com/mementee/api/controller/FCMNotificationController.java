@@ -2,6 +2,7 @@ package com.mementee.api.controller;
 
 import com.mementee.api.domain.FcmDetail;
 import com.mementee.api.domain.Member;
+import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.PageInfo;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.dto.notificationDTO.PaginationFcmResponse;
@@ -34,16 +35,16 @@ public class FCMNotificationController {
 
     @Operation(description = "자신의 FCM 토큰 DB에 저장")
     @PostMapping("/api/fcm")
-    public ResponseEntity<String> saveFCMToken(@RequestHeader("Authorization") String authorizationHeader,
-                                               @RequestParam String myToken){
+    public CommonApiResponse<?> saveFCMToken(@RequestHeader("Authorization") String authorizationHeader,
+                                             @RequestParam String myToken){
         Member member = memberService.findMemberByToken(authorizationHeader);
         fcmNotificationService.saveFCMNotification(member, myToken);
-        return ResponseEntity.ok("저장 성공");
+        return CommonApiResponse.createSuccess();
     }
 
     @Operation(description = "알림 목록")
     @GetMapping("/api/fcm")
-    public ResponseEntity<PaginationFcmResponse> findFCMs(@RequestParam int page, @RequestParam int size,
+    public CommonApiResponse<PaginationFcmResponse> findFCMs(@RequestParam int page, @RequestParam int size,
                                                           @RequestHeader("Authorization") String authorizationHeader){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
         Page<FcmDetail> fcms = fcmNotificationService.findFcmDetailsByReceiverMember(authorizationHeader, pageable);
@@ -51,7 +52,7 @@ public class FCMNotificationController {
 
         List<FcmDetail> response = fcms.getContent();
         List<FcmDTO> list = FcmDTO.createFcmList(response);
-        return new ResponseEntity<>(new PaginationFcmResponse(list, pageInfo), HttpStatus.OK);
+        return CommonApiResponse.createSuccess(new PaginationFcmResponse(list, pageInfo));
     }
 
 //    @Operation(description = "알림 받을 상대방 ID 입력 (테스트용)")
