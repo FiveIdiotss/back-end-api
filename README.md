@@ -14,9 +14,10 @@
 ## 프로젝트 기능
 - 이용자는 모든 학교별 / 자신의 학교별에 따라 서비스를 이용할 수 있다.
 - 이용자가 멘토가 되길 원할 경우 멘티 모집에 대한 과목, 조건등이 포함된 글을 작성한다. 
-- 이용자가 멘티 모집 글에 신청 양식을 작성하고, 멘토는 신청 요청이 온 글을 보고 매칭여부를 결정한다.
+- 이용자는 멘티 모집 글에 신청 양식을 작성한다.
+- 멘토는 신청 요청에 대한 세부 사항을 보고 매칭여부를 결정한다.
 - 매칭이 성사될 경우 실시간 채팅을 통해 멘토와 멘티간의 실시간 상담이 이어진다.
-- 이용자는 질문 게시판을 통해 질문글을 올릴수 있으며 댓글을 통해 소통을 할 수 있다.
+- 모든 이용자는 질문 게시판을 통해 질문글을 올릴수 있으며 댓글을 통해 소통을 할 수 있다.
 
 ---
 ## ERD 
@@ -42,6 +43,7 @@ Front-End 웹 :
 - <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white">
 - <img src="https://img.shields.io/badge/react%20query-FF4154?style=for-the-badge&logo=react%20query&logoColor=white">
 - <img src="https://img.shields.io/badge/auth.js-EB5424?style=for-the-badge&logo=auth0&logoColor=white">
+- <img src="https://img.shields.io/badge/tailwind%20css-06B6D4?style=for-the-badge&logo=tailwind%20css&logoColor=white">
 - <img src="https://img.shields.io/badge/zustand-000000?style=for-the-badge&logo=next&logoColor=white">
 
 
@@ -86,6 +88,7 @@ etc:
   - 로그인/로그아웃
   - 카카오 or 네이버로 로그인 가능
   - 유효성/토큰
+  - 자동 로그인
 
 
 - 🏡 메인 게시판
