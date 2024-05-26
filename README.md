@@ -136,11 +136,11 @@ etc:
 서버에서 감지하기 어렵다는 점 때문에 FCM 방식을 채택
 
   
-- Interceptor 사용 배경 과정 (WebSocket 의 STOMP 기능을 이용하여 실시간 채팅을 이용할 경우 메시지 전송할 때 header 부분에
+- >> 수정 Interceptor 사용 배경 과정 (WebSocket 의 STOMP 기능을 이용하여 실시간 채팅을 이용할 경우 메시지 전송할 때 header 부분에
   보내는 사람 정보와 채팅방 정보를 보내 Interceptor 를 통해 읽음 처리 기능 제공 (숫자 사라짐))
 
 
-- 채팅방에서 파일 보낼때 직렬화해서 보냈는데 MultiPart 로 바꾼 과정
+- >> 수정 채팅방에서 파일 보낼때 직렬화해서 보냈는데 MultiPart 로 바꾼 과정
 
 
 ## 개선 사항
