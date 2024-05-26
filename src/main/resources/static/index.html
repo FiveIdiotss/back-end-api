@@ -41,21 +41,23 @@
         chatRoomId = id;
 
         var ws = new WebSocket('ws://menteetor.site:8080/ws');
-        // var ws = new WebSocket('ws://localhost:8080/ws');
+        //var ws = new WebSocket('ws://localhost:8080/ws');
         stompClient = Stomp.over(ws);
 
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
+
+            var headers = {
+                'senderId': ['1'],
+                'chatRoomId': [chatRoomId.toString()]
+            }
 
             // 특정 주제(채팅방)에 구독 설정 (SUBSCRIBE)
             stompClient.subscribe('/sub/chats/' + chatRoomId, function (messageOutput) {
                 console.log('Received: ' + messageOutput.body);
                 var messageDisplay = document.querySelector('#messageDisplay');
                 messageDisplay.innerHTML += messageOutput.body + '<br>';
-            }, {
-                'senderId': '1',
-                'chatRoomId': chatRoomId.toString()
-            });
+            }, headers);
         });
     }
 
