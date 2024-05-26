@@ -1,6 +1,7 @@
 package com.mementee.api.controller;
 
 import com.mementee.api.domain.Matching;
+import com.mementee.api.dto.CommonApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -29,10 +30,10 @@ public class MatchingController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/matching")
-    public ResponseEntity<List<MatchingDTO>> myMatchingList(@RequestHeader("Authorization") String authorizationHeader,
-                                                            @RequestParam BoardType boardType) {
+    public CommonApiResponse<List<MatchingDTO>> myMatchingList(@RequestHeader("Authorization") String authorizationHeader,
+                                                               @RequestParam BoardType boardType) {
         List<Matching> list = matchingService.findMatchingsByMember(boardType, authorizationHeader);
-        return ResponseEntity.ok(MatchingDTO.createMatchingDTOs(list, boardType));
+        return CommonApiResponse.createSuccess(MatchingDTO.createMatchingDTOs(list, boardType));
     }
 }
 
