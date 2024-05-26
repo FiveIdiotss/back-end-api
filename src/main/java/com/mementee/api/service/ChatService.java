@@ -60,8 +60,6 @@ public class ChatService {
 
     @Transactional
     public void markAllMessagesAsRead(Long chatRoomId, Long userId) {
-        System.out.println("실행됌");
-
         chatMessageRepository.markMessageAsRead(chatRoomId, userId);
     }
 
