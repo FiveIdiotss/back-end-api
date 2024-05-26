@@ -1,6 +1,6 @@
 # 메멘토 
 
-- 프로젝트 기간 : 24.01 ~ 06
+- 프로젝트 기간 : 24.01 ~ 24.06
 - 프로젝트 인원 : 4명
 ---
 ## 프로젝트 기획의도
@@ -26,40 +26,46 @@
 
 ---
 ## 사용 기술
-- Back-End : <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
-<img src="https://img.shields.io/badge/spring%20security-6DB33F?style=for-the-badge&logo=spring%20security&logoColor=white">
-<img src="https://img.shields.io/badge/json%20web%20tokens-000000?style=for-the-badge&logo=json%20web%20tokens&logoColor=white">
-<img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
-<img src="https://img.shields.io/badge/redis-DC382D?style=for-the-badge&logo=redis&logoColor=white">
-<img src="https://img.shields.io/badge/amazon%20ec2-FF9900?style=for-the-badge&logo=amazon%20ec2&logoColor=white">
-<img src="https://img.shields.io/badge/amazon%20rds-527FFF?style=for-the-badge&logo=amazon%20rds&logoColor=white">
-<img src="https://img.shields.io/badge/amazon%20route%2053-8C4FFF?style=for-the-badge&logo=amazon%20route%2053&logoColor=white">
+Back-End : <br> 
+- <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+- <img src="https://img.shields.io/badge/spring%20security-6DB33F?style=for-the-badge&logo=spring%20security&logoColor=white">
+- <img src="https://img.shields.io/badge/json%20web%20tokens-000000?style=for-the-badge&logo=json%20web%20tokens&logoColor=white">
+- <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
+- <img src="https://img.shields.io/badge/redis-DC382D?style=for-the-badge&logo=redis&logoColor=white">
+- <img src="https://img.shields.io/badge/amazon%20ec2-FF9900?style=for-the-badge&logo=amazon%20ec2&logoColor=white">
+- <img src="https://img.shields.io/badge/amazon%20rds-527FFF?style=for-the-badge&logo=amazon%20rds&logoColor=white">
+- <img src="https://img.shields.io/badge/amazon%20route%2053-8C4FFF?style=for-the-badge&logo=amazon%20route%2053&logoColor=white">
 
 
-- Front-End 웹 : <img src="https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=next.js&logoColor=white">
-<img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white">
-<img src="https://img.shields.io/badge/react%20query-FF4154?style=for-the-badge&logo=react%20query&logoColor=white">
-<img src="https://img.shields.io/badge/auth.js-EB5424?style=for-the-badge&logo=auth0&logoColor=white">
-<img src="https://img.shields.io/badge/zustand-000000?style=for-the-badge&logo=next&logoColor=white">
+Front-End 웹 :
+- <img src="https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=next.js&logoColor=white">
+- <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white">
+- <img src="https://img.shields.io/badge/react%20query-FF4154?style=for-the-badge&logo=react%20query&logoColor=white">
+- <img src="https://img.shields.io/badge/auth.js-EB5424?style=for-the-badge&logo=auth0&logoColor=white">
+- <img src="https://img.shields.io/badge/zustand-000000?style=for-the-badge&logo=next&logoColor=white">
 
 
-- Front-End 모바일 : <img src="https://img.shields.io/badge/databinding-000000?style=for-the-badge&logo=next&logoColor=white">
-<img src="https://img.shields.io/badge/coroutine-000000?style=for-the-badge&logo=jetpack&logoColor=white">
-<img src="https://img.shields.io/badge/flow-000000?style=for-the-badge&logo=jetpack&logoColor=white">
+Front-End 모바일 :
+- <img src="https://img.shields.io/badge/databinding-000000?style=for-the-badge&logo=next&logoColor=white">
+- <img src="https://img.shields.io/badge/coroutine-000000?style=for-the-badge&logo=jetpack&logoColor=white">
+- <img src="https://img.shields.io/badge/flow-000000?style=for-the-badge&logo=jetpack&logoColor=white">
 
 
 
-- Tools : <img src="https://img.shields.io/badge/android%20studio-3DDC84?style=for-the-badge&logo=android%20studio&logoColor=white">
-<img src="https://img.shields.io/badge/visual%20studio%20code%20studio-007ACC?style=for-the-badge&logo=visual%20studio%20code&logoColor=white">
-<img src="https://img.shields.io/badge/intellij%20idea-000000?style=for-the-badge&logo=intellij%20idea&logoColor=white">
+Tools :
+- <img src="https://img.shields.io/badge/android%20studio-3DDC84?style=for-the-badge&logo=android%20studio&logoColor=white">
+- <img src="https://img.shields.io/badge/visual%20studio%20code%20studio-007ACC?style=for-the-badge&logo=visual%20studio%20code&logoColor=white">
+- <img src="https://img.shields.io/badge/intellij%20idea-000000?style=for-the-badge&logo=intellij%20idea&logoColor=white">
 
 
-- Collaboration : <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
+Collaboration : 
+- <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
 
 
-- etc: <img src="https://img.shields.io/badge/firebase%20cloud%20messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=white">
-  <img src="https://img.shields.io/badge/amazon%20s3-569A31?style=for-the-badge&logo=amazon%20s3&logoColor=white">
-  <img src="https://img.shields.io/badge/web%20socket-000?style=for-the-badge&logo=alogoColor=white">
+etc: 
+- <img src="https://img.shields.io/badge/firebase%20cloud%20messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=white">
+- <img src="https://img.shields.io/badge/amazon%20s3-569A31?style=for-the-badge&logo=amazon%20s3&logoColor=white">
+- <img src="https://img.shields.io/badge/web%20socket-000?style=for-the-badge&logo=alogoColor=white">
 
 
 ---
