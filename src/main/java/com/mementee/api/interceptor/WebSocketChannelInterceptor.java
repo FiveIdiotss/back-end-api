@@ -1,7 +1,6 @@
 package com.mementee.api.interceptor;
 
 import com.mementee.api.service.ChatService;
-import com.mementee.config.error.ErrorCode;
 import com.mementee.exception.notFound.HeaderNotFound;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
