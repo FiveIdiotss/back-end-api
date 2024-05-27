@@ -36,6 +36,14 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
                 log.info("Connect chatRoomIdStr = " + chatRoomIdStr);
                 log.info("Connect senderIdStr = " + senderIdStr);
+
+                Long chatRoomId = Long.parseLong(chatRoomIdStr);
+                Long senderId = Long.parseLong(senderIdStr);
+
+                accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
+                accessor.getSessionAttributes().put("senderId", senderId);
+
+                chatService.userEnterChatRoom(chatRoomId, senderId);
             }
 
             // SUBSCRIBE 시점에 구독자를 채팅방에 입장시킴.
