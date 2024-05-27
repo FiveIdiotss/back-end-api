@@ -4,7 +4,7 @@ spring:
     level:
       org:
         springframework:
-          boot: debug
+          boot: info
 
   jpa:
     hibernate:
@@ -22,8 +22,8 @@ spring:
 
   data:
     redis:
-      host: localhost
-#      host: menteetor.site
+#      host: localhost
+      host: menteetor.site
       port: 6379
 
   jwt:
