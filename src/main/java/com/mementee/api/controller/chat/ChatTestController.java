@@ -26,7 +26,9 @@ public class ChatTestController {
         LoginMemberResponse login = memberService.login(new LoginMemberRequest(email, password));
         String accessToken = login.getTokenDTO().getAccessToken();
         Cookie cookie = new Cookie("accessToken", accessToken);
+        Cookie cookie1 = new Cookie("senderId", login.getMemberDTO().getId().toString());
         res.addCookie(cookie);
+        res.addCookie(cookie1);
         return "redirect:/index";
     }
 

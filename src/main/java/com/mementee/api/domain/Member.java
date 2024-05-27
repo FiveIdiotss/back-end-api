@@ -5,10 +5,6 @@ import com.mementee.api.domain.enumtype.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 @Entity
 @Data
 @NoArgsConstructor

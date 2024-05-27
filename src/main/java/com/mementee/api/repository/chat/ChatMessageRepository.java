@@ -17,7 +17,7 @@ import java.util.List;
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
     @Query("SELECT cm FROM ChatMessage cm WHERE cm.chatRoom.id = :chatRoomId ")
-    Slice<ChatMessage> findAllMessagesByChatRoomId(@Param("chatRoomId")Long chatRoomId, Pageable pageable);
+    Slice<ChatMessage> findAllMessagesByChatRoomId(@Param("chatRoomId") Long chatRoomId, Pageable pageable);
 
     //채팅방에 속한 메세지들 조회
     Slice<ChatMessage> findChatMessagesByChatRoom(ChatRoom chatRoom, Pageable pageable);
@@ -29,4 +29,8 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Transactional
     @Query("UPDATE ChatMessage cm SET cm.readCount = 2 WHERE cm.chatRoom.id = :chatRoomId AND cm.sender.id != :userId AND cm.readCount = 1")
     void markMessageAsRead(@Param("chatRoomId") Long chatRoomId, @Param("userId") Long userId);
+
+    // 채팅방 내에에 본인이 읽지 않은 메시지 개수 반환.
+    @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.chatRoom.id = :chatRoomId AND m.sender.id <> :memberId AND m.readCount = 1")
+    int getUnreadMessageCount(@Param("chatRoomId") Long chatRoomId, @Param("memberId") Long memberId);
 }
