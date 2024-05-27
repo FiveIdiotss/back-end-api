@@ -39,7 +39,8 @@
 
 ## ERD 
 
-![메멘토 최종 ERD (1).svg](..%2F..%2F..%2FDownloads%2F%EB%A9%94%EB%A9%98%ED%86%A0%20%EC%B5%9C%EC%A2%85%20ERD%20%281%29.svg)
+![image](https://github.com/FiveIdiotss/back-end-api/assets/109346159/9e7d163e-0049-48c0-8a85-462c0f12d3d3)
+
 
 
 ## Architecture
