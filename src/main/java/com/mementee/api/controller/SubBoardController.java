@@ -5,7 +5,6 @@ import com.mementee.api.domain.SubBoard;
 import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.PageInfo;
 import com.mementee.api.dto.subBoardDTO.*;
-import com.mementee.api.service.MemberService;
 import com.mementee.api.service.SubBoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,15 +17,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -36,22 +31,38 @@ public class SubBoardController {
 
     private final SubBoardService subBoardService;
 
-    @Operation(description = "글 쓰기 -" +
+    @Operation(description = "자유 글 쓰기 -" +
             "  {\"title\": \"string\",\n" +
-            "  \"content\": \"string\" }\n")
+            "  \"content\": \"string\"," +
+            "  \"boardCategory\": \"이공\" }\n")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping(value = "/api/subBoard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public CommonApiResponse<?> saveSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
-                                               @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
-            subBoardService.saveSubBoard(request, authorizationHeader, multipartFiles);
+    public CommonApiResponse<?> saveFreeSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
+                                             @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
+            subBoardService.saveFreeSubBoard(request, authorizationHeader, multipartFiles);
             return CommonApiResponse.createSuccess();
+    }
+
+    @Operation(description = "요청 글 쓰기 -" +
+            "  {\"title\": \"string\",\n" +
+            "  \"content\": \"string\"," +
+            "  \"boardCategory\": \"이공\"  }\n")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "등록 성공"),
+            @ApiResponse(responseCode = "fail", description = "등록 실패")})
+    @PostMapping(value = "/api/requestBoard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public CommonApiResponse<?> saveReQuestSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
+                                             @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
+        subBoardService.saveRequestSubBoard(request, authorizationHeader, multipartFiles);
+        return CommonApiResponse.createSuccess();
     }
 
     @Operation(description = "글 수정 -" +
             "  {\"title\": \"string\",\n" +
-            "  \"content\": \"string\" }\n")
+            "  \"content\": \"string\"," +
+            "  \"boardCategory\": \"이공\" }\n")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail", description = "실패")})
@@ -73,7 +84,23 @@ public class SubBoardController {
                                                                      @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
-        Page<SubBoard> findSubBoards = subBoardService.findAllByBoardTypeByPage(pageable);
+        Page<SubBoard> findSubBoards = subBoardService.findAllFreeSubBoard(pageable);
+        PageInfo pageInfo = new PageInfo(page, size, (int) findSubBoards.getTotalElements(), findSubBoards.getTotalPages());
+        List<SubBoard> response = findSubBoards.getContent();
+        List<SubBoardDTO> list = subBoardService.createSubBoardDTOs(response, authorizationHeader);
+        return CommonApiResponse.createSuccess(new PaginationSubBoardResponse(list, pageInfo));
+    }
+
+    @Operation(description = "페이지 단위로 요청 게시판 (page 사용)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @GetMapping("/api/requestSubBoards")
+    public CommonApiResponse<PaginationSubBoardResponse> pageRequestBoardsList(@RequestParam int page, @RequestParam int size,
+                                                                               @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
+
+        Page<SubBoard> findSubBoards = subBoardService.findAllRequestSubBoard(pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int) findSubBoards.getTotalElements(), findSubBoards.getTotalPages());
         List<SubBoard> response = findSubBoards.getContent();
         List<SubBoardDTO> list = subBoardService.createSubBoardDTOs(response, authorizationHeader);
