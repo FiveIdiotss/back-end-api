@@ -1,13 +1,13 @@
 package com.mementee.api.service.social;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mementee.vo.SocialLoginType;
-import com.mementee.vo.SocialMember;
-import com.mementee.vo.SocialToken;
+import com.mementee.social.SocialLoginType;
+import com.mementee.social.SocialMember;
+import com.mementee.social.SocialToken;
 import org.springframework.stereotype.Service;
 
-import static com.mementee.vo.SocialLoginType.KAKAO;
-import static com.mementee.vo.SocialLoginType.NAVER;
+import static com.mementee.social.SocialLoginType.KAKAO;
+import static com.mementee.social.SocialLoginType.NAVER;
 
 @Service
 public interface SocialService {

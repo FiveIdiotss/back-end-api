@@ -4,7 +4,7 @@ import com.mementee.config.error.ErrorCode;
 import lombok.Getter;
 
 @Getter
-public class BaseException extends RuntimeException{
+public class BaseException extends RuntimeException {
 
     private final ErrorCode errorCode;
 

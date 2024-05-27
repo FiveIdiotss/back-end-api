@@ -1,4 +1,4 @@
-package com.mementee.vo.naver;
+package com.mementee.social.naver;
 
 import lombok.Data;
 
