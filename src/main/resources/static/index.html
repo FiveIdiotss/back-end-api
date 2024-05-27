@@ -41,11 +41,16 @@
 
         chatRoomId = id;
 
+        var connectHeader = {
+            'senderId': ['4'],
+            'chatRoomId': ['5']
+        }
+
         var ws = new WebSocket('ws://menteetor.site:8080/ws');
         // var ws = new WebSocket('ws://localhost:8080/ws');
         stompClient = Stomp.over(ws);
 
-        stompClient.connect({}, function (frame) {
+        stompClient.connect(connectHeader, function (frame) {
             console.log('Connected: ' + frame);
 
             var headers = {

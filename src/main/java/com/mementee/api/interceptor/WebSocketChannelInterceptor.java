@@ -12,6 +12,8 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -25,11 +27,28 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         if (accessor != null) {
+            if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+
+                String chatRoomIdStr = accessor.getNativeHeader("chatRoomId").get(0);
+                String senderIdStr = accessor.getNativeHeader("senderId").get(0);
+
+                if (chatRoomIdStr == null || senderIdStr == null) throw new HeaderNotFound();
+
+                log.info("chatRoomIdStr = " + chatRoomIdStr);
+                log.info("senderIdStr = " + senderIdStr);
+            }
+
             // SUBSCRIBE 시점에 구독자를 채팅방에 입장시킴.
             if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
                 // 헤더 정보가 제대로 안들어왔을 때 오류 처리 필요. [Failed to send message to MessageChannel] needs to be catched.
-                String chatRoomIdStr = accessor.getFirstNativeHeader("chatRoomId");
-                String senderIdStr = accessor.getFirstNativeHeader("senderId");
+//                String chatRoomIdStr = accessor.getFirstNativeHeader("chatRoomId");
+//                String senderIdStr = accessor.getFirstNativeHeader("senderId");
+
+                String chatRoomIdStr = accessor.getNativeHeader("chatRoomId").get(0);
+                String senderIdStr = accessor.getNativeHeader("senderId").get(0);
+
+                log.info("chatRoomIdStr = " + chatRoomIdStr);
+                log.info("senderIdStr = " + senderIdStr);
 
                 if (chatRoomIdStr == null || senderIdStr == null) throw new HeaderNotFound();
 
