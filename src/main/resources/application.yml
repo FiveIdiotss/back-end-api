@@ -35,7 +35,7 @@ spring:
     url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
     username : admin
     password: ehd5765613
-    #url: jdbc:mysql://localhost:3306/kdy
+#    url: jdbc:mysql://localhost:3306/kdy
     #username: root
 
     #    JHL
