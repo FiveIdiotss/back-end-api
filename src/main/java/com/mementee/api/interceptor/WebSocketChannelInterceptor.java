@@ -12,8 +12,6 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -27,6 +25,7 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         if (accessor != null) {
+            // 웹소켓 CONNECT 시점에 특정 해더 정보에서 읽어온 chatRoomId에 messsage sender를 입장시킴.
             if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
                 String chatRoomIdStr = accessor.getNativeHeader("chatRoomId").get(0);
@@ -34,40 +33,15 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
                 if (chatRoomIdStr == null || senderIdStr == null) throw new HeaderNotFound();
 
-                log.info("Connect chatRoomIdStr = " + chatRoomIdStr);
-                log.info("Connect senderIdStr = " + senderIdStr);
-
                 Long chatRoomId = Long.parseLong(chatRoomIdStr);
                 Long senderId = Long.parseLong(senderIdStr);
 
+                // chatRoomId와 senderId를 websock DISCONNECT 시점에 재사용하기 위해 세션에 저장.
                 accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
                 accessor.getSessionAttributes().put("senderId", senderId);
 
                 chatService.userEnterChatRoom(chatRoomId, senderId);
             }
-
-            // SUBSCRIBE 시점에 구독자를 채팅방에 입장시킴.
-//            if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
-//                // 헤더 정보가 제대로 안들어왔을 때 오류 처리 필요. [Failed to send message to MessageChannel] needs to be catched.
-////                String chatRoomIdStr = accessor.getFirstNativeHeader("chatRoomId");
-////                String senderIdStr = accessor.getFirstNativeHeader("senderId");
-//
-//                String chatRoomIdStr = accessor.getNativeHeader("chatRoomId").get(0);
-//                String senderIdStr = accessor.getNativeHeader("senderId").get(0);
-//
-////                log.info("chatRoomIdStr = " + chatRoomIdStr);
-////                log.info("senderIdStr = " + senderIdStr);
-//
-//                if (chatRoomIdStr == null || senderIdStr == null) throw new HeaderNotFound();
-//
-//                Long chatRoomId = Long.parseLong(chatRoomIdStr);
-//                Long senderId = Long.parseLong(senderIdStr);
-//
-//                accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
-//                accessor.getSessionAttributes().put("senderId", senderId);
-//
-//                chatService.userEnterChatRoom(chatRoomId, senderId);
-//            }
             // 웹소켓 DISCONNECT 시점에 해당 채팅방에 입장했던 유저를 퇴장시킴.
             if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
 
@@ -82,5 +56,6 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
         return message;
     }
+
 
 }

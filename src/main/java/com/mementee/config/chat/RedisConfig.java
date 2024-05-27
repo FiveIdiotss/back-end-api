@@ -25,8 +25,8 @@ public class RedisConfig {
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandConfig = new RedisStandaloneConfiguration();
-        redisStandConfig.setHostName("menteetor.site");
-//        redisStandConfig.setHostName("localhost");
+//        redisStandConfig.setHostName("menteetor.site");
+        redisStandConfig.setHostName("localhost");
         redisStandConfig.setPort(6379);
         return new LettuceConnectionFactory(redisStandConfig);
     }
@@ -43,9 +43,9 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory) {        // 1.
+    public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);        // 2.
+        container.setConnectionFactory(connectionFactory);
         return container;
     }
 
@@ -57,11 +57,6 @@ public class RedisConfig {
         container.setConnectionFactory(lettuceConnectionFactory);
         container.addMessageListener(redisSubscriber, new PatternTopic("notification:*"));
         return container;
-    }
-
-    @Bean
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        return new StringRedisTemplate(redisConnectionFactory);
     }
 
     @Bean
