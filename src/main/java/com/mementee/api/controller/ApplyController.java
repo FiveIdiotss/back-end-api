@@ -78,10 +78,10 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "신청 성공"),
             @ApiResponse(responseCode = "fail", description = "신청 실패")})
     @PostMapping("/api/apply/{applyId}")
-    public ResponseEntity<String> boardApply(@PathVariable Long applyId,
+    public CommonApiResponse<?> boardApply(@PathVariable Long applyId,
                                              @RequestHeader("Authorization") String authorizationHeader){
             matchingService.saveMatching(applyId, authorizationHeader);
-            return ResponseEntity.ok("신청 수락 성공");
+            return CommonApiResponse.createSuccess();
     }
 
     //신청 거절
