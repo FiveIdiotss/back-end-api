@@ -1,6 +1,6 @@
 package com.mementee.coverter;
 
-import com.mementee.vo.SocialLoginType;
+import com.mementee.social.SocialLoginType;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 

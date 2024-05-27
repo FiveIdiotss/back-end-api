@@ -1,4 +1,4 @@
-package com.mementee.vo;
+package com.mementee.social;
 
 import lombok.Data;
 

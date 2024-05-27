@@ -1,4 +1,4 @@
-package com.mementee.vo;
+package com.mementee.social;
 
 public enum SocialLoginType {
     GOOGLE, KAKAO, NAVER
