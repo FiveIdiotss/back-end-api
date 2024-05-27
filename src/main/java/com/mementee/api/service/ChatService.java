@@ -63,10 +63,16 @@ public class ChatService {
         chatMessageRepository.markMessageAsRead(chatRoomId, userId);
     }
 
+    @Transactional
+    public int getUnreadMessageCount(Long chatRoomId, Long memberId) {
+        return chatMessageRepository.getUnreadMessageCount(chatRoomId, memberId);
+    }
+
     public ChatRoomDTO createChatRoomDTO(Member loginMember, ChatRoom chatRoom) {
         Member receiver = getReceiver(loginMember.getId(), chatRoom);
         LatestMessageDTO latestMessageDTO = LatestMessageDTO.createLatestMessageDTO(findLatestChatMessage(chatRoom.getId()));
-        return ChatRoomDTO.createChatRoomDTO(loginMember, receiver, chatRoom, latestMessageDTO);
+        int unreadMessageCount = getUnreadMessageCount(chatRoom.getId(), loginMember.getId());
+        return ChatRoomDTO.createChatRoomDTO(loginMember, receiver, chatRoom, latestMessageDTO, unreadMessageCount);
     }
 
     public ChatMessage createMessageByDTO(ChatMessageDTO messageDTO) {

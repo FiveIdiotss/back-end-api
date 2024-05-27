@@ -110,8 +110,7 @@ public class ChatController {
         )));
     }
 
-    @Operation(description = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인" +
-            "존재하지 않으면 null 반환")
+    @Operation(description = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인. 존재 하지 않으면 null 반환")
     @GetMapping("/chatRoom")
     public CommonApiResponse<?> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
             Member loginMember = memberService.findMemberByToken(authorizationHeader);
