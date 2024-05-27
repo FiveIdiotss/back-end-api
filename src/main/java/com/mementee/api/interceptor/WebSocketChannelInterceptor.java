@@ -39,27 +39,27 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
             }
 
             // SUBSCRIBE 시점에 구독자를 채팅방에 입장시킴.
-            if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
-                // 헤더 정보가 제대로 안들어왔을 때 오류 처리 필요. [Failed to send message to MessageChannel] needs to be catched.
-//                String chatRoomIdStr = accessor.getFirstNativeHeader("chatRoomId");
-//                String senderIdStr = accessor.getFirstNativeHeader("senderId");
-
-                String chatRoomIdStr = accessor.getNativeHeader("chatRoomId").get(0);
-                String senderIdStr = accessor.getNativeHeader("senderId").get(0);
-
-//                log.info("chatRoomIdStr = " + chatRoomIdStr);
-//                log.info("senderIdStr = " + senderIdStr);
-
-                if (chatRoomIdStr == null || senderIdStr == null) throw new HeaderNotFound();
-
-                Long chatRoomId = Long.parseLong(chatRoomIdStr);
-                Long senderId = Long.parseLong(senderIdStr);
-
-                accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
-                accessor.getSessionAttributes().put("senderId", senderId);
-
-                chatService.userEnterChatRoom(chatRoomId, senderId);
-            }
+//            if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+//                // 헤더 정보가 제대로 안들어왔을 때 오류 처리 필요. [Failed to send message to MessageChannel] needs to be catched.
+////                String chatRoomIdStr = accessor.getFirstNativeHeader("chatRoomId");
+////                String senderIdStr = accessor.getFirstNativeHeader("senderId");
+//
+//                String chatRoomIdStr = accessor.getNativeHeader("chatRoomId").get(0);
+//                String senderIdStr = accessor.getNativeHeader("senderId").get(0);
+//
+////                log.info("chatRoomIdStr = " + chatRoomIdStr);
+////                log.info("senderIdStr = " + senderIdStr);
+//
+//                if (chatRoomIdStr == null || senderIdStr == null) throw new HeaderNotFound();
+//
+//                Long chatRoomId = Long.parseLong(chatRoomIdStr);
+//                Long senderId = Long.parseLong(senderIdStr);
+//
+//                accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
+//                accessor.getSessionAttributes().put("senderId", senderId);
+//
+//                chatService.userEnterChatRoom(chatRoomId, senderId);
+//            }
             // 웹소켓 DISCONNECT 시점에 해당 채팅방에 입장했던 유저를 퇴장시킴.
             if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
 
