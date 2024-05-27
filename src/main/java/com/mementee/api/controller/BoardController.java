@@ -18,14 +18,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.service.BoardService;
 import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -36,6 +37,7 @@ public class BoardController {
     private final BoardService boardService;
     private final ApplyService applicationService;
     private final FcmNotificationService fcmNotificationService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     //Slice 글 리스트로 전체 조회---------------
     //멘토,멘티 글 전체 조회
@@ -146,7 +148,7 @@ public class BoardController {
             @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
     @GetMapping("/api/boards/favorites")
     public CommonApiResponse<PaginationBoardResponse> findFavoriteBoards(@RequestParam int page, @RequestParam int size,
-                                                                      @RequestHeader("Authorization") String authorizationHeader){
+                                                                         @RequestHeader("Authorization") String authorizationHeader){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
         Page<Board> findBoards = boardService.findFavoritesByMember(authorizationHeader, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
@@ -164,11 +166,11 @@ public class BoardController {
             @ApiResponse(responseCode = "fail", description = "검색 실패")})
     @GetMapping("/api/boards/filter")
     public CommonApiResponse<PaginationBoardResponse> findBoards(@RequestParam int page, @RequestParam int size,
-                                                              @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-                                                              @RequestParam(required = false) boolean schoolFilter,
-                                                              @RequestParam(required = false) boolean favoriteFilter,
-                                                              @RequestParam(required = false) BoardCategory boardCategory,
-                                                              @RequestParam(required = false) String keyWord) {
+                                                                 @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                                                 @RequestParam(required = false) boolean schoolFilter,
+                                                                 @RequestParam(required = false) boolean favoriteFilter,
+                                                                 @RequestParam(required = false) BoardCategory boardCategory,
+                                                                 @RequestParam(required = false) String keyWord) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
         Page<Board> findBoards = boardService.findBoardsByFilter(authorizationHeader, schoolFilter, favoriteFilter, boardCategory, keyWord, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
@@ -240,4 +242,14 @@ public class BoardController {
         fcmNotificationService.saveFcmDetail(fcmDTO);
         return CommonApiResponse.createSuccess();
     }
+
+    // 인기 키워드 Top 5 조회
+    @GetMapping("/api/popular-keywords")
+    public CommonApiResponse<ArrayList<String>> getPopularKeywords() {
+        // Redis에서 인기 키워드 Top 5 조회
+        Set<String> popularKeywords = redisTemplate.opsForZSet().reverseRange("popular_keywords", 0, 9);
+        // 결과 반환;
+        return CommonApiResponse.createSuccess(new ArrayList<>(popularKeywords));
+    }
+
 }

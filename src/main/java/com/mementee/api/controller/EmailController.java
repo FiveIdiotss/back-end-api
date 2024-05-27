@@ -22,31 +22,29 @@ public class EmailController {
 
     @Operation(description = "이메일 인증 코드 전송")
     @PostMapping
-    public CommonApiResponse<?> requestVerificationCode(@RequestBody SendVerificationCodeRequest request) {
+    public ResponseEntity<String> requestVerificationCode(@RequestBody SendVerificationCodeRequest request) {
         // @RequestBody로 email 및 univName 받아서 univcert 요청에 필요한 json 데이터로 가공.
         String requestBody = emailVerificationService.createRequestBodyForCode(request);
 
         // 서버에서 받은 responseBody를 반환
-        return CommonApiResponse.createSuccess(emailVerificationService.verificationCodeRequest(requestBody));
+        return emailVerificationService.verificationCodeRequest(requestBody);
     }
 
     @Operation(description = "전송된 코드로 서버에 인증 요청")
     @PostMapping("/verify")
-    public CommonApiResponse<?> emailVerification(@RequestBody EmailVerificationRequest request) {
-        return CommonApiResponse.createSuccess(emailVerificationService.requestCertification(request));
+    public ResponseEntity<String> emailVerification(@RequestBody EmailVerificationRequest request) {
+        return emailVerificationService.requestCertification(request);
     }
 
     @Operation(description = "인증된 특정 이메일 초기화")
     @PostMapping("/resetByEmail")
-    public CommonApiResponse<?> resetVerifiedUserByEmail(@RequestParam String email) {
-        return CommonApiResponse.createSuccess(emailVerificationService.resetVerifiedUserByEmail(email));
+    public ResponseEntity<String> resetVerifiedUserByEmail(@RequestParam String email) {
+        return emailVerificationService.resetVerifiedUserByEmail(email);
     }
 
     @Operation(description = "인증된 유저 이메일 모두 초기화")
     @PostMapping("/resetAll")
-    public CommonApiResponse<?> resetVerifiedUsers() {
-        return CommonApiResponse.createSuccess(emailVerificationService.resetVerifiedUsers());
+    public String resetVerifiedUsers() {
+        return emailVerificationService.resetVerifiedUsers();
     }
-
-
 }

@@ -119,3 +119,6 @@ cloud:
     stack:
       auto: false
 
+firebase:
+  config-path: firebase/menteetor-c278e-firebase-adminsdk-4fq1n-eb61811830.json
+  url: https://fcm.googleapis.com/v1/projects/menteetor-c278e/messages:send
