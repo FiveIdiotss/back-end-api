@@ -28,6 +28,8 @@ public class ChatRoom {
     @JoinColumn(name = "matching_id")
     private Matching matching;
 
+    private int unreadMessageCount;
+
     public ChatRoom(Member sender, Member receiver, Matching matching) {
         this.sender = sender;
         this.receiver = receiver;

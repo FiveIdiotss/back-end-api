@@ -25,18 +25,21 @@ public class ChatRoomDTO {
     private LocalDate date;                     // 상담 날짜
     private LocalTime startTime;                // 상담 시작 시간
 
+    private int unreadMessageCount;
+
     public ChatRoomDTO(Long chatRoomId, Long receiverId, String receiverName) {
         this.chatRoomId = chatRoomId;
         this.receiverId = receiverId;
         this.receiverName = receiverName;
     }
 
-    public static ChatRoomDTO createChatRoomDTO(Member loginMember, Member receiver, ChatRoom chatRoom, LatestMessageDTO latestMessageDTO){
+    public static ChatRoomDTO createChatRoomDTO(Member loginMember, Member receiver, ChatRoom chatRoom, LatestMessageDTO latestMessageDTO, int unreadMessageCount){
         return new ChatRoomDTO(chatRoom.getId(), receiver.getId(), receiver.getName(), latestMessageDTO,
                 loginMember.getMemberImageUrl(),
                 chatRoom.getMatching().getBoard().getTitle(),
                 chatRoom.getMatching().getDate(),
-                chatRoom.getMatching().getStartTime());
+                chatRoom.getMatching().getStartTime(),
+                unreadMessageCount);
     }
 
 

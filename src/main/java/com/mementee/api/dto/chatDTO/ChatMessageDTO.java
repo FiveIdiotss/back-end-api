@@ -6,6 +6,8 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.FileType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ChatMessageDTO {
 
+    @Enumerated(EnumType.STRING)
     private FileType fileType = FileType.MESSAGE; // 기본 설정: MESSAGE
     private String fileURL;
     private String content;
@@ -31,9 +34,5 @@ public class ChatMessageDTO {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @CreatedDate
     private LocalDateTime localDateTime = LocalDateTime.now();
-
-//    public static ChatMessageDTO createChatMessageDTO(FileType fileType, ) {
-//        return new ChatMessageDTO()
-//    }
 
 }
