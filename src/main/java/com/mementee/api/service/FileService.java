@@ -46,8 +46,7 @@ public class FileService {
         if ("application/pdf".equals(contentType)) return PDF;
         if ("application/zip".equals(contentType)) return ZIP;
         if ("text/vcard".equals(contentType)) return CONTACT;
-
-        else throw new UnsupportedMediaTypeException("Unsupported file type.");
+        else return FILE;
     }
 
     public VCard readVCard(String filePath) throws IOException {
