@@ -6,5 +6,6 @@ public enum FileType {
     VIDEO,
     ZIP,
     PDF,
-    CONTACT
+    CONTACT,
+    FILE
 }
