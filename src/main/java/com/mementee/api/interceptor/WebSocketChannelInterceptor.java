@@ -34,8 +34,8 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
                 if (chatRoomIdStr == null || senderIdStr == null) throw new HeaderNotFound();
 
-                log.info("chatRoomIdStr = " + chatRoomIdStr);
-                log.info("senderIdStr = " + senderIdStr);
+                log.info("Connect chatRoomIdStr = " + chatRoomIdStr);
+                log.info("Connect senderIdStr = " + senderIdStr);
             }
 
             // SUBSCRIBE 시점에 구독자를 채팅방에 입장시킴.
@@ -47,8 +47,8 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
                 String chatRoomIdStr = accessor.getNativeHeader("chatRoomId").get(0);
                 String senderIdStr = accessor.getNativeHeader("senderId").get(0);
 
-                log.info("chatRoomIdStr = " + chatRoomIdStr);
-                log.info("senderIdStr = " + senderIdStr);
+//                log.info("chatRoomIdStr = " + chatRoomIdStr);
+//                log.info("senderIdStr = " + senderIdStr);
 
                 if (chatRoomIdStr == null || senderIdStr == null) throw new HeaderNotFound();
 
