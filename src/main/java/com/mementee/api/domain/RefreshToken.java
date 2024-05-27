@@ -16,12 +16,13 @@ public class RefreshToken {
     @Column(nullable = false)
     private String refreshToken;
 
-    @Column(nullable = false)
-    private String email;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
-    public RefreshToken(String refreshToken, String email) {
+    public RefreshToken(Member member, String refreshToken) {
+        this.member = member;
         this.refreshToken = refreshToken;
-        this.email = email;
     }
 
     public RefreshToken updateToken(String refreshToken) {

@@ -1,15 +1,12 @@
 package com.mementee.api.service;
 
 import com.mementee.api.domain.*;
-import com.mementee.api.dto.boardDTO.BoardDTO;
-import com.mementee.api.dto.boardDTO.BoardImageDTO;
-import com.mementee.api.dto.boardDTO.BoardInfoResponse;
+import com.mementee.api.domain.enumtype.SubBoardType;
 import com.mementee.api.dto.subBoardDTO.*;
 import com.mementee.api.repository.subBoard.ReplyRepository;
 import com.mementee.api.repository.subBoard.SubBoardImageRepository;
 import com.mementee.api.repository.subBoard.SubBoardLikeRepository;
 import com.mementee.api.repository.subBoard.SubBoardRepository;
-import com.mementee.api.validation.BoardValidation;
 import com.mementee.api.validation.MemberValidation;
 import com.mementee.api.validation.SubBoardValidation;
 import com.mementee.exception.notFound.BoardNotFound;
@@ -23,11 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,9 +76,14 @@ public class SubBoardService {
         return subBoardImageRepository.findSubBoardImageBySubBoard(subBoard);
     }
 
-    //모든 게시글 목록
-    public Page<SubBoard> findAllByBoardTypeByPage(Pageable pageable){
-        return subBoardRepository.findAll(pageable);
+    //모든 자유 게시글 목록
+    public Page<SubBoard> findAllFreeSubBoard(Pageable pageable){
+        return subBoardRepository.findAllBySubBoardType(SubBoardType.FREE, pageable);
+    }
+
+    //모든 요청 게시글 목록
+    public Page<SubBoard> findAllRequestSubBoard(Pageable pageable){
+        return subBoardRepository.findAllBySubBoardType(SubBoardType.REQUEST, pageable);
     }
 
     //Member 와 Board 에 대한 좋아요 Entity 조회
@@ -145,11 +145,19 @@ public class SubBoardService {
         }
     }
 
-    //게시글 등록
+    //자유 게시글 등록
     @Transactional
-    public void saveSubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> multipartFiles){
+    public void saveFreeSubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> multipartFiles){
         Member member = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member);
+        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(),SubBoardType.FREE);
+        saveSubBoardImageUrl(multipartFiles, subBoard);
+        subBoardRepository.save(subBoard);
+    }
+
+    @Transactional
+    public void saveRequestSubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> multipartFiles){
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(),SubBoardType.REQUEST);
         saveSubBoardImageUrl(multipartFiles, subBoard);
         subBoardRepository.save(subBoard);
     }

@@ -6,7 +6,6 @@ import com.mementee.api.dto.boardDTO.BoardDTO;
 import com.mementee.api.dto.boardDTO.BoardImageDTO;
 import com.mementee.api.dto.boardDTO.BoardInfoResponse;
 import com.mementee.api.dto.boardDTO.WriteBoardRequest;
-import com.mementee.api.dto.subBoardDTO.WriteSubBoardRequest;
 import com.mementee.api.repository.board.BoardImageRepository;
 import com.mementee.api.repository.board.BoardRepository;
 import com.mementee.api.repository.board.FavoriteRepository;
@@ -19,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +38,7 @@ public class BoardService {
     private final FavoriteRepository favoriteRepository;
     private final BoardImageRepository boardImageRepository;
     private final MemberService memberService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     //게시글 조회시 필요한 Info
     public BoardInfoResponse createBoardInfoResponse(Long boardId, String authorizationHeader){
@@ -143,7 +144,7 @@ public class BoardService {
 
     //게시물 등록
     @Transactional
-    public void saveBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) throws IOException {
+    public void saveBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         Board board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
                 request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
@@ -207,8 +208,10 @@ public class BoardService {
             return boardRepository.findBoardsByBoardCategory(boardCategory, pageable);
 
         //검색
-        if (boardCategory == null && searchKeyWord != null && !schoolFilter && !favoriteFilter)
+        if (boardCategory == null && searchKeyWord != null && !schoolFilter && !favoriteFilter) {
+            redisTemplate.opsForZSet().incrementScore("popular_keywords", keyWord, 1);
             return boardRepository.findBoardsByKeyWord(searchKeyWord, pageable);
+        }
 
 
         //내 학교
@@ -220,8 +223,10 @@ public class BoardService {
             return boardRepository.findFavoritesByMember(member, pageable);
 
         //카테고리, 검색
-        if (boardCategory != null && searchKeyWord != null && !schoolFilter && !favoriteFilter)
+        if (boardCategory != null && searchKeyWord != null && !schoolFilter && !favoriteFilter) {
+            redisTemplate.opsForZSet().incrementScore("popular_keywords", keyWord, 1);
             return boardRepository.findBoardsByBoardCategoryAndKeyWord(boardCategory, searchKeyWord, pageable);
+        }
 
 
         //카테고리, 내 학교
@@ -237,8 +242,10 @@ public class BoardService {
             return boardRepository.findBoardsByMemberSchoolAndKeyWord(school, searchKeyWord, pageable);
 
         //검색, 즐거찾기
-        if (boardCategory == null && searchKeyWord != null && !schoolFilter && favoriteFilter)
+        if (boardCategory == null && searchKeyWord != null && !schoolFilter && favoriteFilter) {
+            redisTemplate.opsForZSet().incrementScore("popular_keywords", keyWord, 1);
             return boardRepository.findBoardsByKeyWordAndFavorite(searchKeyWord, member, pageable);
+        }
 
         //내 학교, 즐겨찾기
         if (boardCategory == null && searchKeyWord == null && schoolFilter && favoriteFilter)
@@ -249,21 +256,28 @@ public class BoardService {
             return boardRepository.findBoardsByBoardCategoryAndMemberSchoolAndFavorite(boardCategory, school, member, pageable);
 
         //카테고리, 검색, 즐거찾기
-        if (boardCategory != null && searchKeyWord != null && !schoolFilter && favoriteFilter)
+        if (boardCategory != null && searchKeyWord != null && !schoolFilter && favoriteFilter) {
+            redisTemplate.opsForZSet().incrementScore("popular_keywords", keyWord, 1);
             return boardRepository.findBoardsByBoardCategoryAndKeyWordAndFavorite(boardCategory, searchKeyWord, member, pageable);
+        }
 
         //카테고리, 검색, 내 학교
-        if (boardCategory != null && searchKeyWord != null && schoolFilter && !favoriteFilter)
+        if (boardCategory != null && searchKeyWord != null && schoolFilter && !favoriteFilter) {
+            redisTemplate.opsForZSet().incrementScore("popular_keywords", keyWord, 1);
             return boardRepository.findBoardsByBoardCategoryAndMemberSchoolAndKeyWord(boardCategory, school, searchKeyWord, pageable);
+            }
 
         //검색, 내 학교, 즐겨찾기;
-        if (boardCategory == null && searchKeyWord != null && schoolFilter && favoriteFilter)
+        if (boardCategory == null && searchKeyWord != null && schoolFilter && favoriteFilter) {
+            redisTemplate.opsForZSet().incrementScore("popular_keywords", keyWord, 1);
             return boardRepository.findBoardsByMemberSchoolAndKeyWordAndFavorite(school, searchKeyWord, member, pageable);
+        }
 
         //카테고리, 검색, 내 학교, 즐거챶기
-        if (boardCategory != null && searchKeyWord != null && schoolFilter && favoriteFilter)
+        if (boardCategory != null && searchKeyWord != null && schoolFilter && favoriteFilter) {
+            redisTemplate.opsForZSet().incrementScore("popular_keywords", keyWord, 1);
             return boardRepository.findBoardsByMemberSchoolAndKeyWordAndBoardCategoryAndFavorite(school, searchKeyWord, boardCategory, member, pageable);
-
+        }
         //필터 없는 상태
         return boardRepository.findAll(pageable);
     }

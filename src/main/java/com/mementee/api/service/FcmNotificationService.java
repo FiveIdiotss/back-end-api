@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
 import com.mementee.api.domain.Board;
-import com.mementee.api.domain.FcmDetail;
-import com.mementee.api.domain.FcmNotification;
+import com.mementee.api.domain.Notification;
+import com.mementee.api.domain.FcmToken;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.domain.enumtype.NotificationType;
@@ -14,8 +14,8 @@ import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.dto.notificationDTO.FcmMessage;
-import com.mementee.api.repository.fcm.FcmDetailRepository;
-import com.mementee.api.repository.fcm.FcmNotificationRepository;
+import com.mementee.api.repository.fcm.NotificationRepository;
+import com.mementee.api.repository.fcm.FcmTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -29,17 +29,22 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class FcmNotificationService {
 
-    private final String API_URL = "https://fcm.googleapis.com/v1/projects/menteetor-c278e/messages:send";
-    private final ObjectMapper objectMapper;
+    @Value("${firebase.config-path}")
+    private String firebaseConfigPath;
 
-    private final FcmNotificationRepository fcmNotificationRepository;
-    private final FcmDetailRepository fcmDetailRepository;
+    @Value("${firebase.url}")
+    private String API_URL;
+
+    private final ObjectMapper objectMapper;
+    private final FcmTokenRepository fcmTokenRepository;
+    private final NotificationRepository notificationRepository;
 
     private final ChatService chatService;
     private final MemberService memberService;
@@ -62,16 +67,16 @@ public class FcmNotificationService {
                 messageDTO.getContent(), NotificationType.CHAT);
     }
 
-    public Page<FcmDetail> findFcmDetailsByReceiverMember(String authorizationHeader, Pageable pageable){
+    public Page<Notification> findFcmDetailsByReceiverMember(String authorizationHeader, Pageable pageable){
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
-        return fcmDetailRepository.findFcmDetailsByReceiveMember(loginMember, pageable);
+        return notificationRepository.findFcmDetailsByReceiveMember(loginMember, pageable);
     }
 
     @Transactional
     public void saveFCMNotification(Member member, String token) {
-        Optional<FcmNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMember(member);
+        Optional<FcmToken> fcmNotification = fcmTokenRepository.findFCMNotificationByMember(member);
         if(fcmNotification.isEmpty())
-            fcmNotificationRepository.save(new FcmNotification(token, member));
+            fcmTokenRepository.save(new FcmToken(token, member));
         else
             fcmNotification.get().updateFCMToken(token);
     }
@@ -80,9 +85,9 @@ public class FcmNotificationService {
     public void saveFcmDetail(FcmDTO fcmDTO) {
         Member targetMember = memberService.findMemberById(fcmDTO.getTargetMemberId());
         Member sendMember = memberService.findMemberById(fcmDTO.getSenderId());
-        FcmDetail fcmDetail = new FcmDetail(fcmDTO.getContent(),
+        Notification notification = new Notification(fcmDTO.getContent(),
                 fcmDTO.getNotificationType(), sendMember, targetMember);
-        fcmDetailRepository.save(fcmDetail);
+        notificationRepository.save(notification);
     }
 
 
@@ -90,7 +95,7 @@ public class FcmNotificationService {
     public void sendMessageTo(FcmDTO fcmDTO){
         try {
             Member member = memberService.findMemberById(fcmDTO.getTargetMemberId());
-            Optional<FcmNotification> fcmNotification = fcmNotificationRepository.findFCMNotificationByMember(member);
+            Optional<FcmToken> fcmNotification = fcmTokenRepository.findFCMNotificationByMember(member);
 
             if (fcmNotification.isEmpty())
                 return;
@@ -131,8 +136,6 @@ public class FcmNotificationService {
     }
 
     private String getAccessToken() throws IOException {
-        String firebaseConfigPath = "firebase/menteetor-c278e-firebase-adminsdk-4fq1n-eb61811830.json";
-
         GoogleCredentials googleCredentials = GoogleCredentials
                 .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream())
                 .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
