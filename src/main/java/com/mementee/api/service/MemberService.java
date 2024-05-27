@@ -94,12 +94,12 @@ public class MemberService {
         MemberValidation.isMatchPassWord(passwordEncoder.matches(request.getPassword(), member.getPassword()));
 
         TokenDTO tokenDTO = createTokenDTO(member);
-        Optional<RefreshToken> token = refreshTokenService.findRefreshTokenByEmail(member.getEmail());
+        Optional<RefreshToken> token = refreshTokenService.findRefreshTokenByMember(member);
 
         if (token.isPresent()) {
             token.get().updateToken(tokenDTO.getRefreshToken());
         } else {
-            RefreshToken newToken = new RefreshToken(tokenDTO.getRefreshToken(), member.getEmail());
+            RefreshToken newToken = new RefreshToken(member, tokenDTO.getRefreshToken());
             refreshTokenService.save(newToken);
         }
         return LoginMemberResponse.createLoginMemberResponse(MemberDTO.createMemberDTO(member), tokenDTO);
@@ -110,7 +110,7 @@ public class MemberService {
         String accessToken = authorizationHeader.split(" ")[1];
 
         Member member = findMemberByToken(authorizationHeader);
-        Optional<RefreshToken> refreshToken = refreshTokenService.findRefreshTokenByEmail(member.getEmail());
+        Optional<RefreshToken> refreshToken = refreshTokenService.findRefreshTokenByMember(member);
 
         blackListTokenService.addBlackList(accessToken);
         refreshTokenService.deleteRefreshToken(refreshToken);

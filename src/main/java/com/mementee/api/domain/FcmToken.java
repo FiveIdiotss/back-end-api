@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class FcmNotification {
+public class FcmToken {
 
     @Id
     @GeneratedValue
-    @Column(name = "fcm_notification_id")
+    @Column(name = "fcm_token_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -20,7 +20,7 @@ public class FcmNotification {
 
     private String token;
 
-    public FcmNotification(String token, Member member) {
+    public FcmToken(String token, Member member) {
         this.token = token;
         this.member = member;
     }

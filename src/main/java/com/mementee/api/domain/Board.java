@@ -88,6 +88,7 @@ public class Board {
         this.boardCategory = boardCategory;
         this.member = member;
         this.writeTime = LocalDateTime.now();
+        this.boardType = BoardType.MENTOR;
     }
 
     public void addUnavailableTimes(LocalDate date, LocalTime startTime){
@@ -105,6 +106,4 @@ public class Board {
         this.availableDays = request.getAvailableDays();
         this.writeTime = LocalDateTime.now();
     }
-
-
 }

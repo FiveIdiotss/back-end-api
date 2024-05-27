@@ -1,6 +1,6 @@
 package com.mementee.api.dto.notificationDTO;
 
-import com.mementee.api.domain.FcmDetail;
+import com.mementee.api.domain.Notification;
 import com.mementee.api.domain.enumtype.NotificationType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,7 +21,7 @@ public class FcmDTO {
 
     private NotificationType notificationType;
 
-    public static List<FcmDTO> createFcmList(List<FcmDetail> fds){
+    public static List<FcmDTO> createFcmList(List<Notification> fds){
         return fds.stream()
                 .map(fd -> new FcmDTO(fd.getReceiveMember().getId(),
                         fd.getSendMember().getId(),

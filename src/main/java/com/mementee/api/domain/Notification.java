@@ -1,6 +1,5 @@
 package com.mementee.api.domain;
 
-import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.domain.enumtype.NotificationType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,11 +8,11 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class FcmDetail {
+public class Notification {
 
     @Id
     @GeneratedValue
-    @Column(name = "fcm_detail_id")
+    @Column(name = "notification_id")
     private Long id;
 
     private String content;
@@ -30,7 +29,7 @@ public class FcmDetail {
     @JoinColumn(name = "receiver_id")
     private Member receiveMember;
 
-    public FcmDetail(String content, NotificationType notificationType, Member sendMember, Member receiveMember) {
+    public Notification(String content, NotificationType notificationType, Member sendMember, Member receiveMember) {
         this.content = content;
         this.notificationType = notificationType;
         this.sendMember =  sendMember;
