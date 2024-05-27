@@ -1,6 +1,6 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.domain.FcmDetail;
+import com.mementee.api.domain.Notification;
 import com.mementee.api.domain.Member;
 import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.PageInfo;
@@ -17,8 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,10 +45,10 @@ public class FCMNotificationController {
     public CommonApiResponse<PaginationFcmResponse> findFCMs(@RequestParam int page, @RequestParam int size,
                                                           @RequestHeader("Authorization") String authorizationHeader){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
-        Page<FcmDetail> fcms = fcmNotificationService.findFcmDetailsByReceiverMember(authorizationHeader, pageable);
+        Page<Notification> fcms = fcmNotificationService.findFcmDetailsByReceiverMember(authorizationHeader, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)fcms.getTotalElements(), fcms.getTotalPages());
 
-        List<FcmDetail> response = fcms.getContent();
+        List<Notification> response = fcms.getContent();
         List<FcmDTO> list = FcmDTO.createFcmList(response);
         return CommonApiResponse.createSuccess(new PaginationFcmResponse(list, pageInfo));
     }

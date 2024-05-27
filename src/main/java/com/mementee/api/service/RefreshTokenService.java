@@ -1,5 +1,6 @@
 package com.mementee.api.service;
 
+import com.mementee.api.domain.Member;
 import com.mementee.api.dto.memberDTO.TokenDTO;
 import com.mementee.api.repository.RefreshTokenRepository;
 import com.mementee.api.validation.TokenValidation;
@@ -22,8 +23,8 @@ public class RefreshTokenService {
     private String secretKey;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public Optional<RefreshToken> findRefreshTokenByEmail(String email){
-        return refreshTokenRepository.findRefreshTokenByEmail(email);
+    public Optional<RefreshToken> findRefreshTokenByMember(Member member){
+        return refreshTokenRepository.findRefreshTokenByMember(member);
     }
 
     public Optional<RefreshToken> findRefreshTokenByRefreshToken(String refreshToken){
@@ -34,10 +35,7 @@ public class RefreshTokenService {
     public TokenDTO getAccessKey(String authorizationHeader){
         RefreshToken storedRefreshToken = TokenValidation.isCheckStoredRefreshToken(findRefreshTokenByRefreshToken(authorizationHeader.split(" ")[1]));
 
-        // 리프레시 토큰이 유효하면 새로운 액세스 토큰 생성, refreshToken 업데이트
-        String email = storedRefreshToken.getEmail();
-
-        String newAccessToken = JwtUtil.createAccessToken(email, secretKey);
+        String newAccessToken = JwtUtil.createAccessToken(storedRefreshToken.getMember().getEmail(), secretKey);
         String newRefreshToken =  JwtUtil.createRefreshToken(secretKey);
 
         storedRefreshToken.updateToken(newRefreshToken);

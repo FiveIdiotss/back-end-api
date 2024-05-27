@@ -39,25 +39,15 @@ public class EmailVerificationService {
      * }
      */
     public ResponseEntity<String> verificationCodeRequest(String requestBody) {
-        try {
-
-            // body에 json 데이터를 담어서 post로 univcert 서버에 보낸 후 받은 데이터를 String(JSON)으로 가공
-            String response = webClient.post()
-                    .uri("https://univcert.com/api/v1/certify")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-
-            return ResponseEntity.ok(response);
-        } catch (WebClientResponseException e) {
-
-            // univcert에서 발생시킨 에러의 status 코드와 메시지를 웹에 반환
-            return ResponseEntity
-                    .status(e.getStatusCode())
-                    .body(e.getResponseBodyAsString());
-        }
+        // body에 json 데이터를 담어서 post로 univcert 서버에 보낸 후 받은 데이터를 String(JSON)으로 가공
+        String response = webClient.post()
+                .uri("https://univcert.com/api/v1/certify")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -75,23 +65,14 @@ public class EmailVerificationService {
         requestBody.put("email", request.getEmail());
         requestBody.put("univName", request.getUnivName());
         requestBody.put("code", request.getCode());
-
-        try {
-            String response = webClient.post()
-                    .uri("https://univcert.com/api/v1/certifycode")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-
-            return ResponseEntity.ok(response);
-        } catch (WebClientResponseException e) {
-            return ResponseEntity
-                    .status(e.getStatusCode())
-                    .body(e.getResponseBodyAsString());
-        }
-
+        String response = webClient.post()
+                .uri("https://univcert.com/api/v1/certifycode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -120,23 +101,16 @@ public class EmailVerificationService {
      */
     public ResponseEntity<String> resetVerifiedUserByEmail(String email) {
         Map<String, String> requestBody = createRequestBodyWithKeyValue();
+        String response = webClient
+                .post()
+                .uri("https://univcert.com/api/v1/clear/" + email)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
-        try {
-            String response = webClient
-                    .post()
-                    .uri("https://univcert.com/api/v1/clear/" + email)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-
-            return ResponseEntity.ok(response);
-        } catch (WebClientResponseException e) {
-            return ResponseEntity
-                    .status(e.getStatusCode())
-                    .body(e.getResponseBodyAsString());
-        }
+        return ResponseEntity.ok(response);
     }
 
     public String createRequestBodyForCode(SendVerificationCodeRequest request) {

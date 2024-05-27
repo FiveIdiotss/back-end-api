@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Slf4j
 @RestControllerAdvice   //모든 컨트롤러에서 발생하는 예외를 잡아서 처리
@@ -22,6 +23,13 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<CommonApiResponse<?>> handle(HttpRequestMethodNotSupportedException e) {
         log.error("HttpRequestMethodNotSupportedException", e);
         return createErrorResponseEntity(ErrorCode.METHOD_NOT_ALLOWED);
+    }
+
+    //웹에서 발생하는 예외 처리
+    @ExceptionHandler(WebClientResponseException.class)
+    protected ResponseEntity<CommonApiResponse<?>> handle(WebClientResponseException e) {
+        log.error("WebClientResponseException", e);
+        return ResponseEntity.status(e.getStatusCode()).body(CommonApiResponse.createError(e.getMessage()));
     }
 
     //잘못된 값을 입력
