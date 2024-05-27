@@ -1,25 +1,19 @@
 # 메멘토 
 
 
-- 프로젝트 기간 : 24.01 ~ 06
-
+- 프로젝트 기간 : 24.01 ~ 24.06
 - 프로젝트 인원 : 4명
 
 ---
 
 ## 프로젝트 기획의도
 
-> 대학교에 다니면서 모르는 부분이나 궁금하거나 애매한 부분에 대해 물어볼 사람이 없는 경우가 많았다. 
-
-> 이 때문에 '멘토가 있었으면 좋겠다'라는 생각을 자주 하게 되었다. 
-
-> 현재 캠퍼스 내에서 소통하는 커뮤니티 앱은 존재하지만, 멘토를 구하는 것과는 거리가 있다고 생각한다. 
-
-> 간편하고 빠르게 궁금한 점이 있으면 질문을 올려 도움을 받을 수 있는 전문적인 커뮤니티가 있다면 좋겠다는 생각이 들었고, 
-
-> 선배나 졸업자가 자신이 알고 있는 지식을 후배들과 소통하는 커뮤니티가 있으면 좋겠다는 생각도 했다. 
-
-> 또한, 자신이 다니는 학교에 국한되지 않고 같은 전공의 다른 학교와도 정보를 주고받을 수 있다면 성장 과정에 큰 도움이 될 것 같아 이 프로젝트를 기획하게 되었다.
+> 대학교에 다니면서 학업에 관련하여 모르는 부분이나 궁금한 점이 있을 때 도움을 받을 사람을 찾기 어려운 경우가 많았고
+> 이로 인해 같은 단과 내에서 멘토를 구할 수 있으면 학교생활을 하는데에 있어서 많은 도움을 받을 수 있을 것이라 생각했습니다.
+> 현재 캠퍼스 내에서 소통하는 커뮤니티 앱은 존재하지만, 학업과 관련된 전문적인 정보를 얻는데는 한계점이 존재한다고 판단하였습니다.
+> 간편하고 신속하게 글을 올려 도움을 받을 수 있는 전문적인 커뮤니티가 필요하다고 느꼈고,
+> 선배나 졸업생이 자신이 알고 있는 지식을 후배들과 소통하는 플랫폼이 있었으면 좋겠다는 생각도 들었습니다. 
+> 또한, 본인이 다니는 학교에 국한되지 않고 같은 전공을 가진 다른 학교의 학생들과도 교류할 수 있다면 성장 과정에 큰 도움이 될 것 같아 해당 프로젝트를 기획하게 되었습니다.
 
 ---
 
@@ -34,6 +28,11 @@
 - 매칭이 성사될 경우 실시간 채팅을 통해 멘토와 멘티간의 실시간 상담이 이어진다.
 
 - 이용자는 질문 게시판을 통해 질문글을 올릴수 있으며 댓글을 통해 소통을 할 수 있다.
+- 이용자는 멘티 모집 글에 신청 양식을 작성한다.
+- 멘토는 신청 요청에 대한 세부 사항을 보고 매칭여부를 결정한다.
+- 매칭이 성사될 경우 실시간 채팅을 통해 멘토와 멘티간의 실시간 상담이 이어진다.
+- 모든 이용자는 질문 게시판을 통해 질문글을 올릴수 있으며 댓글을 통해 소통을 할 수 있다.
+
 
 
 ---
@@ -49,63 +48,47 @@
 ---
 
 ## 사용 기술
-
-- Back-End : <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
-
-<img src="https://img.shields.io/badge/spring%20security-6DB33F?style=for-the-badge&logo=spring%20security&logoColor=white">
-
-<img src="https://img.shields.io/badge/json%20web%20tokens-000000?style=for-the-badge&logo=json%20web%20tokens&logoColor=white">
-
-<img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
-
-<img src="https://img.shields.io/badge/redis-DC382D?style=for-the-badge&logo=redis&logoColor=white">
-
-<img src="https://img.shields.io/badge/amazon%20ec2-FF9900?style=for-the-badge&logo=amazon%20ec2&logoColor=white">
-
-<img src="https://img.shields.io/badge/amazon%20rds-527FFF?style=for-the-badge&logo=amazon%20rds&logoColor=white">
-
-<img src="https://img.shields.io/badge/amazon%20route%2053-8C4FFF?style=for-the-badge&logo=amazon%20route%2053&logoColor=white">
+Back-End : <br> 
+- <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+- <img src="https://img.shields.io/badge/spring%20security-6DB33F?style=for-the-badge&logo=spring%20security&logoColor=white">
+- <img src="https://img.shields.io/badge/json%20web%20tokens-000000?style=for-the-badge&logo=json%20web%20tokens&logoColor=white">
+- <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
+- <img src="https://img.shields.io/badge/redis-DC382D?style=for-the-badge&logo=redis&logoColor=white">
+- <img src="https://img.shields.io/badge/amazon%20ec2-FF9900?style=for-the-badge&logo=amazon%20ec2&logoColor=white">
+- <img src="https://img.shields.io/badge/amazon%20rds-527FFF?style=for-the-badge&logo=amazon%20rds&logoColor=white">
+- <img src="https://img.shields.io/badge/amazon%20route%2053-8C4FFF?style=for-the-badge&logo=amazon%20route%2053&logoColor=white">
 
 
+Front-End 웹 :
+- <img src="https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=next.js&logoColor=white">
+- <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white">
+- <img src="https://img.shields.io/badge/react%20query-FF4154?style=for-the-badge&logo=react%20query&logoColor=white">
+- <img src="https://img.shields.io/badge/auth.js-EB5424?style=for-the-badge&logo=auth0&logoColor=white">
+- <img src="https://img.shields.io/badge/tailwind%20css-06B6D4?style=for-the-badge&logo=tailwind%20css&logoColor=white">
+- <img src="https://img.shields.io/badge/zustand-000000?style=for-the-badge&logo=next&logoColor=white">
 
-- Front-End 웹 : <img src="https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=next.js&logoColor=white">
 
-<img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white">
-
-<img src="https://img.shields.io/badge/react%20query-FF4154?style=for-the-badge&logo=react%20query&logoColor=white">
-
-<img src="https://img.shields.io/badge/auth.js-EB5424?style=for-the-badge&logo=auth0&logoColor=white">
-
-<img src="https://img.shields.io/badge/zustand-000000?style=for-the-badge&logo=next&logoColor=white">
+Front-End 모바일 :
+- <img src="https://img.shields.io/badge/databinding-000000?style=for-the-badge&logo=next&logoColor=white">
+- <img src="https://img.shields.io/badge/coroutine-000000?style=for-the-badge&logo=jetpack&logoColor=white">
+- <img src="https://img.shields.io/badge/flow-000000?style=for-the-badge&logo=jetpack&logoColor=white">
 
 
 
-- Front-End 모바일 : <img src="https://img.shields.io/badge/databinding-000000?style=for-the-badge&logo=next&logoColor=white">
-
-<img src="https://img.shields.io/badge/coroutine-000000?style=for-the-badge&logo=jetpack&logoColor=white">
-
-<img src="https://img.shields.io/badge/flow-000000?style=for-the-badge&logo=jetpack&logoColor=white">
-
+Tools :
+- <img src="https://img.shields.io/badge/android%20studio-3DDC84?style=for-the-badge&logo=android%20studio&logoColor=white">
+- <img src="https://img.shields.io/badge/visual%20studio%20code%20studio-007ACC?style=for-the-badge&logo=visual%20studio%20code&logoColor=white">
+- <img src="https://img.shields.io/badge/intellij%20idea-000000?style=for-the-badge&logo=intellij%20idea&logoColor=white">
 
 
-
-- Tools : <img src="https://img.shields.io/badge/android%20studio-3DDC84?style=for-the-badge&logo=android%20studio&logoColor=white">
-
-<img src="https://img.shields.io/badge/visual%20studio%20code%20studio-007ACC?style=for-the-badge&logo=visual%20studio%20code&logoColor=white">
-
-<img src="https://img.shields.io/badge/intellij%20idea-000000?style=for-the-badge&logo=intellij%20idea&logoColor=white">
+Collaboration : 
+- <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
 
 
-
-- Collaboration : <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
-
-
-
-- etc: <img src="https://img.shields.io/badge/firebase%20cloud%20messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=white">
-
-  <img src="https://img.shields.io/badge/amazon%20s3-569A31?style=for-the-badge&logo=amazon%20s3&logoColor=white">
-
-  <img src="https://img.shields.io/badge/web%20socket-000?style=for-the-badge&logo=alogoColor=white">
+etc: 
+- <img src="https://img.shields.io/badge/firebase%20cloud%20messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=white">
+- <img src="https://img.shields.io/badge/amazon%20s3-569A31?style=for-the-badge&logo=amazon%20s3&logoColor=white">
+- <img src="https://img.shields.io/badge/web%20socket-000?style=for-the-badge&logo=alogoColor=white">
 
 
 
@@ -136,9 +119,10 @@
 
   - 로그인/로그아웃
 
-  - 카카오 or 네이버로 로그인 가능
+  - 소셜 로그인(네이버, 카카오, 구글)
 
   - 유효성/토큰
+  - 자동 로그인
 
 
 
@@ -176,7 +160,7 @@
 
   - 채팅방 목록
 
-  - 읽음 처리
+  - 채팅 읽음 처리
 
   - 텍스트 이외에 이미지, 파일 등 전송
 
@@ -218,14 +202,13 @@
 서버에서 감지하기 어렵다는 점 때문에 FCM 방식을 채택
 
 
-  
-- Interceptor 사용 배경 과정 (WebSocket 의 STOMP 기능을 이용하여 실시간 채팅을 이용할 경우 메시지 전송할 때 header 부분에
 
-  보내는 사람 정보와 채팅방 정보를 보내 Interceptor 를 통해 읽음 처리 기능 제공 (숫자 사라짐))
+- 채팅의 읽음 표시 기능을 구현하기 위해서는 특정 채팅방의 현재 몇 명의 유저가 접속해 있는지를 실시간으로 파악하는 것이 필요했고, 이를 위해 특정 유저가 해당 채팅방을 입장(구독)할 때마다, 실행되는 Inteceptor를 활용하는 것이 적합하다고 판단. Interceptor를 통해 STOMP의 헤더에 담긴 접속하려는 채팅방의 ID 및 유저 ID를 읽어와 Redis에 기록해 해당 채팅방의 접속 유저 정보를 실시간으로 업데이트 할 수 있었음. 
 
 
 
-- 채팅방에서 파일 보낼때 직렬화해서 보냈는데 MultiPart 로 바꾼 과정
+- 채팅방에서 이미지 전송을 위해 이미지 파일을 Base64로 직렬화하여 웹소켓을 통해 전송하는 방식을 사용했지만, 이 방식은 웹소켓을 통한 파일 전송 시 최대 파일 용량 제한, 직렬화 과정의 복잡성, 그리고 다양한 형식의 파일(비디오, 연락처 등) 전송에 부적합하다는 문제점이 존재. 이러한 이유로 HTTP 프로토콜의 multipart/form-data 형식을 사용한 전송 방법을 채택. (메시지는 웹소켓을 통해 전송하고 그 외의 파일들은 HTTP 프로토콜을 통해 전송.)
+
 
 
 
@@ -250,3 +233,4 @@ nginx 도입을 고려해야 할것 같다.
 - Back-End 는 2명이서 협업을 통해 진행하였는데 aws 에 merge 하고 pull 하여 ec2 서버에 띄우는 일이 번거로우며 과금문제 또한
 
 무시할수 없다. Docker 을 이용하여 docker container 통해 협업하는 사항에 대한 고려가 필요하다.
+
