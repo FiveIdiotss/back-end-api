@@ -3,13 +3,14 @@ package com.mementee.api.domain;
 import com.mementee.api.domain.chat.ChatRoom;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Data
+@Getter
 @NoArgsConstructor
 public class Matching {
     @Id

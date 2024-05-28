@@ -31,7 +31,7 @@ public class MemberController {
     //회원정보 수정 필요
 
     //회원가입--------------------------------------
-    @Operation(description = "회원 등록")
+    @Operation(summary = "회원 등록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
@@ -42,7 +42,7 @@ public class MemberController {
     }
 
     //목록 조회--------------------------------------
-    @Operation(description = "학교 목록")
+    @Operation(summary = "학교 목록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
@@ -53,7 +53,7 @@ public class MemberController {
     }
 
     //해당 학교에 속하는 과 --------------------------------------
-    @Operation(description = "학교에 속한 전공 목록")
+    @Operation(summary = "학교에 속한 전공 목록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
@@ -64,7 +64,7 @@ public class MemberController {
     }
 
     //회원등록이 되어 있는 모든 회원 조회--------------------------------------
-    @Operation(description = "모든 회원 조회")
+    @Operation(summary = "모든 회원 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
@@ -75,7 +75,7 @@ public class MemberController {
     }
 
     //로그인--------------------------------------
-    @Operation(description = "로그인 - (access token 기간 1시간)")
+    @Operation(summary = "로그인 - (access token 기간 1시간)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "로그인 성공"),
             @ApiResponse(responseCode = "fail", description = "로그인 실패")})
@@ -85,7 +85,7 @@ public class MemberController {
     }
 
     //로그아웃-----------------
-    @Operation(description = "로그아웃")
+    @Operation(summary = "로그아웃")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "로그아웃 성공"),
             @ApiResponse(responseCode = "fail", description = "로그아웃 실패")})
@@ -96,7 +96,7 @@ public class MemberController {
     }
 
     //회원 정보-----------------------------------
-    @Operation(description = "회원 정보")
+    @Operation(summary = "특정 회원 정보")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "회원 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "회원 조회 실패")})
@@ -107,7 +107,7 @@ public class MemberController {
     }
 
     //프로필 변경
-    @Operation(description = "프로필 사진 변경")
+    @Operation(summary = "프로필 사진 변경")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
             @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
@@ -119,7 +119,7 @@ public class MemberController {
             return CommonApiResponse.createSuccess(imageUrl);
     }
 
-    @Operation(description = "프로필 기본 사진으로 변경")
+    @Operation(summary = "프로필 기본 사진으로 변경")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
             @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})

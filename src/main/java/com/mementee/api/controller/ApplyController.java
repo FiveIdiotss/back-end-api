@@ -37,7 +37,7 @@ public class ApplyController {
     private final MemberService memberService;
     private final MatchingService matchingService;
 
-    @Operation(description = "내가 신청 한/받은 글 리스트")
+    @Operation(summary = "내가 신청 한/받은 글 리스트")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
@@ -51,7 +51,7 @@ public class ApplyController {
         return CommonApiResponse.createSuccess(ApplyDTO.createSendApplyDTOs(list));
     }
 
-    @Operation(description = "page 를 통한 내가 신청 한/받은 글 리스트")
+    @Operation(summary=  "page 를 통한 내가 신청 한/받은 글 리스트")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
@@ -73,30 +73,31 @@ public class ApplyController {
     }
 
     //신청 받기
-    @Operation(description = "멘토/멘티 신청 수락")
+    @Operation(summary = "멘티 신청 수락, 거절과 통합 예정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "신청 성공"),
             @ApiResponse(responseCode = "fail", description = "신청 실패")})
     @PostMapping("/api/apply/{applyId}")
-    public CommonApiResponse<?> boardApply(@PathVariable Long applyId,
-                                             @RequestHeader("Authorization") String authorizationHeader){
+    public CommonApiResponse<?> boardApply(@RequestHeader("Authorization") String authorizationHeader,
+                                           @PathVariable Long applyId){
             matchingService.saveMatching(applyId, authorizationHeader);
             return CommonApiResponse.createSuccess();
     }
 
     //신청 거절
-    @Operation(description = "멘토/멘티 신청 거절")
+    @Operation(summary = "멘티 신청 거절, 수락과 통합 예정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "거절 성공"),
             @ApiResponse(responseCode = "fail", description = "거절 실패")})
     @PostMapping("/api/reject/{applyId}")
-    public CommonApiResponse<?> boardDeny(@PathVariable Long applyId, @RequestHeader("Authorization") String authorizationHeader){
+    public CommonApiResponse<?> boardDeny(@RequestHeader("Authorization") String authorizationHeader,
+                                          @PathVariable Long applyId){
             matchingService.declineMatching(applyId, authorizationHeader);
             return CommonApiResponse.createSuccess();
     }
 
     //신청 글 조회
-    @Operation(description = "신청할때 쓴 글 조회 - (여기서 신청한 글로 이동할 수 있게)")
+    @Operation(summary = "신청할 때 쓴 글 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "지원 글 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "지원 글 조회 실패")})

@@ -31,7 +31,8 @@ public class FCMNotificationController {
     private final FcmNotificationService fcmNotificationService;
     private final MemberService memberService;
 
-    @Operation(description = "자신의 FCM 토큰 DB에 저장")
+
+    @Operation(summary = "자신의 FCM 토큰 DB에 저장")
     @PostMapping("/api/fcm")
     public CommonApiResponse<?> saveFCMToken(@RequestHeader("Authorization") String authorizationHeader,
                                              @RequestParam String myToken){
@@ -40,7 +41,7 @@ public class FCMNotificationController {
         return CommonApiResponse.createSuccess();
     }
 
-    @Operation(description = "알림 목록")
+    @Operation(summary = "알림 목록")
     @GetMapping("/api/fcm")
     public CommonApiResponse<PaginationFcmResponse> findFCMs(@RequestParam int page, @RequestParam int size,
                                                           @RequestHeader("Authorization") String authorizationHeader){

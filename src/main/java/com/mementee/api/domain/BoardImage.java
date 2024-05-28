@@ -1,12 +1,11 @@
 package com.mementee.api.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Data
+@Getter
 @NoArgsConstructor
 public class BoardImage {
 
@@ -24,6 +23,7 @@ public class BoardImage {
     private Board board;
 
     public BoardImage(Board board, String boardImageUrl) {
+        this.board = board;
         this.boardImageUrl = boardImageUrl;
     }
 }
