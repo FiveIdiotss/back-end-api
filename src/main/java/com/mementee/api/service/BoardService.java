@@ -228,7 +228,6 @@ public class BoardService {
             return boardRepository.findBoardsByBoardCategoryAndKeyWord(boardCategory, searchKeyWord, pageable);
         }
 
-
         //카테고리, 내 학교
         if (boardCategory != null && searchKeyWord == null && schoolFilter && !favoriteFilter)
             return boardRepository.findBoardsByBoardCategoryAndMemberSchool(boardCategory, school, pageable);

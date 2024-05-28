@@ -1,16 +1,19 @@
 package com.mementee.api.service;
 
 import com.mementee.api.domain.*;
+import com.mementee.api.domain.enumtype.BoardCategory;
 import com.mementee.api.domain.enumtype.SubBoardType;
 import com.mementee.api.dto.subBoardDTO.*;
 import com.mementee.api.repository.subBoard.ReplyRepository;
 import com.mementee.api.repository.subBoard.SubBoardImageRepository;
 import com.mementee.api.repository.subBoard.SubBoardLikeRepository;
 import com.mementee.api.repository.subBoard.SubBoardRepository;
+import com.mementee.api.validation.BoardValidation;
 import com.mementee.api.validation.MemberValidation;
 import com.mementee.api.validation.SubBoardValidation;
 import com.mementee.exception.notFound.BoardNotFound;
 import com.mementee.exception.notFound.ReplyNotFound;
+import com.mementee.exception.unauthorized.RequiredLoginException;
 import com.mementee.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +41,7 @@ public class SubBoardService {
     private final S3Service s3Service;
 
     //게시글 조회시 필요한 Info
-    public SubBoardInfoResponse createSubBoardInfoResponse(Long subBoardId, String authorizationHeader){
+    public SubBoardInfoResponse createSubBoardInfoResponse(Long subBoardId, String authorizationHeader) {
         SubBoard subBoard = findSubBoardById(subBoardId);
         List<SubBoardImageDTO> subBoardImagesDTOS = SubBoardImageDTO.createSubBoardImageDTOs(findSubBoardImagesBySubBoard(subBoard));
         SubBoardDTO subBoardDTO = createSubBoardDTO(subBoard, authorizationHeader);
@@ -46,16 +49,16 @@ public class SubBoardService {
     }
 
     //게시글 조회시 필요한 DTO
-    public SubBoardDTO createSubBoardDTO(SubBoard subBoard, String authorizationHeader){
-        if(authorizationHeader == null)
+    public SubBoardDTO createSubBoardDTO(SubBoard subBoard, String authorizationHeader) {
+        if (authorizationHeader == null)
             return SubBoardDTO.createSubBoardDTO(subBoard, false);
         Member member = memberService.findMemberByToken(authorizationHeader);
         return SubBoardDTO.createSubBoardDTO(subBoard, SubBoardValidation.isSubBoardLike(findSubBoardLikeByMemberAndBoard(member, subBoard)));
     }
 
     //게시글 목록시 필요한 DTO List
-    public List<SubBoardDTO> createSubBoardDTOs(List<SubBoard> subBoards, String authorizationHeader){
-        if(authorizationHeader == null)
+    public List<SubBoardDTO> createSubBoardDTOs(List<SubBoard> subBoards, String authorizationHeader) {
+        if (authorizationHeader == null)
             return SubBoardDTO.createSubBoardDTOs(subBoards, false);
         Member member = memberService.findMemberByToken(authorizationHeader);
         return subBoards.stream()
@@ -64,51 +67,52 @@ public class SubBoardService {
     }
 
     //id로 게시글 조회
-    public SubBoard findSubBoardById(Long subBoardId){
+    public SubBoard findSubBoardById(Long subBoardId) {
         Optional<SubBoard> subBoard = subBoardRepository.findById(subBoardId);
-        if(subBoard.isEmpty())
+        if (subBoard.isEmpty())
             throw new BoardNotFound();
         return subBoard.get();
     }
 
     //게시글에 속한 이미지 목록
-    public List<SubBoardImage> findSubBoardImagesBySubBoard(SubBoard subBoard){
+    public List<SubBoardImage> findSubBoardImagesBySubBoard(SubBoard subBoard) {
         return subBoardImageRepository.findSubBoardImageBySubBoard(subBoard);
     }
 
     //모든 자유 게시글 목록
-    public Page<SubBoard> findAllFreeSubBoard(Pageable pageable){
-        return subBoardRepository.findAllBySubBoardType(SubBoardType.FREE, pageable);
+    public Page<SubBoard> findAllFreeSubBoard(Pageable pageable) {
+        return subBoardRepository.findAllBySubBoardType(SubBoardType.QUEST, pageable);
     }
 
-    //모든 요청 게시글 목록
-    public Page<SubBoard> findAllRequestSubBoard(Pageable pageable){
-        return subBoardRepository.findAllBySubBoardType(SubBoardType.REQUEST, pageable);
+    //특정 멤버가 쓴 질문/요청 게시글 목록
+    public Page<SubBoard> findSubBoardsBySubBoardTypeAndMember(SubBoardType subBoardType, Long memberId, Pageable pageable){
+        Member member = memberService.findMemberById(memberId);
+        return subBoardRepository.findSubBoardsBySubBoardTypeAndMember(subBoardType, member, pageable);
     }
 
     //Member 와 Board 에 대한 좋아요 Entity 조회
-    public Optional<SubBoardLike> findSubBoardLikeByMemberAndBoard(Member member, SubBoard subBoard){
+    public Optional<SubBoardLike> findSubBoardLikeByMemberAndBoard(Member member, SubBoard subBoard) {
         return subBoardLikeRepository.findSubBoardLikeByMemberAndSubBoard(member, subBoard);
     }
 
     //게시글 조회
-    public Reply findReplyById(Long replyId){
+    public Reply findReplyById(Long replyId) {
         Optional<Reply> reply = replyRepository.findById(replyId);
-        if(reply.isEmpty())
+        if (reply.isEmpty())
             throw new ReplyNotFound();
         return reply.get();
     }
 
     //게시글에 속한 댓글 목록
-    public Page<Reply> findAllReply(Long subBoardId, Pageable pageable){
+    public Page<Reply> findAllReply(Long subBoardId, Pageable pageable) {
         SubBoard subBoard = findSubBoardById(subBoardId);
         return replyRepository.findRepliesBySubBoard(subBoard, pageable);
     }
 
     //게시글에 속한 이미지 저장
     public void saveSubBoardImageUrl(List<MultipartFile> multipartFiles, SubBoard subBoard) {
-        if(multipartFiles == null) return;
-        for(MultipartFile multipartFile : multipartFiles){
+        if (multipartFiles == null) return;
+        for (MultipartFile multipartFile : multipartFiles) {
             String url = s3Service.saveFile(multipartFile);
             SubBoardImage boardImage = new SubBoardImage(url, subBoard);
             subBoardImageRepository.save(boardImage);
@@ -116,8 +120,8 @@ public class SubBoardService {
     }
 
     //게시글에 속한 이미지 수정
-    public void modifySubBoardImage(List<MultipartFile> multipartFiles, SubBoard subBoard){
-        if(multipartFiles == null) return;
+    public void modifySubBoardImage(List<MultipartFile> multipartFiles, SubBoard subBoard) {
+        if (multipartFiles == null) return;
         // 기존 이미지 목록
         List<SubBoardImage> existingImages = subBoardImageRepository.findSubBoardImageBySubBoard(subBoard);
 
@@ -147,24 +151,24 @@ public class SubBoardService {
 
     //자유 게시글 등록
     @Transactional
-    public void saveFreeSubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> multipartFiles){
+    public void saveFreeSubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> multipartFiles) {
         Member member = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(),SubBoardType.FREE);
+        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), SubBoardType.QUEST);
         saveSubBoardImageUrl(multipartFiles, subBoard);
         subBoardRepository.save(subBoard);
     }
 
     @Transactional
-    public void saveRequestSubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> multipartFiles){
+    public void saveRequestSubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> multipartFiles) {
         Member member = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(),SubBoardType.REQUEST);
+        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), SubBoardType.REQUEST);
         saveSubBoardImageUrl(multipartFiles, subBoard);
         subBoardRepository.save(subBoard);
     }
 
     //게시물 수정
     @Transactional
-    public void modifySubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> updatedImages, Long subBoardId){
+    public void modifySubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> updatedImages, Long subBoardId) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = findSubBoardById(subBoardId);
         MemberValidation.isCheckMe(member, subBoard.getMember());
@@ -175,7 +179,7 @@ public class SubBoardService {
 
     //좋아요 누르기
     @Transactional
-    public void addSubBoardLike(Long subBoardId, String authorizationHeader){
+    public void addSubBoardLike(Long subBoardId, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = findSubBoardById(subBoardId);
         SubBoardValidation.isCheckAddSubBordLike(findSubBoardLikeByMemberAndBoard(member, subBoard));
@@ -186,10 +190,10 @@ public class SubBoardService {
 
     //좋아요 취소
     @Transactional
-    public void removeSubBoardLike(Long subBoardId, String authorizationHeader){
+    public void removeSubBoardLike(Long subBoardId, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = findSubBoardById(subBoardId);
-        SubBoardLike subBoardLike = SubBoardValidation.isCheckRemoveSubBoardLike(findSubBoardLikeByMemberAndBoard(member,subBoard));
+        SubBoardLike subBoardLike = SubBoardValidation.isCheckRemoveSubBoardLike(findSubBoardLikeByMemberAndBoard(member, subBoard));
         subBoard.minusLikeCount();
         subBoardLikeRepository.delete(subBoardLike);
     }
@@ -197,7 +201,7 @@ public class SubBoardService {
 
     //댓글 수정
     @Transactional
-    public void modifyReply(ReplyRequest request, Long replyId, String authorizationHeader){
+    public void modifyReply(ReplyRequest request, Long replyId, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         Reply reply = findReplyById(replyId);
         MemberValidation.isCheckMe(member, reply.getMember());
@@ -206,7 +210,7 @@ public class SubBoardService {
 
     //댓글 등록
     @Transactional
-    public void saveReply(ReplyRequest request, Long subBoardId, String authorizationHeader){
+    public void saveReply(ReplyRequest request, Long subBoardId, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = findSubBoardById(subBoardId);
         Reply reply = new Reply(request.getContent(), member, subBoard);
@@ -216,11 +220,98 @@ public class SubBoardService {
 
     //댓글 삭제
     @Transactional
-    public void removeReply(Long replyId, String authorizationHeader){
+    public void removeReply(Long replyId, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         Reply reply = findReplyById(replyId);
         MemberValidation.isCheckMe(member, reply.getMember());
         reply.getSubBoard().minusReplyCount();
         replyRepository.delete(reply);
     }
+
+    public Page<SubBoard> findSubBoardsByFilter(String authorizationHeader,
+                                                boolean schoolFilter,
+                                                boolean likeFilter,
+                                                BoardCategory boardCategory,
+                                                String keyWord,
+                                                SubBoardType subBoardType,
+                                                Pageable pageable) {
+        Member member = null;
+        School school = null;
+
+        if (schoolFilter || likeFilter) {
+            if (authorizationHeader == null)
+                throw new RequiredLoginException();
+            member = memberService.findMemberByToken(authorizationHeader);
+            school = member.getSchool();
+        }
+
+        String searchKeyWord = BoardValidation.isContainKeyWord(keyWord);
+
+        //카테고리
+        if (boardCategory != null && searchKeyWord == null && !schoolFilter && !likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndBoardCategory(subBoardType, boardCategory, pageable);
+
+        //검색
+        if (boardCategory == null && searchKeyWord != null && !schoolFilter && !likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndKeyWord(subBoardType, searchKeyWord, pageable);
+
+        //내 학교
+        if (boardCategory == null && searchKeyWord == null && schoolFilter && !likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndMemberSchool(subBoardType, school, pageable);
+
+        //즐겨찾기
+        if (boardCategory == null && searchKeyWord == null && !schoolFilter && likeFilter)
+            return subBoardRepository.findSubBoardLikesBySubBoardTypeAndMember(subBoardType, member, pageable);
+
+        //카테고리, 검색
+        if (boardCategory != null && searchKeyWord != null && !schoolFilter && !likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndBoardCategoryAndKeyWord(subBoardType, boardCategory, searchKeyWord, pageable);
+
+        //카테고리, 내 학교
+        if (boardCategory != null && searchKeyWord == null && schoolFilter && !likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndBoardCategoryAndMemberSchool(subBoardType, boardCategory, school, pageable);
+
+        //카테고리, 좋아요
+        if (boardCategory != null && searchKeyWord == null && !schoolFilter && likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndBoardCategoryAndSubBoardLike(subBoardType, boardCategory, member, pageable);
+
+        //검색, 내 학교
+        if (boardCategory == null && searchKeyWord != null && schoolFilter && !likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndMemberSchoolAndKeyWord(subBoardType, school, searchKeyWord, pageable);
+
+        //검색, 좋아요
+        if (boardCategory == null && searchKeyWord != null && !schoolFilter && likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndKeyWordAndSubBoardLike(subBoardType, searchKeyWord, member, pageable);
+
+        //내 학교, 좋아요
+        if (boardCategory == null && searchKeyWord == null && schoolFilter && likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndMemberSchoolAndSubBoardLike(subBoardType, school, member, pageable);
+
+        //카테고리, 내 학교, 좋아요
+        if (boardCategory != null && searchKeyWord == null && schoolFilter && likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndBoardCategoryAndMemberSchoolAndSubBoardLike(subBoardType, boardCategory, school, member, pageable);
+
+        //카테고리, 검색, 좋아요
+        if (boardCategory != null && searchKeyWord != null && !schoolFilter && likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndBoardCategoryAndKeyWordAndSubBoardLike(subBoardType, boardCategory, searchKeyWord, member, pageable);
+
+
+        //카테고리, 검색, 내 학교
+        if (boardCategory != null && searchKeyWord != null && schoolFilter && !likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndBoardCategoryAndMemberSchoolAndKeyWord(subBoardType, boardCategory, school, searchKeyWord, pageable);
+
+
+        //검색, 내 학교, 좋아요
+        if (boardCategory == null && searchKeyWord != null && schoolFilter && likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndMemberSchoolAndKeyWordAndSubBoardLike(subBoardType, school, searchKeyWord, member, pageable);
+
+
+        //카테고리, 검색, 내 학교, 좋아요
+        if (boardCategory != null && searchKeyWord != null && schoolFilter && likeFilter)
+            return subBoardRepository.findSubBoardsBySubBoardTypeAndMemberSchoolAndKeyWordAndBoardCategoryAndSubBoardLike(subBoardType, school, searchKeyWord, boardCategory, member, pageable);
+
+        //필터 없는 상태
+        return subBoardRepository.findAllBySubBoardType(subBoardType, pageable);
+    }
 }
+
