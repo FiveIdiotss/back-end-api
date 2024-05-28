@@ -4,15 +4,14 @@ import com.mementee.api.domain.enumtype.BoardCategory;
 import com.mementee.api.domain.enumtype.SubBoardType;
 import com.mementee.api.dto.subBoardDTO.WriteSubBoardRequest;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Entity
-@Data
+@Getter
 @NoArgsConstructor
 public class SubBoard {
 
