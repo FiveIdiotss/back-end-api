@@ -4,10 +4,8 @@ import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.FileType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Data
