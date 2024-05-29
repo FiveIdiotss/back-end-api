@@ -6,6 +6,7 @@ import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
+import com.mementee.api.dto.chatDTO.ChatRoomUpdateDTO;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.*;
 import com.mementee.exception.notFound.FileNotFound;
@@ -21,11 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,6 +51,8 @@ public class ChatController {
         // If both users are in the chat room, set the readCount to 2.
         chatService.setMessageReadCount(messageDTO);
 
+        extracted(messageDTO);
+
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
 
@@ -63,6 +63,22 @@ public class ChatController {
         FcmDTO fcmDTO = fcmNotificationService.createChatFcmDTO(messageDTO);
         fcmNotificationService.sendMessageTo(fcmDTO);
         fcmNotificationService.saveFcmDetail(fcmDTO);
+    }
+
+    private void extracted(ChatMessageDTO messageDTO) {
+        Long senderId = messageDTO.getSenderId();
+        Long chatRoomId = messageDTO.getChatRoomId();
+
+        Long receiverId = chatService.findOtherMemberId(chatRoomId, senderId);
+
+        // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
+        int unreadCount = chatService.getUnreadMessageCount(messageDTO.getChatRoomId(), receiverId) + 1;
+
+        // WebSocket을 통해 클라이언트에 전송
+//        websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), unreadCount);
+        ChatRoomUpdateDTO updateDTO = new ChatRoomUpdateDTO(chatRoomId, receiverId, unreadCount);
+        System.out.println(updateDTO);
+        websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, updateDTO);
     }
 
     @Operation(description = "파일 전송 처리")
@@ -94,7 +110,7 @@ public class ChatController {
     @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages/{chatRoomId}")
     public CommonApiResponse<Slice<ChatMessageDTO>> findAllMessagesByChatRoom(@RequestParam int page, @RequestParam int size,
-                                                           @PathVariable Long chatRoomId) {
+                                                                              @PathVariable Long chatRoomId) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차순(최신순)
         Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
 
@@ -113,23 +129,22 @@ public class ChatController {
     @Operation(description = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인. 존재 하지 않으면 null 반환")
     @GetMapping("/chatRoom")
     public CommonApiResponse<?> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
-            Member loginMember = memberService.findMemberByToken(authorizationHeader);
-            Member receiver = memberService.findMemberById(receiverId);
+        Member loginMember = memberService.findMemberByToken(authorizationHeader);
+        Member receiver = memberService.findMemberById(receiverId);
 
-            ChatRoom chatRoom = chatService.findChatRoomBySenderAndReceiver(loginMember, receiver);
+        ChatRoom chatRoom = chatService.findChatRoomBySenderAndReceiver(loginMember, receiver);
 
-            ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getId(), receiverId, receiver.getName());
-            return CommonApiResponse.createSuccess(chatRoomDTO);
+        ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getId(), receiverId, receiver.getName());
+        return CommonApiResponse.createSuccess(chatRoomDTO);
     }
 
     @Operation(description = "특정 멤버가 속한 채팅방 모두 조회")
     @GetMapping("/chatRooms")
     public CommonApiResponse<List<ChatRoomDTO>> findAllChatRoomsByMemberId(@RequestParam Long memberId) {
-        Member member = memberService.findMemberById(memberId);
-        List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMember(member);
+        List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMemberId(memberId);
 
         List<ChatRoomDTO> chatRoomDTOs = allChatRooms.stream()
-                .map(chatRoom -> chatService.createChatRoomDTO(member, chatRoom))
+                .map(chatRoom -> chatService.createChatRoomDTO(memberId, chatRoom))
                 .collect(Collectors.toList());
 
         return CommonApiResponse.createSuccess(chatRoomDTOs);
