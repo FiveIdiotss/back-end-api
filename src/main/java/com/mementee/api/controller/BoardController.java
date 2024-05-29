@@ -57,13 +57,13 @@ public class BoardController {
 //    }
 
     //글 쓰기--------------------------------------
-    @Operation(description = "글 쓰기 - 글 작성시 상담 가능한 요일들, 상담 가능  같이 적으셈" +
-            "  {\"title\": \"string\",\n" +
-            "  \"introduce\": \"string\",\n" +
-            "  \"target\": \"string\",\n" +
-            "  \"content\": \"string\",\n" +
+    @Operation(summary = "글 쓰기 , 이미지 첨부 가능", description =
+            "  {\"title\": \"축구 교실\",\n" +
+            "  \"introduce\": \"맨유 출신 입니다.\",\n" +
+            "  \"target\": \"세모발들\",\n" +
+            "  \"content\": \"맨유출신한테 축구배우실분 모집합니다.\",\n" +
             "  \"consultTime\": 30,\n" +
-            "  \"boardCategory\": \"이공\",\n" +
+            "  \"boardCategory\": \"예체능\",\n" +
             "  \"times\": [\n" +
             "    {  \"startTime\": \"09:00:00\",\n" +
             "      \"endTime\": \"12:00:00\" },\n" +
@@ -74,7 +74,7 @@ public class BoardController {
             "    \"MONDAY \",\n" +
             "    \"SUNDAY\"\n" +
             "  ]\n" +
-            "}\n 이런식으로 입력 바람")
+            "}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
@@ -86,20 +86,7 @@ public class BoardController {
     }
 
     //게시글 조회 --------------------
-    @Operation(description = "글 조회" +
-            "private BoardDTO boardDTO;" +
-            "    private int consultTime;                //상담 시간\n" +
-            "    private List<ScheduleTime> times;       //예약 가능 시간\n" +
-            "    private List<DayOfWeek> availableDays;  //상담 가능한 요일" +
-            "    private List<UnavailableTime> unavailableTimes; //예약된 시간들" +
-            " 이 BoardInfoResponse를 받아야함" +
-            "각 클래스들 --------------------------------------------------> " +
-            " public class ScheduleTime {\n" +
-            "    private LocalTime startTime;\n" +
-            "    private LocalTime endTime; }" +
-            "public class UnavailableTime {\n" +
-            "    private LocalDate date;         //상담 날짜\n" +
-            "    private LocalTime startTime;    //상담 시작 시간}" )
+    @Operation(summary = "글 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "글 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "글 조회 실패")})
@@ -111,7 +98,7 @@ public class BoardController {
     }
 
     //게시물 수정 ---------------
-    @Operation(description = "게시물 수정 -> 상담가능 시간 또는 요일 수정 시 이미 신청되있던 사람에 대하여 예외 발생 시켜야함 (ex- 바뀌기 전 시간에 신청한 사람이 있을경우)")
+    @Operation(summary = "게시물 수정", description = "상담가능 시간 또는 요일 수정 시 이미 신청되있던 사람에 대하여 예외 발생 시켜야함 (ex- 바뀌기 전 시간에 신청한 사람이 있을경우)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
@@ -124,7 +111,7 @@ public class BoardController {
     }
 
     //Page 멘토 글 전체 조회 --------------
-    @Operation(description =  "페이지 단위로 멘토 전체 리스트 - 삭제 예정")
+    @Operation(summary =  "페이지 단위로 멘토 전체 리스트 - 삭제 예정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
@@ -142,7 +129,7 @@ public class BoardController {
     }
 
     //내 즐겨찾기 목록
-    @Operation(description = "즐겨찾기 목록 - 삭제 예정")
+    @Operation(summary = "즐겨찾기 목록 - 삭제 예정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "즐겨찾기 추가 성공"),
             @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
@@ -159,8 +146,9 @@ public class BoardController {
     }
 
     //필터별 목록
-    @Operation(description = "필터별 검색 테스트/ 헤더 넣지 않고 RequestParam 에 아무것도 넣지 않으면 그냥 전체 게시판, " +
-            "헤더만 넣고 RequestParam 에 아무것도 넣지 않으면 전체 게시판이지만 즐겨찾기 된것은 true로 return, RequestParam 에 따라 필터별 검색 Page return")
+    @Operation(summary = "필터별 검색", description = "헤더 넣지 않고 RequestParam 에 아무것도 넣지 않으면 그냥 전체 게시판, " +
+                                                   "헤더만 넣고 RequestParam 에 아무것도 넣지 않으면 전체 게시판이지만 즐겨찾기 된것은 true로 return, " +
+                                                   "RequestParam 에 따라 필터별 검색 Page return")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "검색 성공"),
             @ApiResponse(responseCode = "fail", description = "검색 실패")})
@@ -181,14 +169,14 @@ public class BoardController {
     }
 
     //특정 멤버가 쓴 글 목록
-    @Operation(description = "특정 멤버가 쓴 글 목록")
+    @Operation(summary = "특정 멤버가 쓴 글 목록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "글 리스트 조회 성공"),
             @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
     @GetMapping("/api/memberBoards/{memberId}")
     public CommonApiResponse<PaginationBoardResponse> memberBoards(@RequestParam int page, @RequestParam int size,
-                                                                @PathVariable("memberId") Long memberId,
-                                                                @RequestHeader(value = "Authorization", required = false) String authorizationHeader){
+                                                                   @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                                                   @PathVariable("memberId") Long memberId){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
         Page<Board> findBoards = boardService.findBoardsByMember(memberId, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
@@ -200,36 +188,36 @@ public class BoardController {
 
     //게시물 즐겨찾기
     //즐겨찾기 추가 -------------------
-    @Operation(description = "즐겨찾기 추가")
+    @Operation(summary = "즐겨찾기 추가")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "즐겨찾기 추가 성공"),
             @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
     @PostMapping("/api/board/favorite/{boardId}")
-    public CommonApiResponse<?> addFavorite(@PathVariable Long boardId,
-                                              @RequestHeader("Authorization") String authorizationHeader){
+    public CommonApiResponse<?> addFavorite(@RequestHeader("Authorization") String authorizationHeader,
+                                            @PathVariable Long boardId){
             boardService.addFavoriteBoard(authorizationHeader, boardId);
             return CommonApiResponse.createSuccess();
     }
 
     //즐겨찾기 삭제
-    @Operation(description = "즐겨찾기 삭제")
+    @Operation(summary = "즐겨찾기 삭제")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "즐겨찾기 삭제 성공"),
             @ApiResponse(responseCode = "fail", description = "즐겨찾기 삭제 실패")})
     @DeleteMapping("/api/board/favorite/{boardId}")
-    public CommonApiResponse<?> removeFavorite(@PathVariable Long boardId,
-                                               @RequestHeader("Authorization") String authorizationHeader){
+    public CommonApiResponse<?> removeFavorite(@RequestHeader("Authorization") String authorizationHeader,
+                                               @PathVariable Long boardId){
             boardService.removeFavoriteBoard(authorizationHeader, boardId);
             return CommonApiResponse.createSuccess();
     }
 
     //신청 기능 -------------------
-    @Operation(description = "멘토/멘티 신청 - 이미 신청한 글이거나, 자신이 쓴 글에 신청 할 경우 BAD_REQUEST" +
+    @Operation(summary = "게시글에 멘티 신청",description = "이미 신청한 글이거나, 자신이 쓴 글에 신청시 오류" +
             "{\n" +
             "  \"content\": \"구민회 탈모\",\n" +
             "  \"date\": \"2024-02-11\",\n" +
             "  \"time\": \"09:00:00\"\n" +
-            "} 이런식으로 보내면 됨")
+            "}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "신청 성공"),
             @ApiResponse(responseCode = "fail", description = "신청 실패")})
@@ -244,6 +232,10 @@ public class BoardController {
     }
 
     // 인기 키워드 Top 5 조회
+    @Operation(summary = "멘토 게시판에 대한 인기 키워드 top 9")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "조회 성공"),
+            @ApiResponse(responseCode = "fail", description = "조회 실패")})
     @GetMapping("/api/popular-keywords")
     public CommonApiResponse<ArrayList<String>> getPopularKeywords() {
         // Redis에서 인기 키워드 Top 5 조회

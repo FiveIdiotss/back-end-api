@@ -4,7 +4,6 @@ import com.mementee.api.domain.Member;
 import com.mementee.api.dto.memberDTO.TokenDTO;
 import com.mementee.api.repository.RefreshTokenRepository;
 import com.mementee.api.validation.TokenValidation;
-import com.mementee.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.domain.RefreshToken;
 import com.mementee.security.JwtUtil;

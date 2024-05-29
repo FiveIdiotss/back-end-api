@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.mementee.social.SocialLoginType;
 import com.mementee.social.SocialMember;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,7 +20,7 @@ public class SocialController {
 
     private final OAuthService oAuthService;
 
-    @Operation(description = "해당 URL 클릭 시 해당 소셜 로그인 페이지로 이동")
+    @Operation(summary = "해당 URL 클릭 시 해당 소셜 로그인 페이지로 이동")
     @GetMapping("/{socialLoginType}")
     public CommonApiResponse<?> socialLogin(@PathVariable(name = "socialLoginType") SocialLoginType socialLoginType) {
         String url = oAuthService.requestAuthorizedURL(socialLoginType);

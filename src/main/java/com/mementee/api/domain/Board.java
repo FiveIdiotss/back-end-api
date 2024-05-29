@@ -6,7 +6,6 @@ import com.mementee.api.dto.boardDTO.WriteBoardRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.domain.subdomain.ScheduleTime;
 import org.hibernate.annotations.ColumnDefault;
@@ -20,7 +19,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 public class Board {
 
