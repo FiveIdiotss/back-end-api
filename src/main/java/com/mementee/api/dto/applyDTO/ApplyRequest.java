@@ -25,5 +25,4 @@ public class ApplyRequest {
     @JsonSerialize(using = LocalTimeSerializer.class)
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     private LocalTime time;       // 예약 시간
-
 }
