@@ -9,6 +9,7 @@ import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.repository.chat.ChatMessageRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
 import com.mementee.exception.notFound.ChatRoomNotFound;
+import com.mementee.exception.notFound.MemberNotFound;
 import com.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -68,12 +69,13 @@ public class ChatService {
         return chatMessageRepository.getUnreadMessageCount(chatRoomId, memberId);
     }
 
-    public ChatRoomDTO createChatRoomDTO(Member loginMember, ChatRoom chatRoom) {
-        Member receiver = getReceiver(loginMember.getId(), chatRoom);
 
+    public ChatRoomDTO createChatRoomDTO(Long loginMemberId, ChatRoom chatRoom) {
+        Member member = memberService.findMemberById(loginMemberId);
+        Member receiver = getReceiver(loginMemberId, chatRoom);
         LatestMessageDTO latestMessageDTO = LatestMessageDTO.createLatestMessageDTO(findLatestChatMessage(chatRoom.getId()));
-        int unreadMessageCount = getUnreadMessageCount(chatRoom.getId(), loginMember.getId());
-        return ChatRoomDTO.createChatRoomDTO(loginMember, receiver, chatRoom, latestMessageDTO, unreadMessageCount);
+        int unreadMessageCount = getUnreadMessageCount(chatRoom.getId(), loginMemberId);
+        return ChatRoomDTO.createChatRoomDTO(member, receiver, chatRoom, latestMessageDTO, unreadMessageCount);
     }
 
     public ChatMessage createMessageByDTO(ChatMessageDTO messageDTO) {
@@ -108,6 +110,18 @@ public class ChatService {
         return chatRoom.get();
     }
 
+    public Long findOtherMemberId(Long chatRoomId, Long memberId) {
+        ChatRoom chatRoom = findChatRoomById(chatRoomId);
+
+        if (chatRoom.getSender().getId().equals(memberId)) {
+            return chatRoom.getReceiver().getId();
+        } else if (chatRoom.getReceiver().getId().equals(memberId)) {
+            return chatRoom.getSender().getId();
+        } else {
+            throw new MemberNotFound();
+        }
+    }
+
     // 상대방 아이디로 해당 채팅방 조회
     public ChatRoom findChatRoomBySenderAndReceiver(Member loginMember, Member receiver) {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findChatRoomBySenderAndReceiver(loginMember, receiver);
@@ -123,8 +137,8 @@ public class ChatService {
     }
 
     // 특정 멤버가 속한 모든 채팅방 조회
-    public List<ChatRoom> findAllChatRoomByMember(Member member) {
-        return chatRoomRepository.findChatRoomsByMember(member);
+    public List<ChatRoom> findAllChatRoomByMemberId(Long memberId) {
+        return chatRoomRepository.findChatRoomsByMemberId(memberId);
     }
 
     @Transactional

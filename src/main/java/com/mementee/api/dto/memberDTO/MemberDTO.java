@@ -1,6 +1,5 @@
 package com.mementee.api.dto.memberDTO;
 
-import com.mementee.api.domain.Major;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.enumtype.Gender;
 import lombok.AllArgsConstructor;

@@ -136,4 +136,6 @@ public class MemberService {
         member.updateMemberImage(imageUrl);
         return imageUrl;
     }
+
+
 }
