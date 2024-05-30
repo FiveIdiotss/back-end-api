@@ -16,7 +16,7 @@
 <ul>
   <li th:each="chatRoom : ${chatRooms}">
     <a href="#" th:onclick="'enterChatRoom(' + ${chatRoom.chatRoomId} + '); return false;'" th:text="'채팅방 ' + ${chatRoom.chatRoomId} + ' 입장'">Chat Room Name</a>
-    <span id="unreadCount_[[${chatRoom.chatRoomId}]]" th:text="'Unread Messages: ' + ${chatRoom.unreadMessageCount}">Unread Messages: 0</span>
+    <span th:id="'chatRoom' + ${chatRoom.chatRoomId}" th:text="'Unread Messages: ' + ${chatRoom.unreadMessageCount}">Unread Messages: 0</span>
   </li>
 </ul>
 
@@ -50,17 +50,25 @@
 
   function connectWebSocket() {
 
+    // var ws = new WebSocket('ws://menteetor.site:8080/ws');
     var ws = new WebSocket('ws://localhost:8080/ws');
     stompClient = Stomp.over(ws);
 
     stompClient.connect({}, function (frame) {
 
       // 특정 주제(채팅방)에 구독 설정 (SUBSCRIBE)
-      stompClient.subscribe('/sub/unreadCount/' + chatRoomId, function (messageOutput) {
-        console.log('구독했음')
-        var messageDisplay = document.querySelector('#messageDisplay');
-        messageDisplay.innerHTML += messageOutput.body + '<br>';
+      stompClient.subscribe('/sub/unreadCount/1', function (ChatRoomUpdateDTO) {
+        var updateDTO = JSON.parse(ChatRoomUpdateDTO.body);
+        var count = updateDTO['unreadMessageCount'];
+        var chatRoomId = updateDTO['chatRoomId'];
+
+        var span = document.getElementById('chatRoom' + chatRoomId);
+        if (span) {
+          span.innerText = 'Unread Messages: ' + count;
+        }
+
       });
+
     });
   }
 
@@ -71,7 +79,8 @@
 
     chatRoomId = id;
 
-    connectWebSocket();
+    var ws = new WebSocket('ws://localhost:8080/ws');
+    stompClient = Stomp.over(ws);
 
     var connectHeader = {
       'senderId': senderId,
@@ -86,7 +95,28 @@
         messageDisplay.innerHTML += messageOutput.body + '<br>';
       });
 
+      console.log('실행됐습니다.');
+
+      stompClient.subscribe('/sub/userCount/' + chatRoomId, function (userCount) {
+        console.log('userCount: ' + userCount.body);  // userCount 전체 객체 출력
+
+        try {
+          var count = parseInt(userCount.body);
+          console.log('Parsed user count: ' + count);
+          var span = document.getElementById('chatRoom' + chatRoomId);
+          if (count === 2) {
+            span.innerText = 'Unread Messages: 0';
+          }
+        } catch (error) {
+          console.error('Failed to parse userCount:', error);
+        }
+      });
+
     });
+
+    // If 여기서 채팅방에 사람이 두 명 있으면 바로 카운트를 0으로 설정.
+    // 입장할 때 인터셉터에서 캐치. userEnterChatroom 메소드가 실행됨. 여기서
+
   }
 
   // 메시지 전송 함수
