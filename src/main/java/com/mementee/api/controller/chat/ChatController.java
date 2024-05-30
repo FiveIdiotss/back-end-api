@@ -51,13 +51,14 @@ public class ChatController {
         // If both users are in the chat room, set the readCount to 2.
         chatService.setMessageReadCount(messageDTO);
 
-        extracted(messageDTO);
 
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
 
         //DB에 저장
         chatService.saveMessage(messageDTO);
+
+        extracted(messageDTO);
 
         //FCM 알림
         FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
@@ -71,12 +72,10 @@ public class ChatController {
         Long receiverId = chatService.findOtherMemberId(chatRoomId, senderId);
 
         // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
-        int unreadCount = chatService.getUnreadMessageCount(messageDTO.getChatRoomId(), receiverId) + 1;
+        int unreadCount = chatService.getUnreadMessageCount(messageDTO.getChatRoomId(), receiverId);
 
         // WebSocket을 통해 클라이언트에 전송
-//        websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), unreadCount);
         ChatRoomUpdateDTO updateDTO = new ChatRoomUpdateDTO(chatRoomId, receiverId, unreadCount);
-        System.out.println(updateDTO);
         websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, updateDTO);
     }
 
