@@ -25,7 +25,7 @@ public class MatchingController {
     private final MatchingService matchingService;
 
     //신청목록
-    @Operation(description = "멘토/멘티 매칭목록")
+    @Operation(summary = "매칭목록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})

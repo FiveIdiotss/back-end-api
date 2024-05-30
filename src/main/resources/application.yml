@@ -22,8 +22,8 @@ spring:
 
   data:
     redis:
-      host: localhost
-#      host: menteetor.site
+#      host: localhost
+      host: menteetor.site
       port: 6379
 
   jwt:
@@ -32,16 +32,16 @@ spring:
   datasource:
   
     #    kdy
-#    url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
-#    username : admin
-#    password: ehd5765613
+    url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
+    username : admin
 #    url: jdbc:mysql://localhost:3306/kdy
-    #username: root
+#    username: root
+    password: ehd5765613
 
     #    JHL
-    url: jdbc:mysql://localhost:3306/member
-    username: root
-    password: asd990810
+#    url: jdbc:mysql://localhost:3306/member
+#    username: root
+#    password: asd990810
 
     driver-class-name: com.mysql.cj.jdbc.Driver
 

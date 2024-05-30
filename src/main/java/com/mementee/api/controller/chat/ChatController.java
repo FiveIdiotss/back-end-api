@@ -106,7 +106,7 @@ public class ChatController {
     }
 
 
-    @Operation(description = "채팅방 ID로 모든 채팅 메시지 조회")
+    @Operation(summary = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages/{chatRoomId}")
     public CommonApiResponse<Slice<ChatMessageDTO>> findAllMessagesByChatRoom(@RequestParam int page, @RequestParam int size,
                                                                               @PathVariable Long chatRoomId) {
@@ -125,7 +125,7 @@ public class ChatController {
         )));
     }
 
-    @Operation(description = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인. 존재 하지 않으면 null 반환")
+    @Operation(summary = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인. 존재 하지 않으면 null 반환")
     @GetMapping("/chatRoom")
     public CommonApiResponse<?> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
@@ -137,7 +137,7 @@ public class ChatController {
         return CommonApiResponse.createSuccess(chatRoomDTO);
     }
 
-    @Operation(description = "특정 멤버가 속한 채팅방 모두 조회")
+    @Operation(summary = "특정 멤버가 속한 채팅방 모두 조회")
     @GetMapping("/chatRooms")
     public CommonApiResponse<List<ChatRoomDTO>> findAllChatRoomsByMemberId(@RequestParam Long memberId) {
         List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMemberId(memberId);
