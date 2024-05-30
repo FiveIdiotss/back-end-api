@@ -24,8 +24,8 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         // accessor stomp메시지의 헤더 정보에 접근할 수 있도록 도와주는 유틸리티 클래스
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-
         if (accessor != null) {
+            System.out.println(accessor);
             // 웹소켓 CONNECT 시점에 특정 해더 정보에서 읽어온 chatRoomId에 messsage sender를 입장시킴.
             if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
@@ -54,9 +54,7 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
                 }
             }
         }
-
         return message;
     }
-
 
 }

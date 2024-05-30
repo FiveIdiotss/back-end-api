@@ -8,7 +8,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 <body>
-<a href="notification.html">SSE 테스트 페이지</a><br>
 <h1>WebSocket 연결 테스트 페이지입니다.</h1>
 
 <div th:id="dataContainer" th:accessToken="${accessToken}" th:senderId="${senderId}"></div>
@@ -50,6 +49,7 @@
 
   function connectWebSocket() {
 
+    //var ws = new WebSocket('ws://menteetor.site:8080/ws');
     var ws = new WebSocket('ws://localhost:8080/ws');
     stompClient = Stomp.over(ws);
 

@@ -12,6 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class FcmDTO {
+    private final Long notificationId;
+
+
     private Long targetMemberId;
 
     private Long senderId;
