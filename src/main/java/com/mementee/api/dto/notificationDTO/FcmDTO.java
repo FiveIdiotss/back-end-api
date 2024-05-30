@@ -14,9 +14,6 @@ import java.util.List;
 public class FcmDTO {
     private final Long notificationId;
 
-
-    private Long targetMemberId;
-
     private Long senderId;
     private String senderName;
     private String senderImageUrl;
