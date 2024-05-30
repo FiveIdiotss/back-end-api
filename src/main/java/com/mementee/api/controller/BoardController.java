@@ -8,7 +8,8 @@ import com.mementee.api.dto.boardDTO.*;
 import com.mementee.api.domain.Board;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.ApplyService;
-import com.mementee.api.service.FcmNotificationService;
+import com.mementee.api.service.FcmService;
+import com.mementee.api.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -36,7 +37,8 @@ public class BoardController {
 
     private final BoardService boardService;
     private final ApplyService applicationService;
-    private final FcmNotificationService fcmNotificationService;
+    private final FcmService fcmService;
+    private final NotificationService notificationService;
     private final RedisTemplate<String, String> redisTemplate;
 
     //Slice 글 리스트로 전체 조회---------------
@@ -225,9 +227,9 @@ public class BoardController {
     public CommonApiResponse<?> boardApply(@RequestBody @Valid ApplyRequest request, @PathVariable Long boardId,
                                            @RequestHeader("Authorization") String authorizationHeader){
         applicationService.sendApply(authorizationHeader, boardId, request);
-        FcmDTO fcmDTO = fcmNotificationService.createApplyFcmDTO(authorizationHeader, boardId, request);
-        fcmNotificationService.sendMessageTo(fcmDTO);
-        fcmNotificationService.saveFcmDetail(fcmDTO);
+        FcmDTO fcmDTO = fcmService.createApplyFcmDTO(authorizationHeader, boardId, request);
+        fcmService.sendMessageTo(fcmDTO);
+        notificationService.saveNotification(fcmDTO);
         return CommonApiResponse.createSuccess();
     }
 

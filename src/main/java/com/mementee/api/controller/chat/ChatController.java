@@ -43,7 +43,7 @@ public class ChatController {
     private final ChatService chatService;
     private final MemberService memberService;
     private final SimpMessagingTemplate websocketPublisher;
-    private final FcmNotificationService fcmNotificationService;
+    private final FcmService fcmService;
     private final FileService fileService;
 
     @MessageMapping("/hello")
@@ -61,9 +61,8 @@ public class ChatController {
         extracted(messageDTO);
 
         //FCM 알림
-        FcmDTO fcmDTO = fcmNotificationService.createChatFcmDTO(messageDTO);
-        fcmNotificationService.sendMessageTo(fcmDTO);
-        fcmNotificationService.saveFcmDetail(fcmDTO);
+        FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
+        fcmService.sendMessageTo(fcmDTO);
     }
 
     private void extracted(ChatMessageDTO messageDTO) {

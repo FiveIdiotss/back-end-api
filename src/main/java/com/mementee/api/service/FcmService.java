@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FcmNotificationService {
+public class FcmService {
 
     @Value("${firebase.config-path}")
     private String firebaseConfigPath;
@@ -44,7 +44,6 @@ public class FcmNotificationService {
 
     private final ObjectMapper objectMapper;
     private final FcmTokenRepository fcmTokenRepository;
-    private final NotificationRepository notificationRepository;
 
     private final ChatService chatService;
     private final MemberService memberService;
@@ -52,7 +51,6 @@ public class FcmNotificationService {
 
     public FcmDTO createApplyFcmDTO(String authorizationHeader, Long boardId, ApplyRequest request){
         Member sender = memberService.findMemberByToken(authorizationHeader);
-
         Board board = boardService.findBoardById(boardId);
         Long receiverId = board.getMember().getId();
         return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
@@ -67,35 +65,20 @@ public class FcmNotificationService {
                 messageDTO.getContent(), NotificationType.CHAT);
     }
 
-    public Page<Notification> findFcmDetailsByReceiverMember(String authorizationHeader, Pageable pageable){
-        Member loginMember = memberService.findMemberByToken(authorizationHeader);
-        return notificationRepository.findFcmDetailsByReceiveMember(loginMember, pageable);
-    }
-
     @Transactional
-    public void saveFCMNotification(Member member, String token) {
-        Optional<FcmToken> fcmNotification = fcmTokenRepository.findFCMNotificationByMember(member);
-        if(fcmNotification.isEmpty())
+    public void saveFCMToken(Member member, String token) {
+        Optional<FcmToken> fcmToken = fcmTokenRepository.findFcmTokenByMember(member);
+        if(fcmToken.isEmpty())
             fcmTokenRepository.save(new FcmToken(token, member));
         else
-            fcmNotification.get().updateFCMToken(token);
+            fcmToken.get().updateFCMToken(token);
     }
-
-    @Transactional
-    public void saveFcmDetail(FcmDTO fcmDTO) {
-        Member targetMember = memberService.findMemberById(fcmDTO.getTargetMemberId());
-        Member sendMember = memberService.findMemberById(fcmDTO.getSenderId());
-        Notification notification = new Notification(fcmDTO.getContent(),
-                fcmDTO.getNotificationType(), sendMember, targetMember);
-        notificationRepository.save(notification);
-    }
-
 
     //채팅 알림 보내기
     public void sendMessageTo(FcmDTO fcmDTO){
         try {
             Member member = memberService.findMemberById(fcmDTO.getTargetMemberId());
-            Optional<FcmToken> fcmNotification = fcmTokenRepository.findFCMNotificationByMember(member);
+            Optional<FcmToken> fcmNotification = fcmTokenRepository.findFcmTokenByMember(member);
 
             if (fcmNotification.isEmpty())
                 return;
