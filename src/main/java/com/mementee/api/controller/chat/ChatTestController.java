@@ -48,4 +48,10 @@ public class ChatTestController {
         mv.addObject("chatRooms", chatRoomDTOs);
         return mv;
     }
+
+    @GetMapping("/notification-test")
+    public String getNotificationPage() {
+        return "loginTestPages/notificationCountPage";
+    }
+
 }

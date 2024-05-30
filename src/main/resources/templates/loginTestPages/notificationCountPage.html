@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-time Notifications</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+</head>
+<body>
+
+<div>
+    <h1>실시간 알림 카운트: <span id="notification-count">0</span></h1>
+    <button onclick="sendTestNotification()">알림 보내기</button>
+    <button onclick="resetTestNotification()">알림 리셋</button>
+</div>
+
+<script>
+    var memberId = 1; // Replace with the actual member ID
+
+    //var ws = new WebSocket('ws://menteetor.site:8080/ws');
+    var ws = new WebSocket('ws://localhost:8080/ws');
+    stompClient = Stomp.over(ws);
+
+    var connectHeader = {
+        'memberId': memberId,
+    };
+
+    stompClient.connect(connectHeader, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/sub/notifications/' + memberId, function (message) {
+            console.log('Subscribed to notifications for member ID ' + memberId);
+            document.getElementById('notification-count').innerText = message.body;
+        });
+    });
+
+    function sendTestNotification() {
+        fetch('/api/push/fcm?targetMemberId=' + memberId, {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Notification sent:', data);
+            })
+            .catch(error => {
+                console.error('Error sending notification:', error);
+            });
+    }
+
+    function resetTestNotification() {
+        fetch('/api/push/reset?targetMemberId=' + memberId, {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Notification sent:', data);
+            })
+            .catch(error => {
+                console.error('Error sending notification:', error);
+            });
+    }
+
+
+</script>
+</body>
+</html>
