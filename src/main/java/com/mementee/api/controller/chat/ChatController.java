@@ -21,11 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,7 +42,7 @@ public class ChatController {
     private final ChatService chatService;
     private final MemberService memberService;
     private final SimpMessagingTemplate websocketPublisher;
-    private final FcmNotificationService fcmNotificationService;
+    private final FcmService fcmService;
     private final FileService fileService;
 
     @MessageMapping("/hello")
@@ -60,9 +57,8 @@ public class ChatController {
         chatService.saveMessage(messageDTO);
 
         //FCM 알림
-        FcmDTO fcmDTO = fcmNotificationService.createChatFcmDTO(messageDTO);
-        fcmNotificationService.sendMessageTo(fcmDTO);
-        fcmNotificationService.saveFcmDetail(fcmDTO);
+        FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
+        fcmService.sendMessageTo(fcmDTO);
     }
 
     @Operation(summary = "파일 전송 처리")

@@ -10,6 +10,6 @@ import java.util.Optional;
 
 public interface FcmTokenRepository extends JpaRepository<FcmToken, Long> {
 
-    Optional<FcmToken> findFCMNotificationByMember(Member member);
+    Optional<FcmToken> findFcmTokenByMember(Member member);
 
 }

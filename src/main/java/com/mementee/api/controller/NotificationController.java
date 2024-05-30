@@ -6,8 +6,9 @@ import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.PageInfo;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.dto.notificationDTO.PaginationFcmResponse;
-import com.mementee.api.service.FcmNotificationService;
+import com.mementee.api.service.FcmService;
 import com.mementee.api.service.MemberService;
+import com.mementee.api.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,9 +27,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "push 알림/목록")
 @Slf4j
-public class FCMNotificationController {
+public class NotificationController {
 
-    private final FcmNotificationService fcmNotificationService;
+    private final FcmService fcmService;
+    private final NotificationService notificationService;
     private final MemberService memberService;
 
 
@@ -37,7 +39,7 @@ public class FCMNotificationController {
     public CommonApiResponse<?> saveFCMToken(@RequestHeader("Authorization") String authorizationHeader,
                                              @RequestParam String myToken){
         Member member = memberService.findMemberByToken(authorizationHeader);
-        fcmNotificationService.saveFCMNotification(member, myToken);
+        fcmService.saveFCMToken(member, myToken);
         return CommonApiResponse.createSuccess();
     }
 
@@ -46,7 +48,7 @@ public class FCMNotificationController {
     public CommonApiResponse<PaginationFcmResponse> findFCMs(@RequestParam int page, @RequestParam int size,
                                                           @RequestHeader("Authorization") String authorizationHeader){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
-        Page<Notification> fcms = fcmNotificationService.findFcmDetailsByReceiverMember(authorizationHeader, pageable);
+        Page<Notification> fcms = notificationService.findNotificationsByReceiveMember(authorizationHeader, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)fcms.getTotalElements(), fcms.getTotalPages());
 
         List<Notification> response = fcms.getContent();

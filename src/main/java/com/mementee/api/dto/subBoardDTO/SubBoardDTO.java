@@ -1,6 +1,7 @@
 package com.mementee.api.dto.subBoardDTO;
 
 import com.mementee.api.domain.SubBoard;
+import com.mementee.api.domain.enumtype.BoardCategory;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SubBoardDTO {
     private Long subBoardId;
+    private BoardCategory boardCategory;
 
     private String title;
     private String content;
@@ -30,10 +32,10 @@ public class SubBoardDTO {
     private boolean isLike;
 
     public static SubBoardDTO createSubBoardDTO(SubBoard subBoard, boolean isLike) {
-        return new SubBoardDTO(subBoard.getId(), subBoard.getTitle(), subBoard.getContent(),
+        return new SubBoardDTO(subBoard.getId(), subBoard.getBoardCategory(),subBoard.getTitle(), subBoard.getContent(),
                 subBoard.getMember().getYear(), subBoard.getMember().getSchool().getName(), subBoard.getMember().getMajor().getName(),
                 subBoard.getMember().getId(), subBoard.getMember().getMemberImageUrl(), subBoard.getMember().getName(), subBoard.getWriteTime(),
-                subBoard.getReplyCount(), subBoard.getLikeCount(), isLike);
+                subBoard.getLikeCount(), subBoard.getReplyCount(), isLike);
     }
 
     public static List<SubBoardDTO> createSubBoardDTOs(List<SubBoard> subBoards, boolean isLike) {

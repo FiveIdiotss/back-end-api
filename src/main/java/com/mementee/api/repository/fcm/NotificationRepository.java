@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    Page<Notification> findFcmDetailsByReceiveMember(Member loginMember, Pageable pageable);
+    Page<Notification> findNotificationsByReceiveMember(Member loginMember, Pageable pageable);
 
 }

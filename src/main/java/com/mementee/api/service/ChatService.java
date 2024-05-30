@@ -70,6 +70,7 @@ public class ChatService {
 
     public ChatRoomDTO createChatRoomDTO(Member loginMember, ChatRoom chatRoom) {
         Member receiver = getReceiver(loginMember.getId(), chatRoom);
+
         LatestMessageDTO latestMessageDTO = LatestMessageDTO.createLatestMessageDTO(findLatestChatMessage(chatRoom.getId()));
         int unreadMessageCount = getUnreadMessageCount(chatRoom.getId(), loginMember.getId());
         return ChatRoomDTO.createChatRoomDTO(loginMember, receiver, chatRoom, latestMessageDTO, unreadMessageCount);
