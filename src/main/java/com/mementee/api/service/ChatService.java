@@ -105,7 +105,7 @@ public class ChatService {
 
     public ChatRoom findChatRoomById(Long chatRoomId) {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findById(chatRoomId);
-        if(chatRoom.isEmpty())
+        if (chatRoom.isEmpty())
             throw new ChatRoomNotFound();
         return chatRoom.get();
     }

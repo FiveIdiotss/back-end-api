@@ -52,7 +52,6 @@ public class ChatController {
         // If both users are in the chat room, set the readCount to 2.
         chatService.setMessageReadCount(messageDTO);
 
-
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
 
