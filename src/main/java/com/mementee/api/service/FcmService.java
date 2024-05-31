@@ -5,23 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
 import com.mementee.api.domain.Board;
-import com.mementee.api.domain.Notification;
 import com.mementee.api.domain.FcmToken;
 import com.mementee.api.domain.Member;
+import com.mementee.api.domain.SubBoard;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.domain.enumtype.NotificationType;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.dto.notificationDTO.FcmMessage;
-import com.mementee.api.repository.fcm.NotificationRepository;
+import com.mementee.api.dto.subBoardDTO.ReplyRequest;
 import com.mementee.api.repository.fcm.FcmTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,13 +46,24 @@ public class FcmService {
     private final ChatService chatService;
     private final MemberService memberService;
     private final BoardService boardService;
+    private final SubBoardService subBoardService;
 
+
+    //title, otherPK 추가
     public FcmDTO createApplyFcmDTO(String authorizationHeader, Long boardId, ApplyRequest request){
         Member sender = memberService.findMemberByToken(authorizationHeader);
         Board board = boardService.findBoardById(boardId);
         Long receiverId = board.getMember().getId();
         return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
-                request.getContent(), NotificationType.APPLY);
+                board.getTitle(), request.getContent(), boardId, NotificationType.APPLY);
+    }
+
+    public FcmDTO createReplyFcmDTO(String authorizationHeader, Long subBoardId, ReplyRequest request){
+        Member sender = memberService.findMemberByToken(authorizationHeader);
+        SubBoard subBoard = subBoardService.findSubBoardById(subBoardId);
+        Long receiverId = subBoard.getMember().getId();
+        return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
+                subBoard.getTitle(), request.getContent(), subBoardId, NotificationType.REPLY);
     }
 
     public FcmDTO createChatFcmDTO(ChatMessageDTO messageDTO){
@@ -62,7 +71,7 @@ public class FcmService {
         ChatRoom chatRoom = chatService.findChatRoomById(messageDTO.getChatRoomId());
         Member receiver = chatService.getReceiver(messageDTO.getSenderId(), chatRoom);
         return new FcmDTO(receiver.getId(), sender.getId(), sender.getName(), sender.getMemberImageUrl(),
-                messageDTO.getContent(), NotificationType.CHAT);
+                "채팅 도착", messageDTO.getContent(), chatRoom.getId(), NotificationType.CHAT);
     }
 
     @Transactional

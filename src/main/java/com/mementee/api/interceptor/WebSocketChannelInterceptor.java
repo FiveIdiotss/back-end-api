@@ -1,8 +1,6 @@
 package com.mementee.api.interceptor;
 
 import com.mementee.api.service.ChatService;
-import com.mementee.api.service.RedisService;
-import com.mementee.exception.notFound.HeaderNotFound;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -24,7 +22,7 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
     private final ChatService chatService;
     private final ApplicationContext applicationContext;
-//    private final SimpMessagingTemplate websocketPublisher;
+    //private final SimpMessagingTemplate websocketPublisher;
 
     private SimpMessagingTemplate getMessagingTemplate() {
         return applicationContext.getBean(SimpMessagingTemplate.class);
@@ -48,13 +46,12 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
                     Long chatRoomId = Long.parseLong(chatRoomIdStr);
                     Long senderId = Long.parseLong(senderIdStr);
 
-                    // chatRoomId와 senderId를 websock DISCONNECT 시점에 재사용하기 위해 세션에 저장.
+                    // chatRoomId와 senderId를 Websocket DISCONNECT 시점에 재사용하기 위해 세션에 저장.
                     accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
                     accessor.getSessionAttributes().put("senderId", senderId);
 
                     chatService.userEnterChatRoom(chatRoomId, senderId);
 
-                    //
                     Long numberOfUserInChatRoom = chatService.getNumberOfUserInChatRoom(chatRoomId);
                     if (numberOfUserInChatRoom == 2L) {
                         log.info("chatRoomId={}", chatRoomId);

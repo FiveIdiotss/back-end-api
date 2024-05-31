@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class SubBoard {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sub_board_id")
     private Long id;
 
