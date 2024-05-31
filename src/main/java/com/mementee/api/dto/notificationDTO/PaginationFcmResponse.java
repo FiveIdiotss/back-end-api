@@ -9,6 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class PaginationFcmResponse {
-    private List<FcmDTO> data;
+    private List<NotificationDTO> data;
     private PageInfo pageInfo;
 }

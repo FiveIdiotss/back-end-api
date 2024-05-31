@@ -1,8 +1,6 @@
 package com.mementee.api.interceptor;
 
 import com.mementee.api.service.ChatService;
-import com.mementee.api.service.RedisService;
-import com.mementee.exception.notFound.HeaderNotFound;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -26,8 +24,8 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         // accessor stomp메시지의 헤더 정보에 접근할 수 있도록 도와주는 유틸리티 클래스
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-
         if (accessor != null) {
+            System.out.println(accessor);
             // 웹소켓 CONNECT 시점에 특정 해더 정보에서 읽어온 chatRoomId에 messsage sender를 입장시킴.
             if (StompCommand.CONNECT.equals(accessor.getCommand())) {
                 List<String> chatRoomIdHeaders = accessor.getNativeHeader("chatRoomId");
@@ -46,9 +44,6 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
                     chatService.userEnterChatRoom(chatRoomId, senderId);
 
-                    // 유저를 채팅방에 입장 시킨 후에 바로 해당 채팅방의 실시간 접속 유저 수를 가져옴.
-                    Long userCount = chatService.getNumberOfUserInChatRoom(chatRoomId);
-                    log.info("userCount={}", userCount);
                 } else {
                     // 헤더가 없을 경우 로그를 남기거나 다른 처리를 할 수 있습니다.
                     log.info("채팅방 목록 로딩 시점. CONNECT 시점에 chatRoomId 또는 senderId 헤더가 없습니다.");
@@ -65,9 +60,7 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
                 }
             }
         }
-
         return message;
     }
-
 
 }
