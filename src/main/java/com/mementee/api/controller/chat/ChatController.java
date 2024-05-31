@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -42,9 +43,9 @@ public class ChatController {
 
     private final ChatService chatService;
     private final MemberService memberService;
-    private final SimpMessagingTemplate websocketPublisher;
     private final FcmService fcmService;
     private final FileService fileService;
+    private final SimpMessagingTemplate websocketPublisher;
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageDTO messageDTO) {

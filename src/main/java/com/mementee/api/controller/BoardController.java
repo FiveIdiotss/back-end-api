@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.service.BoardService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.*;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
@@ -35,10 +36,10 @@ import java.util.Set;
 @Tag(name = "글 쓰기, 글 리스트, 글 조회")
 public class BoardController {
 
+    private final NotificationService notificationService;
     private final BoardService boardService;
     private final ApplyService applicationService;
     private final FcmService fcmService;
-    private final NotificationService notificationService;
     private final RedisTemplate<String, String> redisTemplate;
 
     //Slice 글 리스트로 전체 조회---------------

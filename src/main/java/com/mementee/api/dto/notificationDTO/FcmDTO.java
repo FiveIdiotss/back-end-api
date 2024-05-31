@@ -17,18 +17,11 @@ public class FcmDTO {
     private Long senderId;
     private String senderName;
     private String senderImageUrl;
+
+    private String title;
     private String content;
 
-    private NotificationType notificationType;
+    private Long otherPK;
 
-    public static List<FcmDTO> createFcmList(List<Notification> fds){
-        return fds.stream()
-                .map(fd -> new FcmDTO(fd.getReceiveMember().getId(),
-                        fd.getSendMember().getId(),
-                        fd.getSendMember().getName(),
-                        fd.getSendMember().getMemberImageUrl(),
-                        fd.getContent(),
-                        fd.getNotificationType()))
-                .toList();
-    }
+    private NotificationType notificationType;
 }

@@ -31,6 +31,6 @@ public class RedisService {
 
     //채팅방에 대한 알림 key
     private String getKey(Long memberId) {
-        return "notify:unread:" + memberId;
+        return "notification:unreadCount:" + memberId;
     }
 }
