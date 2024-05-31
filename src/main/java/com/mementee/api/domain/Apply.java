@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class Apply {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "apply_id")
     private Long id;
 

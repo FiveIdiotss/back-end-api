@@ -1,27 +1,40 @@
 package com.mementee.api.dto.notificationDTO;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.mementee.api.domain.Notification;
+import com.mementee.api.domain.enumtype.NotificationType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class NotificationDTO {
-    //private Long lastEventId;
-    private Long receiverId;
-    private Object objectDTO;
-    //private ChatMessageDTO chatMessageDTO;
+    private Long notificationId;
 
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @CreatedDate
-    private LocalDateTime localDateTime = LocalDateTime.now();
+    private Long senderId;
+    private String senderName;
+    private String senderImageUrl;
+
+    private Long otherPK;           //Notification Kind PK
+    private String title;       //title
+    private String content;
+
+    private NotificationType notificationType;
+
+    private LocalDateTime arriveTime;
+
+    public static NotificationDTO createNotificationDTO(Notification notification){
+        return new NotificationDTO(notification.getId(), notification.getSendMember().getId(), notification.getSendMember().getName(), notification.getSendMember().getMemberImageUrl(),
+                notification.getOtherPK(), notification.getTitle(), notification.getContent(), notification.getType(), notification.getArriveTime());
+    }
+
+    public static List<NotificationDTO> createNotificationDTOs(List<Notification> notifications){
+        return notifications.stream().map(NotificationDTO::createNotificationDTO)
+                .toList();
+    }
+
 }

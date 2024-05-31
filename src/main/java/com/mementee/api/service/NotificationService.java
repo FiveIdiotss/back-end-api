@@ -5,6 +5,7 @@ import com.mementee.api.domain.Notification;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.repository.fcm.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -18,6 +19,8 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final MemberService memberService;
     private final RedisService redisService;
+
+    @Lazy
     private final SimpMessagingTemplate websocketPublisher;
 
     public void sendNotification(Long targetMemberId) {
@@ -33,18 +36,17 @@ public class NotificationService {
     }
 
     public Page<Notification> findNotificationsByReceiveMember(String authorizationHeader, Pageable pageable){
-        Member member = memberService.findMemberByToken(authorizationHeader);
-        redisService.resetUnreadCount(member.getId());
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
+        redisService.resetUnreadCount(loginMember.getId());
         return notificationRepository.findNotificationsByReceiveMember(loginMember, pageable);
     }
 
     @Transactional
     public void saveNotification(FcmDTO fcmDTO) {
-        Member targetMember = memberService.findMemberById(fcmDTO.getTargetMemberId());
         Member sendMember = memberService.findMemberById(fcmDTO.getSenderId());
-        Notification notification = new Notification(fcmDTO.getContent(),
-                fcmDTO.getNotificationType(), sendMember, targetMember);
+        Member receiveMember = memberService.findMemberById(fcmDTO.getTargetMemberId());
+        Notification notification = new Notification(fcmDTO.getTitle(), fcmDTO.getContent(), fcmDTO.getOtherPK(),
+                fcmDTO.getNotificationType(), sendMember, receiveMember);
         notificationRepository.save(notification);
     }
 }

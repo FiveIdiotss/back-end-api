@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class SubBoardImage {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sub_board_image_id")
     private Long id;
 

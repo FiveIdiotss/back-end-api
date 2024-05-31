@@ -1,5 +1,5 @@
 package com.mementee.api.domain.enumtype;
 
 public enum NotificationType {
-    CHAT, APPLY
+    CHAT, REPLY, APPLY, MATCHING_COMPLETE, MATCHING_DECLINE
 }

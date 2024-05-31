@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class Matching {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "matching_id")
     private Long id;
 

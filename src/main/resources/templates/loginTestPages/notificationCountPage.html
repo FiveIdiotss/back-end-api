@@ -21,11 +21,8 @@
     var ws = new WebSocket('ws://localhost:8080/ws');
     stompClient = Stomp.over(ws);
 
-    var connectHeader = {
-        'memberId': memberId,
-    };
 
-    stompClient.connect(connectHeader, function (frame) {
+    stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
         stompClient.subscribe('/sub/notifications/' + memberId, function (message) {
             console.log('Subscribed to notifications for member ID ' + memberId);

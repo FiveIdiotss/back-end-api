@@ -6,7 +6,10 @@ import com.mementee.api.domain.enumtype.BoardCategory;
 import com.mementee.api.domain.enumtype.SubBoardType;
 import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.PageInfo;
+import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.dto.subBoardDTO.*;
+import com.mementee.api.service.FcmService;
+import com.mementee.api.service.NotificationService;
 import com.mementee.api.service.SubBoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,6 +35,8 @@ import java.util.List;
 public class SubBoardController {
 
     private final SubBoardService subBoardService;
+    private final FcmService fcmService;
+    private final NotificationService notificationService;
 
     @Operation(summary = "질문 글쓰기 / 요청과 통합 예정", description =
             "  {\"title\": \"이거 아시는분\",\n" +
@@ -95,9 +100,13 @@ public class SubBoardController {
             @ApiResponse(responseCode = "fail", description = "실패")})
     @PostMapping("/api/reply/{subBoardId}")
     public CommonApiResponse<?> saveReply(@RequestBody ReplyRequest request, @RequestHeader("Authorization") String authorizationHeader,
-                                            @PathVariable Long subBoardId) {
-            subBoardService.saveReply(request, subBoardId, authorizationHeader);
-            return CommonApiResponse.createSuccess();
+                                          @PathVariable Long subBoardId) {
+
+        subBoardService.saveReply(request, subBoardId, authorizationHeader);
+        FcmDTO fcmDTO = fcmService.createReplyFcmDTO(authorizationHeader, subBoardId, request);
+        fcmService.sendMessageTo(fcmDTO);
+        notificationService.saveNotification(fcmDTO);
+        return CommonApiResponse.createSuccess();
     }
 
     //댓글 수정
