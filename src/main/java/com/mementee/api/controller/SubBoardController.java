@@ -131,12 +131,15 @@ public class SubBoardController {
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/reply/{subBoardId}")
     public CommonApiResponse<PaginationReplyResponse> findReplies(@RequestParam int page, @RequestParam int size,
-                                                             @PathVariable Long subBoardId) {
-            Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id")); //내림차 순(최신순)
-            Page<Reply> findReplies = subBoardService.findAllReply(subBoardId, pageable);
-            PageInfo pageInfo = new PageInfo(page, size, (int) findReplies.getTotalElements(), findReplies.getTotalPages());
-            List<ReplyDTO> list = ReplyDTO.createReplyDTOs(findReplies.getContent());
-            return CommonApiResponse.createSuccess(new PaginationReplyResponse(list, pageInfo));
+                                                                  @RequestParam boolean isRecent,
+                                                                  @PathVariable Long subBoardId) {
+        // 정렬 방향 결정
+        Sort sort = isRecent ? Sort.by("id").descending() : Sort.by("id").ascending();
+
+        Page<Reply> findReplies = subBoardService.findAllReply(subBoardId, PageRequest.of(page - 1, size, sort));
+        PageInfo pageInfo = new PageInfo(page, size, (int) findReplies.getTotalElements(), findReplies.getTotalPages());
+        List<ReplyDTO> list = ReplyDTO.createReplyDTOs(findReplies.getContent());
+        return CommonApiResponse.createSuccess(new PaginationReplyResponse(list, pageInfo));
     }
 
     //좋아요 누르기
@@ -146,7 +149,7 @@ public class SubBoardController {
             @ApiResponse(responseCode = "fail", description = "실패")})
     @PostMapping("/api/like/{subBoardId}")
     public CommonApiResponse<?> addLike(@RequestHeader("Authorization") String authorizationHeader,
-                                               @PathVariable Long subBoardId) {
+                                        @PathVariable Long subBoardId) {
             subBoardService.addSubBoardLike(subBoardId, authorizationHeader);
             return CommonApiResponse.createSuccess();
     }
