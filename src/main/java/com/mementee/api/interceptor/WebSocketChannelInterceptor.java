@@ -3,10 +3,8 @@ package com.mementee.api.interceptor;
 import com.mementee.api.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -21,12 +19,6 @@ import java.util.List;
 public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
     private final ChatService chatService;
-    private final ApplicationContext applicationContext;
-//    private final SimpMessagingTemplate websocketPublisher;
-
-    private SimpMessagingTemplate getMessagingTemplate() {
-        return applicationContext.getBean(SimpMessagingTemplate.class);
-    }
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -46,19 +38,15 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
                     Long chatRoomId = Long.parseLong(chatRoomIdStr);
                     Long senderId = Long.parseLong(senderIdStr);
 
-                    // chatRoomId와 senderId를 websock DISCONNECT 시점에 재사용하기 위해 세션에 저장.
+                    // chatRoomId와 senderId를 websock DISCONNECT 시점에 재사용하기 위해 서버의 세션(메모리)에 저장.
                     accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
                     accessor.getSessionAttributes().put("senderId", senderId);
 
                     chatService.userEnterChatRoom(chatRoomId, senderId);
 
-                    //
-                    Long numberOfUserInChatRoom = chatService.getNumberOfUserInChatRoom(chatRoomId);
-                    if (numberOfUserInChatRoom == 2L) {
-                        log.info("chatRoomId={}", chatRoomId);
-                        getMessagingTemplate().convertAndSend("/sub/userCount/" + chatRoomId, numberOfUserInChatRoom.toString());
-                    }
-
+                    // 유저를 채팅방에 입장 시킨 후에 바로 해당 채팅방의 실시간 접속 유저 수를 가져옴.
+                    Long userCount = chatService.getNumberOfUserInChatRoom(chatRoomId);
+                    log.info("userCount={}", userCount);
                 } else {
                     // 헤더가 없을 경우 로그를 남기거나 다른 처리를 할 수 있습니다.
                     log.info("채팅방 목록 로딩 시점. CONNECT 시점에 chatRoomId 또는 senderId 헤더가 없습니다.");
