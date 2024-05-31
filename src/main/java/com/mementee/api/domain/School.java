@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class School {
 
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "school_id")
     private Long id;

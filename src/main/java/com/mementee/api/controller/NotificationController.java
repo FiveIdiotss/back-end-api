@@ -6,6 +6,7 @@ import com.mementee.api.domain.enumtype.NotificationType;
 import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.PageInfo;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
+import com.mementee.api.dto.notificationDTO.NotificationDTO;
 import com.mementee.api.dto.notificationDTO.PaginationFcmResponse;
 import com.mementee.api.service.FcmService;
 import com.mementee.api.service.MemberService;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,10 +35,10 @@ import java.util.List;
 @Slf4j
 public class NotificationController {
 
-    private final FcmService fcmService;
     private final NotificationService notificationService;
-    private final MemberService memberService;
 
+    private final FcmService fcmService;;
+    private final MemberService memberService;
     private final RedisService redisService;
 
 
@@ -58,7 +60,7 @@ public class NotificationController {
         PageInfo pageInfo = new PageInfo(page, size, (int)fcms.getTotalElements(), fcms.getTotalPages());
 
         List<Notification> response = fcms.getContent();
-        List<FcmDTO> list = FcmDTO.createFcmList(response);
+        List<NotificationDTO> list = NotificationDTO.createNotificationDTOs(response);
         return CommonApiResponse.createSuccess(new PaginationFcmResponse(list, pageInfo));
     }
 
