@@ -78,6 +78,12 @@ public class ChatService {
         return ChatRoomDTO.createChatRoomDTO(member, receiver, chatRoom, latestMessageDTO, unreadMessageCount);
     }
 
+    @Transactional
+    public void saveMessage(ChatMessageDTO messageDTO) {
+        ChatMessage chatMessage = createMessageByDTO(messageDTO);
+        chatMessageRepository.save(chatMessage);
+    }
+
     public ChatMessage createMessageByDTO(ChatMessageDTO messageDTO) {
         Member sender = memberService.findMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = findChatRoomById(messageDTO.getChatRoomId());
@@ -139,12 +145,6 @@ public class ChatService {
     // 특정 멤버가 속한 모든 채팅방 조회
     public List<ChatRoom> findAllChatRoomByMemberId(Long memberId) {
         return chatRoomRepository.findChatRoomsByMemberId(memberId);
-    }
-
-    @Transactional
-    public void saveMessage(ChatMessageDTO messageDTO) {
-        ChatMessage chatMessage = createMessageByDTO(messageDTO);
-        chatMessageRepository.save(chatMessage);
     }
 
     public String saveMultipartFile(MultipartFile file) {
