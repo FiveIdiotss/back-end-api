@@ -7,7 +7,6 @@ import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.dto.chatDTO.ChatRoomUpdateDTO;
-import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.*;
 import com.mementee.exception.notFound.FileNotFound;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -52,17 +50,16 @@ public class ChatController {
         // If both users are in the chat room, set the readCount to 2.
         chatService.setMessageReadCount(messageDTO);
 
-        // webSocket에 보내기
-        websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
-
         //DB에 저장
         chatService.saveMessage(messageDTO);
 
-        extracted(messageDTO);
+        // webSocket에 보내기
+        websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
 
+        extracted(messageDTO);
         //FCM 알림
-        FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
-        fcmService.sendMessageTo(fcmDTO);
+//        FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
+//        fcmService.sendMessageTo(fcmDTO);
     }
 
     private void extracted(ChatMessageDTO messageDTO) {

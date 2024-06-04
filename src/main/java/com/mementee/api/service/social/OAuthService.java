@@ -18,10 +18,7 @@ public class OAuthService {
     private final List<SocialService> socialServiceList;
 
     public String requestAuthorizedURL(SocialLoginType socialLoginType) {
-        log.info("socialLogintype={}", socialLoginType);
         SocialService socialService = this.findSocialServiceByType(socialLoginType);
-
-        System.out.println("url 체크 부분: " + socialService.getAuthorizedURL());
 
         return socialService.getAuthorizedURL();
     }
