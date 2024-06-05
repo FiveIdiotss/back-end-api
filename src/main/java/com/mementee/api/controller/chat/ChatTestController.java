@@ -22,6 +22,10 @@ public class ChatTestController {
     private final MemberService memberService;
     private final ChatService chatService;
 
+    @GetMapping("/")
+    public String index() {
+        return "loginTestPages/login";
+    }
     @GetMapping("/login")
     public String loginPage() {
         return "loginTestPages/login";

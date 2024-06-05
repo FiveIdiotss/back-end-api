@@ -2,10 +2,8 @@ package com.mementee.api.controller;
 
 import com.mementee.api.domain.Notification;
 import com.mementee.api.domain.Member;
-import com.mementee.api.domain.enumtype.NotificationType;
 import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.PageInfo;
-import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.dto.notificationDTO.NotificationDTO;
 import com.mementee.api.dto.notificationDTO.PaginationFcmResponse;
 import com.mementee.api.service.FcmService;
@@ -17,15 +15,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -53,8 +48,8 @@ public class NotificationController {
 
     @Operation(summary = "알림 목록")
     @GetMapping("/api/fcm")
-    public CommonApiResponse<PaginationFcmResponse> findFCMs(@RequestParam int page, @RequestParam int size,
-                                                             @RequestHeader("Authorization") String authorizationHeader){
+    public CommonApiResponse<PaginationFcmResponse> notificationList(@RequestParam int page, @RequestParam int size,
+                                                                     @RequestHeader("Authorization") String authorizationHeader){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
         Page<Notification> fcms = notificationService.findNotificationsByReceiveMember(authorizationHeader, pageable);
         PageInfo pageInfo = new PageInfo(page, size, (int)fcms.getTotalElements(), fcms.getTotalPages());
@@ -71,7 +66,7 @@ public class NotificationController {
         return CommonApiResponse.createSuccess();
     }
 
-    @Operation(summary = "알림 리셋")
+    @Operation(summary = "알림 리셋 (테스트용)")
     @PostMapping("/api/push/reset")
     public CommonApiResponse<?> resetMessage(@RequestParam Long targetMemberId){
         redisService.resetUnreadCount(targetMemberId);

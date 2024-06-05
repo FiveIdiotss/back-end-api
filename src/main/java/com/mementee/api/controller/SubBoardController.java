@@ -1,5 +1,6 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.Member;
 import com.mementee.api.domain.Reply;
 import com.mementee.api.domain.SubBoard;
 import com.mementee.api.domain.enumtype.BoardCategory;
@@ -9,6 +10,7 @@ import com.mementee.api.dto.PageInfo;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.dto.subBoardDTO.*;
 import com.mementee.api.service.FcmService;
+import com.mementee.api.service.MemberService;
 import com.mementee.api.service.NotificationService;
 import com.mementee.api.service.SubBoardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +39,7 @@ public class SubBoardController {
     private final SubBoardService subBoardService;
     private final FcmService fcmService;
     private final NotificationService notificationService;
-
+    private final MemberService memberService;
     @Operation(summary = "질문 글쓰기 / 요청과 통합 예정", description =
             "  {\"title\": \"이거 아시는분\",\n" +
             "  \"content\": \"1+1 이 뭔가요?\"," +
@@ -101,9 +103,14 @@ public class SubBoardController {
     @PostMapping("/api/reply/{subBoardId}")
     public CommonApiResponse<?> saveReply(@RequestBody ReplyRequest request, @RequestHeader("Authorization") String authorizationHeader,
                                           @PathVariable Long subBoardId) {
+        SubBoard subBoard = subBoardService.findSubBoardById(subBoardId);
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        subBoardService.saveReply(request, subBoard, member);
 
-        subBoardService.saveReply(request, subBoardId, authorizationHeader);
-        FcmDTO fcmDTO = fcmService.createReplyFcmDTO(authorizationHeader, subBoardId, request);
+        if(subBoard.getMember().equals(member))    //자신의 글에 자신이 댓글 쓸 때
+            return CommonApiResponse.createSuccess();
+
+        FcmDTO fcmDTO = fcmService.createReplyFcmDTO(authorizationHeader, subBoard, request);
         fcmService.sendMessageTo(fcmDTO);
         notificationService.saveNotification(fcmDTO);
         return CommonApiResponse.createSuccess();

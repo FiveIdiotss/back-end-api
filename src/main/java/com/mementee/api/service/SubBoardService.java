@@ -210,9 +210,7 @@ public class SubBoardService {
 
     //댓글 등록
     @Transactional
-    public void saveReply(ReplyRequest request, Long subBoardId, String authorizationHeader) {
-        Member member = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = findSubBoardById(subBoardId);
+    public void saveReply(ReplyRequest request, SubBoard subBoard, Member member) {
         Reply reply = new Reply(request.getContent(), member, subBoard);
         subBoard.plusReplyCount();
         replyRepository.save(reply);
