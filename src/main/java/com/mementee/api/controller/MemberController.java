@@ -2,6 +2,7 @@ package com.mementee.api.controller;
 
 import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.memberDTO.*;
+import com.mementee.api.service.RedisService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -28,6 +29,7 @@ public class MemberController {
     private final MemberService memberService;
     private final SchoolService schoolService;
     private final MajorService majorService;
+    private final RedisService redisService;
     //회원정보 수정 필요
 
     //회원가입--------------------------------------

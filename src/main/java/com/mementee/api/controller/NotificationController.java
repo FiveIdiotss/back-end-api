@@ -11,6 +11,8 @@ import com.mementee.api.service.MemberService;
 import com.mementee.api.service.NotificationService;
 import com.mementee.api.service.RedisService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,17 @@ public class NotificationController {
     private final RedisService redisService;
 
 
+    @Operation(summary = "알림 갯수 Return")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
+            @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
+    @GetMapping("/api/count")
+    public CommonApiResponse<?> getNotificationCount(@RequestHeader("Authorization") String authorizationHeader) {
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        int unReadCount = redisService.getUnreadCount(member.getId());
+        return CommonApiResponse.createSuccess(unReadCount);
+    }
+
     @Operation(summary = "자신의 FCM 토큰 DB에 저장")
     @PostMapping("/api/fcm")
     public CommonApiResponse<?> saveFCMToken(@RequestHeader("Authorization") String authorizationHeader,
@@ -47,7 +60,7 @@ public class NotificationController {
     }
 
     @Operation(summary = "알림 목록")
-    @GetMapping("/api/fcm")
+    @GetMapping("/api/push")
     public CommonApiResponse<PaginationFcmResponse> notificationList(@RequestParam int page, @RequestParam int size,
                                                                      @RequestHeader("Authorization") String authorizationHeader){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
@@ -57,6 +70,14 @@ public class NotificationController {
         List<Notification> response = fcms.getContent();
         List<NotificationDTO> list = NotificationDTO.createNotificationDTOs(response);
         return CommonApiResponse.createSuccess(new PaginationFcmResponse(list, pageInfo));
+    }
+
+    @Operation(summary = "알림 삭제")
+    @DeleteMapping("/api/push/{notificationId}")
+    public CommonApiResponse<?> deleteNotification(@RequestHeader("Authorization") String authorizationHeader,
+                                                   @PathVariable Long notificationId){
+        notificationService.deleteNotification(authorizationHeader, notificationId);
+        return CommonApiResponse.createSuccess();
     }
 
     @Operation(summary = "알림 받을 상대방 ID 입력 (테스트용)")
