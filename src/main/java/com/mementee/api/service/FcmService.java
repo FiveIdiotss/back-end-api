@@ -58,12 +58,11 @@ public class FcmService {
                 board.getTitle(), request.getContent(), boardId, NotificationType.APPLY);
     }
 
-    public FcmDTO createReplyFcmDTO(String authorizationHeader, Long subBoardId, ReplyRequest request){
+    public FcmDTO createReplyFcmDTO(String authorizationHeader, SubBoard subBoard, ReplyRequest request){
         Member sender = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = subBoardService.findSubBoardById(subBoardId);
         Long receiverId = subBoard.getMember().getId();
         return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
-                subBoard.getTitle(), request.getContent(), subBoardId, NotificationType.REPLY);
+                subBoard.getTitle(), request.getContent(), subBoard.getId(), NotificationType.REPLY);
     }
 
     public FcmDTO createChatFcmDTO(ChatMessageDTO messageDTO){

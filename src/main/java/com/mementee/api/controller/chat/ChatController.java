@@ -7,6 +7,7 @@ import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.dto.chatDTO.ChatRoomUpdateDTO;
+import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.*;
 import com.mementee.exception.notFound.FileNotFound;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,8 +59,8 @@ public class ChatController {
 
         extracted(messageDTO);
         //FCM 알림
-//        FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
-//        fcmService.sendMessageTo(fcmDTO);
+        FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
+        fcmService.sendMessageTo(fcmDTO);
     }
 
     private void extracted(ChatMessageDTO messageDTO) {

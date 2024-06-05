@@ -1,5 +1,6 @@
 package com.mementee.api.controller;
 
+import com.mementee.api.domain.Member;
 import com.mementee.api.domain.Reply;
 import com.mementee.api.domain.SubBoard;
 import com.mementee.api.domain.enumtype.BoardCategory;
@@ -9,6 +10,7 @@ import com.mementee.api.dto.PageInfo;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.dto.subBoardDTO.*;
 import com.mementee.api.service.FcmService;
+import com.mementee.api.service.MemberService;
 import com.mementee.api.service.NotificationService;
 import com.mementee.api.service.SubBoardService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +39,7 @@ public class SubBoardController {
     private final SubBoardService subBoardService;
     private final FcmService fcmService;
     private final NotificationService notificationService;
+    private final MemberService memberService;
 
     @Operation(summary = "질문 글쓰기 / 요청과 통합 예정", description =
             "  {\"title\": \"이거 아시는분\",\n" +
@@ -45,10 +48,9 @@ public class SubBoardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping(value = "/api/subBoard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public CommonApiResponse<?> saveQuestSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
-                                             @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
-            subBoardService.saveFreeSubBoard(request, authorizationHeader, multipartFiles);
+    @PostMapping(value = "/api/subBoard")
+    public CommonApiResponse<?> saveQuestSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
+            subBoardService.saveFreeSubBoard(request, authorizationHeader);
             return CommonApiResponse.createSuccess();
     }
 
@@ -59,11 +61,20 @@ public class SubBoardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping(value = "/api/requestBoard", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public CommonApiResponse<?> saveRequestSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
-                                                    @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
-        subBoardService.saveRequestSubBoard(request, authorizationHeader, multipartFiles);
+    @PostMapping(value = "/api/requestBoard")
+    public CommonApiResponse<?> saveRequestSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
+        subBoardService.saveRequestSubBoard(request, authorizationHeader);
         return CommonApiResponse.createSuccess();
+    }
+
+    @Operation(summary = "서브 보드 이미지 url 리턴", description = "글 쓸때 이미지 첨부기능에 대한 이미지 url return")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "등록 성공"),
+            @ApiResponse(responseCode = "fail", description = "등록 실패")})
+    @PostMapping(value = "/api/saveSubBoardImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CommonApiResponse<?> saveSubBoardImage(@RequestPart MultipartFile multipartFile){
+        String url = subBoardService.saveSubBoardImage(multipartFile);
+        return CommonApiResponse.createSuccess(url);
     }
 
     @Operation(summary = "글 수정", description =
@@ -88,7 +99,7 @@ public class SubBoardController {
             @ApiResponse(responseCode = "fail", description = "글 조회 실패")})
     @GetMapping("/api/subBoard/{subBoardId}")
     public CommonApiResponse<SubBoardInfoResponse> findSubBoard(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-                                                             @PathVariable Long subBoardId) {
+                                                                @PathVariable Long subBoardId) {
             SubBoardInfoResponse response = subBoardService.createSubBoardInfoResponse(subBoardId, authorizationHeader);
             return CommonApiResponse.createSuccess(response);
     }
@@ -101,9 +112,14 @@ public class SubBoardController {
     @PostMapping("/api/reply/{subBoardId}")
     public CommonApiResponse<?> saveReply(@RequestBody ReplyRequest request, @RequestHeader("Authorization") String authorizationHeader,
                                           @PathVariable Long subBoardId) {
+        SubBoard subBoard = subBoardService.findSubBoardById(subBoardId);
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        subBoardService.saveReply(request, subBoard, member);
 
-        subBoardService.saveReply(request, subBoardId, authorizationHeader);
-        FcmDTO fcmDTO = fcmService.createReplyFcmDTO(authorizationHeader, subBoardId, request);
+        if(subBoard.getMember().equals(member))    //자신의 글에 자신이 댓글 쓸 때
+            return CommonApiResponse.createSuccess();
+
+        FcmDTO fcmDTO = fcmService.createReplyFcmDTO(authorizationHeader, subBoard, request);
         fcmService.sendMessageTo(fcmDTO);
         notificationService.saveNotification(fcmDTO);
         return CommonApiResponse.createSuccess();

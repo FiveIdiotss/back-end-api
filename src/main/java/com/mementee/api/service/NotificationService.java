@@ -4,6 +4,8 @@ import com.mementee.api.domain.Member;
 import com.mementee.api.domain.Notification;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.repository.fcm.NotificationRepository;
+import com.mementee.api.validation.MemberValidation;
+import com.mementee.exception.notFound.NotificationNotFound;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -11,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +39,13 @@ public class NotificationService {
         websocketPublisher.convertAndSend("/sub/notifications/" + targetMemberId, unreadCount);
     }
 
+    public Notification findNotificationById(Long notificationId){
+        Optional<Notification> notification = notificationRepository.findById(notificationId);
+        if(notification.isEmpty())
+            throw new NotificationNotFound();
+        return notification.get();
+    }
+
     public Page<Notification> findNotificationsByReceiveMember(String authorizationHeader, Pageable pageable){
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
         redisService.resetUnreadCount(loginMember.getId());
@@ -48,5 +59,14 @@ public class NotificationService {
         Notification notification = new Notification(fcmDTO.getTitle(), fcmDTO.getContent(), fcmDTO.getOtherPK(),
                 fcmDTO.getNotificationType(), sendMember, receiveMember);
         notificationRepository.save(notification);
+    }
+
+    @Transactional
+    public void deleteNotification(String authorizationHeader, Long notificationId) {
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        Notification notification = findNotificationById(notificationId);
+        MemberValidation.isCheckMe(member, memberService.findMemberById(notification.getReceiveMember().getId()));
+
+        notificationRepository.delete(notification);
     }
 }
