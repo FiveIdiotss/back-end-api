@@ -51,10 +51,9 @@
         connectWebSocket();
     });
 
-    function connectWebSocket() {
-        //var ws = new WebSocket('ws://localhost:8080/ws');
-        var ws = new WebSocket('ws://menteetor.site:8080/ws');
-
+    function connectWebSocket(callback) {
+        var ws = new WebSocket('ws://localhost:8080/ws');
+        // var ws = new WebSocket('ws://menteetor.site:8080/ws');
         stompClient = Stomp.over(ws);
 
         stompClient.connect({}, function () {
@@ -69,6 +68,9 @@
                     }
                 });
             });
+            if (callback) {
+                callback();
+            }
         });
     }
 
