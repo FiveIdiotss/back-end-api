@@ -149,20 +149,25 @@ public class SubBoardService {
         }
     }
 
+    //게시글에 첨부할 이미지, 파일 등의 링크 return
+    public String saveSubBoardImage(MultipartFile multipartFile) {
+        return s3Service.saveFile(multipartFile);
+    }
+
     //자유 게시글 등록
     @Transactional
-    public void saveFreeSubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> multipartFiles) {
+    public void saveFreeSubBoard(WriteSubBoardRequest request, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), SubBoardType.QUEST);
-        saveSubBoardImageUrl(multipartFiles, subBoard);
+        //saveSubBoardImageUrl(multipartFiles, subBoard);
         subBoardRepository.save(subBoard);
     }
 
     @Transactional
-    public void saveRequestSubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> multipartFiles) {
+    public void saveRequestSubBoard(WriteSubBoardRequest request, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), SubBoardType.REQUEST);
-        saveSubBoardImageUrl(multipartFiles, subBoard);
+        //saveSubBoardImageUrl(multipartFiles, subBoard);
         subBoardRepository.save(subBoard);
     }
 
@@ -210,9 +215,7 @@ public class SubBoardService {
 
     //댓글 등록
     @Transactional
-    public void saveReply(ReplyRequest request, Long subBoardId, String authorizationHeader) {
-        Member member = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = findSubBoardById(subBoardId);
+    public void saveReply(ReplyRequest request, SubBoard subBoard, Member member) {
         Reply reply = new Reply(request.getContent(), member, subBoard);
         subBoard.plusReplyCount();
         replyRepository.save(reply);

@@ -110,6 +110,7 @@ cloud:
       bucket_image: fiveidiots-image
       bucket_video: fiveidiots-video
       bucket_pdf: fiveidiots-pdf
+      bucket_temp: five-temp
     credentials:
       access-key: AKIAXYAFCWJQBQ46DBPJ
       secret-key: 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
