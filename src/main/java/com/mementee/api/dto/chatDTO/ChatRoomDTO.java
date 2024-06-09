@@ -36,6 +36,7 @@ public class ChatRoomDTO {
         this.receiverName = receiverName;
     }
 
+
     public static ChatRoomDTO createChatRoomDTO(Member loginMember, Member receiver, ChatRoom chatRoom, LatestMessageDTO latestMessageDTO, int unreadMessageCount,
                                                 Long boardId, Long matchingId){
         return new ChatRoomDTO(chatRoom.getId(), receiver.getId(), receiver.getName(), latestMessageDTO,
@@ -45,6 +46,5 @@ public class ChatRoomDTO {
                 chatRoom.getMatching().getStartTime(),
                 unreadMessageCount, boardId, matchingId);
     }
-
 
 }
