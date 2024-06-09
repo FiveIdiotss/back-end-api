@@ -36,15 +36,15 @@ public class ChatRoomDTO {
         this.receiverName = receiverName;
     }
 
-    public static ChatRoomDTO createChatRoomDTO(Member loginMember, Member receiver, ChatRoom chatRoom, LatestMessageDTO latestMessageDTO, int unreadMessageCount,
-                                                String title, Long matchingId){
-        return new ChatRoomDTO(chatRoom.getId(), receiver.getId(), receiver.getName(), latestMessageDTO,
-                loginMember.getMemberImageUrl(),
-                chatRoom.getMatching().getBoard().getTitle(),
-                chatRoom.getMatching().getDate(),
-                chatRoom.getMatching().getStartTime(),
-                unreadMessageCount, title, matchingId);
-    }
+//    public static ChatRoomDTO createChatRoomDTO(Member loginMember, Member receiver, ChatRoom chatRoom, LatestMessageDTO latestMessageDTO, int unreadMessageCount,
+//                                                String title, Long matchingId){
+//        return new ChatRoomDTO(chatRoom.getId(), receiver.getId(), receiver.getName(), latestMessageDTO,
+//                loginMember.getMemberImageUrl(),
+//                chatRoom.getMatching().getBoard().getTitle(),
+//                chatRoom.getMatching().getDate(),
+//                chatRoom.getMatching().getStartTime(),
+//                unreadMessageCount, title, matchingId);
+//    }
 
 
 }

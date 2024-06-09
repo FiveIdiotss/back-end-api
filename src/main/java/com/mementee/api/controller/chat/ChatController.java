@@ -62,9 +62,9 @@ public class ChatController {
 
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
+        websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, chatRoomById.getUnreadMessageCount());
 
-
-        extracted(senderId, chatRoomById, chatRoomId);
+//        extracted(senderId, chatRoomById, chatRoomId);
 
         //FCM 알림
         FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
