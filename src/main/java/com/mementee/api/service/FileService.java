@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -47,6 +49,18 @@ public class FileService {
         if ("application/zip".equals(contentType)) return ZIP;
         if ("text/vcard".equals(contentType)) return CONTACT;
         else return FILE;
+    }
+
+    public String extractFileNameFromUrl(String fileUrl) {
+        try {
+            URL url = new URL(fileUrl);
+            String path = url.getPath();
+            return path.substring(path.lastIndexOf('/') + 1);
+        } catch (MalformedURLException e) {
+            log.error("Error extracting file name from URL: {}", e.getMessage(), e);
+            return null;
+
+        }
     }
 
     public VCard readVCard(String filePath) throws IOException {

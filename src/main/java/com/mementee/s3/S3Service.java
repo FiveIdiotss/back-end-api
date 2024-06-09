@@ -1,17 +1,13 @@
 package com.mementee.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.*;
 import com.mementee.api.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
 import java.io.*;
 
@@ -33,6 +29,9 @@ public class S3Service {
     private String bucket_video;
     @Value("${cloud.aws.s3.bucket_pdf}")
     private String bucket_pdf;
+
+    @Value("${cloud.aws.s3.bucket_temp}")
+    private String tempBucket;
 
 
     public String saveFile(MultipartFile multipartFile) {
@@ -74,6 +73,29 @@ public class S3Service {
         amazonS3.putObject(new PutObjectRequest(bucketName, fileName, inputStream, metadata));
 
         return amazonS3.getUrl(bucketName, fileName).toString();
+    }
+
+
+    //임시 버킷
+    public String saveFileToTemp(MultipartFile multipartFile) {
+        System.out.println();
+        return saveToS3(multipartFile, tempBucket);
+    }
+
+    //영구 버킷으로 이동 후 임시 버킷 옮긴 자료는 삭제
+    public String moveFileToPermanent(String tempFileUrl) {
+        try {
+            String tempFileName = fileService.extractFileNameFromUrl(tempFileUrl); // URL에서 파일 이름 추출
+
+            String permanentFileName = fileService.generateFileName(fileService.getExtension(tempFileName));
+            CopyObjectRequest copyObjRequest = new CopyObjectRequest(tempBucket, tempFileName, bucket, permanentFileName);
+            amazonS3.copyObject(copyObjRequest);
+            amazonS3.deleteObject(new DeleteObjectRequest(tempBucket, tempFileName));
+            return amazonS3.getUrl(bucket, permanentFileName).toString();
+        } catch (Exception e) {
+            log.error("Error moving file to permanent storage: {}", e.getMessage(), e);
+            return null;
+        }
     }
 
 }

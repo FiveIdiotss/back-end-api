@@ -13,6 +13,7 @@ import com.mementee.api.service.FcmService;
 import com.mementee.api.service.MemberService;
 import com.mementee.api.service.NotificationService;
 import com.mementee.api.service.SubBoardService;
+import com.mementee.s3.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -40,6 +41,7 @@ public class SubBoardController {
     private final FcmService fcmService;
     private final NotificationService notificationService;
     private final MemberService memberService;
+    private final S3Service s3Service;
 
     @Operation(summary = "질문 글쓰기 / 요청과 통합 예정", description =
             "  {\"title\": \"이거 아시는분\",\n" +
@@ -64,6 +66,9 @@ public class SubBoardController {
     @PostMapping(value = "/api/requestBoard")
     public CommonApiResponse<?> saveRequestSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
         subBoardService.saveRequestSubBoard(request, authorizationHeader);
+//        for (String tempImageUrl : request.getTempImageUrls()) {
+//            s3Service.moveFileToPermanent(tempImageUrl);
+//        }
         return CommonApiResponse.createSuccess();
     }
 
@@ -72,9 +77,10 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping(value = "/api/saveSubBoardImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CommonApiResponse<?> saveSubBoardImage(@RequestPart MultipartFile multipartFile){
-        String url = subBoardService.saveSubBoardImage(multipartFile);
-        return CommonApiResponse.createSuccess(url);
+    public CommonApiResponse<?> saveImage(@RequestPart MultipartFile multipartFile){
+//        String tempUrl = s3Service.saveFileToTemp(multipartFile);
+        String tempUrl = s3Service.saveFile(multipartFile);
+        return CommonApiResponse.createSuccess(tempUrl);
     }
 
     @Operation(summary = "글 수정", description =
