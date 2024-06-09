@@ -53,28 +53,28 @@ public class ChatController {
         //DB에 저장
         chatService.saveMessage(messageDTO);
 
+        Long senderId = messageDTO.getSenderId();
+        Long chatRoomId = messageDTO.getChatRoomId();
+
+        // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
+        ChatRoom chatRoomById = chatService.findChatRoomById(chatRoomId);
+
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
 
-        extracted(messageDTO);
+
+        extracted(senderId, chatRoomById, chatRoomId);
+
         //FCM 알림
 //        FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
 //        fcmService.sendMessageTo(fcmDTO);
     }
 
-    private void extracted(ChatMessageDTO messageDTO) {
-        Long senderId = messageDTO.getSenderId();
-        Long chatRoomId = messageDTO.getChatRoomId();
-
-        Long receiverId = chatService.findOtherMemberId(chatRoomId, senderId);
-
-        // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
-        int unreadCount = chatService.getUnreadMessageCount(messageDTO.getChatRoomId(), receiverId);
-
-        // WebSocket을 통해 클라이언트에 전송
-        ChatRoomUpdateDTO updateDTO = new ChatRoomUpdateDTO(chatRoomId, receiverId, unreadCount);
-        websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, updateDTO);
+    private void extracted(Long senderId, ChatRoom chatRoomById, Long chatRoomId) {
+        ChatRoomDTO roomDTO = chatService.createChatRoomDTO(senderId, chatRoomById);
+        websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, roomDTO);
     }
+
 
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")

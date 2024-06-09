@@ -34,7 +34,11 @@ public class ChatRoomDTO {
     }
 
     public static ChatRoomDTO createChatRoomDTO(Member loginMember, Member receiver, ChatRoom chatRoom, LatestMessageDTO latestMessageDTO, int unreadMessageCount){
-        return new ChatRoomDTO(chatRoom.getId(), receiver.getId(), receiver.getName(), latestMessageDTO,
+        return new ChatRoomDTO(
+                chatRoom.getId(),
+                receiver.getId(),
+                receiver.getName(),
+                latestMessageDTO,
                 loginMember.getMemberImageUrl(),
                 chatRoom.getMatching().getBoard().getTitle(),
                 chatRoom.getMatching().getDate(),

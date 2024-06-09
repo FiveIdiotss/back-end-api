@@ -45,6 +45,9 @@ public class ChatTestController {
                 .map(chatRoom -> chatService.createChatRoomDTO(memberId, chatRoom))
                 .toList();
 
+        log.info("memberId = {}", memberId);
+        log.info("chatRoomDTOs = {}", chatRoomDTOs);
+
         mv.addObject("chatRooms", chatRoomDTOs);
         return mv;
     }

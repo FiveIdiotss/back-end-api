@@ -69,7 +69,7 @@ public class ChatService {
         return chatMessageRepository.getUnreadMessageCount(chatRoomId, memberId);
     }
 
-
+    @Transactional
     public ChatRoomDTO createChatRoomDTO(Long loginMemberId, ChatRoom chatRoom) {
         Member member = memberService.findMemberById(loginMemberId);
         Member receiver = getReceiver(loginMemberId, chatRoom);
