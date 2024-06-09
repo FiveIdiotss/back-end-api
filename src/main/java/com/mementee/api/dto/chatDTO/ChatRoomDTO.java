@@ -27,7 +27,7 @@ public class ChatRoomDTO {
 
     private int unreadMessageCount;
 
-    private String title;
+    private Long boardId;
     private Long matchingId;
 
     public ChatRoomDTO(Long chatRoomId, Long receiverId, String receiverName) {
@@ -36,15 +36,15 @@ public class ChatRoomDTO {
         this.receiverName = receiverName;
     }
 
-//    public static ChatRoomDTO createChatRoomDTO(Member loginMember, Member receiver, ChatRoom chatRoom, LatestMessageDTO latestMessageDTO, int unreadMessageCount,
-//                                                String title, Long matchingId){
-//        return new ChatRoomDTO(chatRoom.getId(), receiver.getId(), receiver.getName(), latestMessageDTO,
-//                loginMember.getMemberImageUrl(),
-//                chatRoom.getMatching().getBoard().getTitle(),
-//                chatRoom.getMatching().getDate(),
-//                chatRoom.getMatching().getStartTime(),
-//                unreadMessageCount, title, matchingId);
-//    }
 
+    public static ChatRoomDTO createChatRoomDTO(Member loginMember, Member receiver, ChatRoom chatRoom, LatestMessageDTO latestMessageDTO, int unreadMessageCount,
+                                                Long boardId, Long matchingId){
+        return new ChatRoomDTO(chatRoom.getId(), receiver.getId(), receiver.getName(), latestMessageDTO,
+                loginMember.getMemberImageUrl(),
+                chatRoom.getMatching().getBoard().getTitle(),
+                chatRoom.getMatching().getDate(),
+                chatRoom.getMatching().getStartTime(),
+                unreadMessageCount, boardId, matchingId);
+    }
 
 }
