@@ -56,6 +56,26 @@
             });
     }
 
+    function fetchNotificationCount() {
+        fetch('/api/counts?targetMemberId=' + memberId, {
+            method: 'GET'
+        })
+            .then(response => response.json()) // text 대신 json으로 처리
+            .then(data => {
+                // 알림 카운트 업데이트
+                console.log(data); // 응답 데이터를 로그로 출력
+                document.getElementById('notification-count').innerText = data.data; // 'data' 키의 값을 사용
+            })
+            .catch(error => {
+                console.error('Error fetching notification count:', error);
+            });
+    }
+
+    // 페이지 로드 시 알림 카운트를 불러오는 함수 실행
+    window.onload = function() {
+        fetchNotificationCount();
+    }
+
 
 </script>
 </body>

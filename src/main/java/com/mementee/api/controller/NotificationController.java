@@ -93,4 +93,14 @@ public class NotificationController {
         redisService.resetUnreadCount(targetMemberId);
         return CommonApiResponse.createSuccess();
     }
+
+    @Operation(summary = "알림 갯수 Return (테스트용)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
+            @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
+    @GetMapping("/api/counts")
+    public CommonApiResponse<?> countMessage(Long targetMemberId) {
+        int unReadCount = redisService.getUnreadCount(targetMemberId);
+        return CommonApiResponse.createSuccess(unReadCount);
+    }
 }

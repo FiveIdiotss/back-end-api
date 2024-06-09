@@ -136,11 +136,12 @@ public class ChatController {
 
     @Operation(summary = "특정 멤버가 속한 채팅방 모두 조회")
     @GetMapping("/chatRooms")
-    public CommonApiResponse<List<ChatRoomDTO>> findAllChatRoomsByMemberId(@RequestParam Long memberId) {
-        List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMemberId(memberId);
+    public CommonApiResponse<List<ChatRoomDTO>> findAllChatRoomsByMemberId(@RequestHeader("Authorization") String authorizationHeader) {
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        List<ChatRoom> allChatRooms = chatService.findAllChatRoomByMemberId(member.getId());
 
         List<ChatRoomDTO> chatRoomDTOs = allChatRooms.stream()
-                .map(chatRoom -> chatService.createChatRoomDTO(memberId, chatRoom))
+                .map(chatRoom -> chatService.createChatRoomDTO(member.getId(), chatRoom))
                 .collect(Collectors.toList());
 
         return CommonApiResponse.createSuccess(chatRoomDTOs);
