@@ -6,7 +6,8 @@ import com.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.mementee.api.domain.Member;
 import com.mementee.api.domain.chat.ChatMessage;
 import com.mementee.api.domain.chat.ChatRoom;
-import com.mementee.api.dto.chatDTO.ChatRoomUpdateDTO;
+import com.mementee.api.dto.chatDTO.ChatUpdateDTO;
+import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.*;
 import com.mementee.exception.notFound.FileNotFound;
@@ -30,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -50,30 +52,31 @@ public class ChatController {
     public void sendMessage(ChatMessageDTO messageDTO) {
         // If both users are in the chat room, set the readCount to 2.
         chatService.setMessageReadCount(messageDTO);
-
         //DB에 저장
         chatService.saveMessage(messageDTO);
 
         Long senderId = messageDTO.getSenderId();
         Long chatRoomId = messageDTO.getChatRoomId();
 
+        ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
+        Member receiver = chatService.getReceiver(senderId, chatRoom);
+
         // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
-        ChatRoom chatRoomById = chatService.findChatRoomById(chatRoomId);
+        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoomId, receiver.getId());
+        LatestMessageDTO latestChatMessage = LatestMessageDTO.createLatestMessageDTO(chatService.findLatestChatMessage(chatRoomId));
 
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
-        websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, chatRoomById.getUnreadMessageCount());
-
-//        extracted(senderId, chatRoomById, chatRoomId);
+        extracted(chatRoomId, unreadMessageCount, latestChatMessage);
 
         //FCM 알림
         FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
         fcmService.sendMessageTo(fcmDTO);
     }
 
-    private void extracted(Long senderId, ChatRoom chatRoomById, Long chatRoomId) {
-        ChatRoomDTO roomDTO = chatService.createChatRoomDTO(senderId, chatRoomById);
-        websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, roomDTO);
+    private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
+        ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
+        websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, chatUpdateDTO);
     }
 
 

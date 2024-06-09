@@ -65,8 +65,8 @@ public class ChatService {
     }
 
     @Transactional
-    public int getUnreadMessageCount(Long chatRoomId, Long memberId) {
-        return chatMessageRepository.getUnreadMessageCount(chatRoomId, memberId);
+    public int getUnreadMessageCount(Long chatRoomId, Long loginMemberId) {
+        return chatMessageRepository.getUnreadMessageCount(chatRoomId, loginMemberId);
     }
 
     @Transactional
@@ -75,8 +75,9 @@ public class ChatService {
         Member receiver = getReceiver(loginMemberId, chatRoom);
         LatestMessageDTO latestMessageDTO = LatestMessageDTO.createLatestMessageDTO(findLatestChatMessage(chatRoom.getId()));
         int unreadMessageCount = getUnreadMessageCount(chatRoom.getId(), loginMemberId);
-        return ChatRoomDTO.createChatRoomDTO(member, receiver, chatRoom, latestMessageDTO, unreadMessageCount,
-                chatRoom.getMatching().getBoard().getId(), chatRoom.getMatching().getId());
+//        return ChatRoomDTO.createChatRoomDTO(member, receiver, chatRoom, latestMessageDTO, unreadMessageCount,
+//                chatRoom.getMatching().getBoard().getId(), chatRoom.getMatching().getId());
+        return new ChatRoomDTO(chatRoom.getId(), receiver.getId(), receiver.getName(), latestMessageDTO, receiver.getMemberImageUrl(), chatRoom.getMatching().getBoard().getTitle(), chatRoom.getMatching().getDate(), chatRoom.getMatching().getStartTime(), unreadMessageCount, chatRoom.getMatching().getBoard().getId(), chatRoom.getMatching().getId());
     }
 
     @Transactional

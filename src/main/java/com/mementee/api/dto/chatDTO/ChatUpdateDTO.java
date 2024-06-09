@@ -1,16 +1,17 @@
 package com.mementee.api.dto.chatDTO;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;
 
-@Getter
+@Data
 @AllArgsConstructor
 @ToString
-public class ChatRoomUpdateDTO {
+public class ChatUpdateDTO {
 
     private Long chatRoomId;
-    private Long receiverId;
     private int unreadMessageCount;
+    private LatestMessageDTO latestMessageDTO;
 
 }
