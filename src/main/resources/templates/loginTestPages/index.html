@@ -35,6 +35,7 @@
 <script th:inline="javascript">
     var stompClient = null;
     var chatRoomId = null;
+    var currentSubscription = null;
 
     // 데이터 컨테이너에서 값을 가져옴
     var dataContainer = document.getElementById('dataContainer');
@@ -46,23 +47,22 @@
 
     // 페이지가 로드 되면 바로 실행되는 이벤트 리스너.
     document.addEventListener("DOMContentLoaded", function () {
+        console.log('테스트 로딩')
         connectWebSocket();
     });
 
     function connectWebSocket() {
-
         //var ws = new WebSocket('ws://localhost:8080/ws');
         var ws = new WebSocket('ws://menteetor.site:8080/ws');
+
         stompClient = Stomp.over(ws);
 
-        stompClient.connect({}, function (frame) {
-
-            [[${chatRooms}]].forEach(function(chatRoom) {
+        stompClient.connect({}, function () {
+            [[${chatRooms}]].forEach(function (chatRoom) {
                 var chatRoomId = chatRoom.chatRoomId;
-
-                stompClient.subscribe('/sub/unreadCount/' + chatRoomId, function (ChatRoomUpdateDTO) {
-                    var updateDTO = JSON.parse(ChatRoomUpdateDTO.body);
-                    var count = updateDTO['unreadMessageCount'];
+                stompClient.subscribe('/sub/unreadCount/' + chatRoomId, function (chatRoomDTO) {
+                    var chatRoom = JSON.parse(chatRoomDTO.body);
+                    var count = chatRoom['unreadMessageCount'];
                     var span = document.getElementById('chatRoom' + chatRoomId);
                     if (span) {
                         span.innerText = 'Unread Messages: ' + count;
@@ -73,36 +73,28 @@
     }
 
     function enterChatRoom(id) {
-        if (stompClient !== null) {
-            stompClient.disconnect();
+        if (currentSubscription) {
+            currentSubscription.unsubscribe();
         }
 
         chatRoomId = id;
-
-        //var ws = new WebSocket('ws://localhost:8080/ws');
-        var ws = new WebSocket('ws://menteetor.site:8080/ws');
-        stompClient = Stomp.over(ws);
 
         var connectHeader = {
             'senderId': senderId,
             'chatRoomId': chatRoomId.toString()
         };
 
-        stompClient.connect(connectHeader, function (frame) {
-            console.log('Connected: ' + frame);
+        // 특정 주제(채팅방)에 구독 설정 (SUBSCRIBE)
+        currentSubscription = stompClient.subscribe('/sub/chats/' + chatRoomId, function (messageOutput) {
+            var messageDisplay = document.querySelector('#messageDisplay');
+            messageDisplay.innerHTML += messageOutput.body + '<br>';
+        }, connectHeader);
 
-            // 특정 주제(채팅방)에 구독 설정 (SUBSCRIBE)
-            stompClient.subscribe('/sub/chats/' + chatRoomId, function (messageOutput) {
-                var messageDisplay = document.querySelector('#messageDisplay');
-                messageDisplay.innerHTML += messageOutput.body + '<br>';
-            });
-
-            // 입장 시 unreadMessageCount를 0으로 설정
-            var span = document.getElementById('chatRoom' + chatRoomId);
-            if (span) {
-                span.innerText = 'Unread Messages: ' + 0;
-            }
-        });
+        // 입장 시 unreadMessageCount를 0으로 설정
+        var span = document.getElementById('chatRoom' + chatRoomId);
+        if (span) {
+            span.innerText = 'Unread Messages: ' + 0;
+        }
     }
 
     // 메시지 전송 함수
