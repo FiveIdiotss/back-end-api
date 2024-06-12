@@ -59,6 +59,7 @@ public class NotificationService {
         Notification notification = new Notification(fcmDTO.getTitle(), fcmDTO.getContent(), fcmDTO.getOtherPK(),
                 fcmDTO.getNotificationType(), sendMember, receiveMember);
         notificationRepository.save(notification);
+        sendNotification(receiveMember.getId());
     }
 
     @Transactional

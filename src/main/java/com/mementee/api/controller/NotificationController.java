@@ -41,8 +41,8 @@ public class NotificationController {
 
     @Operation(summary = "알림 갯수 Return")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
-            @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail", description = "실패")})
     @GetMapping("/api/count")
     public CommonApiResponse<?> getNotificationCount(@RequestHeader("Authorization") String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
