@@ -1,6 +1,7 @@
 package com.mementee.config.chat;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,12 +21,17 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Slf4j
 public class RedisConfig {
 
+    @Value("{spring.data.redis.host}")
+    private String host;
+
+    @Value("{spring.data.redis.port}")
+    private int port;
+
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandConfig = new RedisStandaloneConfiguration();
-        redisStandConfig.setHostName("menteetor.site");
-//        redisStandConfig.setHostName("localhost");
-        redisStandConfig.setPort(6379);
+        redisStandConfig.setHostName(host);
+        redisStandConfig.setPort(port);
         return new LettuceConnectionFactory(redisStandConfig);
     }
 
