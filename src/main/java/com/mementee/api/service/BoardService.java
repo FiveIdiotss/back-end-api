@@ -144,7 +144,16 @@ public class BoardService {
 
     //게시물 등록
     @Transactional
-    public void saveBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) {
+    public void saveBoard(WriteBoardRequest request, String authorizationHeader) {
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        Board board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
+                request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
+        boardRepository.save(board);
+
+    }
+
+    @Transactional
+    public void saveAndroidBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         Board board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
                 request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
@@ -155,10 +164,10 @@ public class BoardService {
 
     //게시물 수정
     @Transactional
-    public void modifyBoard(WriteBoardRequest request, String authorizationHeader, List<MultipartFile> updatedImages, Long boardId) {
+    public void modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId) {
         Board board = findBoardById(boardId);
         MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), board.getMember());
-        modifyBoardImage(updatedImages, board);
+        //modifyBoardImage(updatedImages, board);
         board.modifyBoard(request);
     }
 

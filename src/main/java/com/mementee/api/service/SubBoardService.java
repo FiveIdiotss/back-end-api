@@ -183,11 +183,11 @@ public class SubBoardService {
 
     //게시물 수정
     @Transactional
-    public void modifySubBoard(WriteSubBoardRequest request, String authorizationHeader, List<MultipartFile> updatedImages, Long subBoardId) {
+    public void modifySubBoard(WriteSubBoardRequest request, String authorizationHeader, Long subBoardId) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = findSubBoardById(subBoardId);
         MemberValidation.isCheckMe(member, subBoard.getMember());
-        modifySubBoardImage(updatedImages, subBoard);
+        //modifySubBoardImage(updatedImages, subBoard);
         subBoard.modifySubBoard(request);
     }
 
