@@ -18,7 +18,7 @@ import java.util.List;
 public class InitDb {
 
     private final InitService initService;
-  
+
 //    @PostConstruct
 //    public void init() {
 //        initService.dbInit();
