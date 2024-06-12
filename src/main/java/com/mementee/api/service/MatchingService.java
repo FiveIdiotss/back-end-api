@@ -54,13 +54,15 @@ public class MatchingService {
         Matching matching = new Matching(consultDate, consultTime, board.getConsultTime(),
                 board, apply, mentor, mentee);
 
-        ChatRoom chatRoom = new ChatRoom(mentor, mentee, matching);
+        matchingRepository.save(matching);
+
+        if(chatRoomRepository.findChatRoomBySenderAndReceiver(mentee, mentor).isEmpty()){
+            ChatRoom chatRoom = new ChatRoom(mentor, mentee, matching);
+            chatRoomRepository.save(chatRoom);
+        }
 
         board.addUnavailableTimes(consultDate, consultTime);
         apply.updateState();
-
-        matchingRepository.save(matching);
-        chatRoomRepository.save(chatRoom);
     }
 
     //거절-----
