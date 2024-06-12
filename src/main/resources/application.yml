@@ -22,15 +22,14 @@ spring:
 
   data:
     redis:
-#      host: localhost
-      host: menteetor.site
+      host: localhost
+#      host: menteetor.site
       port: 6379
 
   jwt:
     secret: 795a494eb4ca40d62227cc695a41e69d1e13fa5da2263727c28ba073fdbdd2f2
 
   datasource:
-  
     #    kdy
 #    url: jdbc:mysql://kdy.ch31jk6kzgqo.ap-northeast-2.rds.amazonaws.com/kdy?characterEncoding=utf8
 #    username : admin
