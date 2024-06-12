@@ -43,6 +43,21 @@ public class SubBoardController {
     private final MemberService memberService;
     private final S3Service s3Service;
 
+    @Operation(summary = "안드로이드 용 질문/요청 글쓰기", description =
+            "  {\"title\": \"이거 아시는분\",\n" +
+                    "  \"content\": \"1+1 이 뭔가요?\"," +
+                    "  \"boardCategory\": \"이공\" }\n")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "등록 성공"),
+            @ApiResponse(responseCode = "fail", description = "등록 실패")})
+    @PostMapping(value = "/api/android/subBoard")
+    public CommonApiResponse<?> saveAndroidSubBoard(@RequestHeader("Authorization") String authorizationHeader,
+                                                    @RequestPart WriteAndroidSubBoardRequest request,
+                                                    @RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles){
+        subBoardService.saveAndroidSubBoard(request, multipartFiles, authorizationHeader);
+        return CommonApiResponse.createSuccess();
+    }
+
     @Operation(summary = "질문 글쓰기 / 요청과 통합 예정", description =
             "  {\"title\": \"이거 아시는분\",\n" +
             "  \"content\": \"1+1 이 뭔가요?\"," +
@@ -51,7 +66,8 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping(value = "/api/subBoard")
-    public CommonApiResponse<?> saveQuestSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
+    public CommonApiResponse<?> saveQuestSubBoard(@RequestBody @Valid WriteSubBoardRequest request,
+                                                  @RequestHeader("Authorization") String authorizationHeader){
             subBoardService.saveFreeSubBoard(request, authorizationHeader);
             return CommonApiResponse.createSuccess();
     }
@@ -64,23 +80,10 @@ public class SubBoardController {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping(value = "/api/requestBoard")
-    public CommonApiResponse<?> saveRequestSubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader){
+    public CommonApiResponse<?> saveRequestSubBoard(@RequestBody @Valid WriteSubBoardRequest request,
+                                                    @RequestHeader("Authorization") String authorizationHeader){
         subBoardService.saveRequestSubBoard(request, authorizationHeader);
-//        for (String tempImageUrl : request.getTempImageUrls()) {
-//            s3Service.moveFileToPermanent(tempImageUrl);
-//        }
         return CommonApiResponse.createSuccess();
-    }
-
-    @Operation(summary = "서브 보드 이미지 url 리턴", description = "글 쓸때 이미지 첨부기능에 대한 이미지 url return")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "등록 성공"),
-            @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping(value = "/api/saveSubBoardImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CommonApiResponse<?> saveImage(@RequestPart MultipartFile multipartFile){
-//        String tempUrl = s3Service.saveFileToTemp(multipartFile);
-        String tempUrl = s3Service.saveFile(multipartFile);
-        return CommonApiResponse.createSuccess(tempUrl);
     }
 
     @Operation(summary = "글 수정", description =
@@ -198,22 +201,6 @@ public class SubBoardController {
     }
 
     //Page 질문/요청 게시판 글 전체 조회 --------------
-    @Operation(summary = "질문 게시판 목록(삭제 예정)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "성공"),
-            @ApiResponse(responseCode = "fail")})
-    @GetMapping("/api/pageSubBoards")
-    public CommonApiResponse<PaginationSubBoardResponse> findAll(@RequestParam int page, @RequestParam int size,
-                                                                 @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
-
-        Page<SubBoard> findSubBoards = subBoardService.findAllFreeSubBoard(pageable);
-        PageInfo pageInfo = new PageInfo(page, size, (int) findSubBoards.getTotalElements(), findSubBoards.getTotalPages());
-        List<SubBoard> response = findSubBoards.getContent();
-        List<SubBoardDTO> list = subBoardService.createSubBoardDTOs(response, authorizationHeader);
-        return CommonApiResponse.createSuccess(new PaginationSubBoardResponse(list, pageInfo));
-    }
-
     @Operation(summary = "필터별 멘토 질문/요청 게시판 목록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),

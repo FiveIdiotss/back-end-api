@@ -110,6 +110,7 @@ public class SubBoardService {
     }
 
     //게시글에 속한 이미지 저장
+    @Transactional
     public void saveSubBoardImageUrl(List<MultipartFile> multipartFiles, SubBoard subBoard) {
         if (multipartFiles == null) return;
         for (MultipartFile multipartFile : multipartFiles) {
@@ -154,12 +155,21 @@ public class SubBoardService {
         return s3Service.saveFile(multipartFile);
     }
 
+    //안드로이드용
+    @Transactional
+    public void saveAndroidSubBoard(WriteAndroidSubBoardRequest request, List<MultipartFile> images, String authorizationHeader) {
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), request.getSubBoardType());
+        saveSubBoardImageUrl(images, subBoard);
+        subBoardRepository.save(subBoard);
+    }
+
     //자유 게시글 등록
     @Transactional
     public void saveFreeSubBoard(WriteSubBoardRequest request, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), SubBoardType.QUEST);
-        //saveSubBoardImageUrl(multipartFiles, subBoard);
+        //saveSubBoardImageUrl(request, subBoard);
         subBoardRepository.save(subBoard);
     }
 
@@ -167,7 +177,7 @@ public class SubBoardService {
     public void saveRequestSubBoard(WriteSubBoardRequest request, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), SubBoardType.REQUEST);
-        //saveSubBoardImageUrl(multipartFiles, subBoard);
+        //aveSubBoardImageUrl(request.getImages(), subBoard);
         subBoardRepository.save(subBoard);
     }
 
