@@ -76,6 +76,7 @@ public class ChatController {
 
     private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
         ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
+        log.info("Latest Message: " + latestMessageDTO.getContent());
         websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, chatUpdateDTO);
     }
 
