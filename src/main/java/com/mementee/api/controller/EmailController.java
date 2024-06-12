@@ -1,6 +1,5 @@
 package com.mementee.api.controller;
 
-import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.emailDTO.EmailVerificationRequest;
 import com.mementee.api.dto.emailDTO.SendVerificationCodeRequest;
 import io.swagger.v3.oas.annotations.Operation;

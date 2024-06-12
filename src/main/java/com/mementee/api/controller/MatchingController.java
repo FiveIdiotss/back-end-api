@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import com.mementee.api.dto.matchingDTO.MatchingDTO;
 import com.mementee.api.domain.enumtype.BoardType;
 import com.mementee.api.service.MatchingService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
