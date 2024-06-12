@@ -1,8 +1,6 @@
 package com.mementee.api.domain;
 
-import com.mementee.api.domain.chat.ChatRoom;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
