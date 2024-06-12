@@ -93,11 +93,11 @@ public class SubBoardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail", description = "실패")})
-    @PutMapping(value = "/api/subBoard/{subBoardId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public CommonApiResponse<?> modifySubBoard(@RequestBody @Valid WriteSubBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
-                                               @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles,
+    @PutMapping(value = "/api/subBoard/{subBoardId}")
+    public CommonApiResponse<?> modifySubBoard(@RequestHeader("Authorization") String authorizationHeader,
+                                               @RequestBody @Valid WriteSubBoardRequest request,
                                                @PathVariable Long subBoardId){
-        subBoardService.modifySubBoard(request, authorizationHeader, multipartFiles, subBoardId);
+        subBoardService.modifySubBoard(request, authorizationHeader, subBoardId);
         return CommonApiResponse.createSuccess();
     }
 

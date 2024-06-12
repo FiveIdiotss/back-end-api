@@ -80,11 +80,40 @@ public class BoardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping(value = "/api/board", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public CommonApiResponse<?> saveBoard(@RequestBody @Valid WriteBoardRequest request, @RequestHeader("Authorization") String authorizationHeader,
-                                               @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles) throws IOException {
-            boardService.saveBoard(request, multipartFiles, authorizationHeader);
+    @PostMapping(value = "/api/board")
+    public CommonApiResponse<?> saveBoard(@RequestBody @Valid WriteBoardRequest request,
+                                          @RequestHeader("Authorization") String authorizationHeader){
+            boardService.saveBoard(request, authorizationHeader);
             return CommonApiResponse.createSuccess();
+    }
+
+    @Operation(summary = "안드로이드 용 (스웨거에서는 x)", description =
+            "  {\"title\": \"축구 교실\",\n" +
+                    "  \"introduce\": \"맨유 출신 입니다.\",\n" +
+                    "  \"target\": \"세모발들\",\n" +
+                    "  \"content\": \"맨유출신한테 축구배우실분 모집합니다.\",\n" +
+                    "  \"consultTime\": 30,\n" +
+                    "  \"boardCategory\": \"예체능\",\n" +
+                    "  \"times\": [\n" +
+                    "    {  \"startTime\": \"09:00:00\",\n" +
+                    "      \"endTime\": \"12:00:00\" },\n" +
+                    "    {  \"startTime\": \"14:00:00\",\n" +
+                    "      \"endTime\": \"17:00:00\" }\n" +
+                    "  ],\n" +
+                    "  \"availableDays\": [\n" +
+                    "    \"MONDAY \",\n" +
+                    "    \"SUNDAY\"\n" +
+                    "  ]\n" +
+                    "}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "등록 성공"),
+            @ApiResponse(responseCode = "fail", description = "등록 실패")})
+    @PostMapping(value = "/api/android/board")
+    public CommonApiResponse<?> saveAndroidBoard(@RequestHeader("Authorization") String authorizationHeader,
+                                                 @RequestBody @Valid WriteBoardRequest request,
+                                                 @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles) throws IOException {
+        boardService.saveAndroidBoard(request, multipartFiles, authorizationHeader);
+        return CommonApiResponse.createSuccess();
     }
 
     //게시글 조회 --------------------
@@ -105,10 +134,10 @@ public class BoardController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @PutMapping("/api/board/{boardId}")
-    public CommonApiResponse<?> boardModify(@RequestBody @Valid WriteBoardRequest request, @PathVariable Long boardId,
-                                              @RequestHeader("Authorization") String authorizationHeader,
-                                              @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles){
-            boardService.modifyBoard(request, authorizationHeader, multipartFiles, boardId);
+    public CommonApiResponse<?> boardModify(@RequestHeader("Authorization") String authorizationHeader,
+                                            @RequestBody @Valid WriteBoardRequest request,
+                                            @PathVariable Long boardId){
+            boardService.modifyBoard(request, authorizationHeader, boardId);
             return CommonApiResponse.createSuccess();
     }
 
