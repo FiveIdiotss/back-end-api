@@ -46,6 +46,8 @@
 
 ## Architecture
 
+![image](https://github.com/FiveIdiotss/back-end-api/assets/109346159/3da8fee3-c0eb-4c4a-ad13-31401fe73dcb)
+
 
 ---
 
@@ -98,7 +100,7 @@ etc:
 
 ## 웹 화면 순서도
 
-
+추가 예정
 
 
 ---
