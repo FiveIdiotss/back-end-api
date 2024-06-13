@@ -144,12 +144,12 @@ public class BoardService {
 
     //게시물 등록
     @Transactional
-    public void saveBoard(WriteBoardRequest request, String authorizationHeader) {
+    public Long saveBoard(WriteBoardRequest request, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         Board board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
                 request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
         boardRepository.save(board);
-
+        return board.getId();
     }
 
     @Transactional

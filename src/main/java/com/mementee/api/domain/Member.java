@@ -59,17 +59,12 @@ public class Member {
         this.memberImageUrl = defaultMemberImageUrl;
     }
 
-    //임시
-    public Member(String email, String name, String password, int year, Gender gender) {
-        this.email = email;
-        this.name = name;
-        this.password = password;
-        this.year = year;
-        this.gender = gender;
-    }
-
     public Member updateMemberImage(String newMemberImageUrl) {
         this.memberImageUrl = newMemberImageUrl;
         return this;
+    }
+
+    public void changePassword(String password){
+        this.password = password;
     }
 }

@@ -29,8 +29,7 @@ public class MemberController {
     private final MemberService memberService;
     private final SchoolService schoolService;
     private final MajorService majorService;
-    private final RedisService redisService;
-    //회원정보 수정 필요
+
 
     //회원가입--------------------------------------
     @Operation(summary = "회원 등록")
@@ -129,5 +128,29 @@ public class MemberController {
     public CommonApiResponse<?> updatedDefaultMemberImage(@RequestHeader("Authorization") String authorizationHeader) {
             String imageUrl = memberService.updatedDefaultMemberImage(authorizationHeader);
             return CommonApiResponse.createSuccess(imageUrl);
+    }
+
+    //비밀번호 변경 전 검증
+    @Operation(summary = "비밀번호 변경 시 / 현재 비밀번호가 로그인한 비밀번호와 맞는지")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
+            @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
+    @PostMapping("/api/member/pw")
+    public CommonApiResponse<?> isPassword(@RequestHeader("Authorization") String authorizationHeader,
+                                           @RequestBody PasswordRequest request) {
+        memberService.isMatchPassWord(authorizationHeader, request);
+        return CommonApiResponse.createSuccess();
+    }
+
+    //비밀번호 변경
+    @Operation(summary = "비밀번호 변경")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
+            @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
+    @PutMapping("/api/member/pw")
+    public CommonApiResponse<?> changePassword(@RequestHeader("Authorization") String authorizationHeader,
+                                               @RequestBody PasswordRequest request) {
+        memberService.changePassWord(authorizationHeader, request);
+        return CommonApiResponse.createSuccess();
     }
 }
