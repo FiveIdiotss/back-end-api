@@ -137,5 +137,16 @@ public class MemberService {
         return imageUrl;
     }
 
+    //비밀번호 변경
+    public void isMatchPassWord(String authorizationHeader, PasswordRequest request) {
+        Member member = findMemberByToken(authorizationHeader);
+        MemberValidation.isMatchPassWord(passwordEncoder.matches(request.getPassword(), member.getPassword()));
+    }
 
+    @Transactional
+    public void changePassWord(String authorizationHeader, PasswordRequest request) {
+        Member member = findMemberByToken(authorizationHeader);
+        String encodePw = passwordEncoder.encode(request.getPassword()); //비밀번호 암호화
+        member.changePassword(encodePw);
+    }
 }
