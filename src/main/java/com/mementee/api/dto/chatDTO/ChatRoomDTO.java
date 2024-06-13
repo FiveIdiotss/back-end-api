@@ -30,6 +30,8 @@ public class ChatRoomDTO {
     private Long boardId;
     private Long matchingId;
 
+    private Long mentorId;
+
     public ChatRoomDTO(Long chatRoomId, Long receiverId, String receiverName) {
         this.chatRoomId = chatRoomId;
         this.receiverId = receiverId;
@@ -44,7 +46,7 @@ public class ChatRoomDTO {
                 chatRoom.getMatching().getBoard().getTitle(),
                 chatRoom.getMatching().getDate(),
                 chatRoom.getMatching().getStartTime(),
-                unreadMessageCount, boardId, matchingId);
+                unreadMessageCount, boardId, matchingId, chatRoom.getMatching().getMentor().getId());
     }
 
 }

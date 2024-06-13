@@ -75,9 +75,8 @@ public class ChatService {
         Member receiver = getReceiver(loginMemberId, chatRoom);
         LatestMessageDTO latestMessageDTO = LatestMessageDTO.createLatestMessageDTO(findLatestChatMessage(chatRoom.getId()));
         int unreadMessageCount = getUnreadMessageCount(chatRoom.getId(), loginMemberId);
-//        return ChatRoomDTO.createChatRoomDTO(member, receiver, chatRoom, latestMessageDTO, unreadMessageCount,
-//                chatRoom.getMatching().getBoard().getId(), chatRoom.getMatching().getId());
-        return new ChatRoomDTO(chatRoom.getId(), receiver.getId(), receiver.getName(), latestMessageDTO, receiver.getMemberImageUrl(), chatRoom.getMatching().getBoard().getTitle(), chatRoom.getMatching().getDate(), chatRoom.getMatching().getStartTime(), unreadMessageCount, chatRoom.getMatching().getBoard().getId(), chatRoom.getMatching().getId());
+        return ChatRoomDTO.createChatRoomDTO(member, receiver, chatRoom, latestMessageDTO, unreadMessageCount,
+                chatRoom.getMatching().getBoard().getId(), chatRoom.getMatching().getId());
     }
 
     @Transactional
