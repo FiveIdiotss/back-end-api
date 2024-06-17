@@ -20,11 +20,8 @@ import lombok.RequiredArgsConstructor;
 import com.mementee.api.service.BoardService;
 import org.springframework.data.domain.*;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -59,7 +56,7 @@ public class BoardController {
 //    }
 
     //글 쓰기--------------------------------------
-    @Operation(summary = "글 쓰기 , 이미지 첨부 가능", description =
+    @Operation(summary = "글 쓰기 , 스웨거용 ", description =
             "  {\"title\": \"축구 교실\",\n" +
             "  \"introduce\": \"맨유 출신 입니다.\",\n" +
             "  \"target\": \"세모발들\",\n" +
@@ -80,14 +77,15 @@ public class BoardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping(value = "/api/board")
-    public CommonApiResponse<?> saveBoard(@RequestBody @Valid WriteBoardRequest request,
-                                          @RequestHeader("Authorization") String authorizationHeader){
-            boardService.saveBoard(request, authorizationHeader);
-            return CommonApiResponse.createSuccess();
+    @PostMapping(value = "/api/swagger/board")
+    public CommonApiResponse<?> saveSwaggerBoard(@RequestBody @Valid WriteBoardRequest request,
+                                                 @RequestHeader("Authorization") String authorizationHeader){
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+        boardService.saveBoard(request, multipartFiles, authorizationHeader);
+        return CommonApiResponse.createSuccess();
     }
 
-    @Operation(summary = "안드로이드 용 (스웨거에서는 x)", description =
+    @Operation(summary = "글쓰기 스웨거 에서 x", description =
             "  {\"title\": \"축구 교실\",\n" +
                     "  \"introduce\": \"맨유 출신 입니다.\",\n" +
                     "  \"target\": \"세모발들\",\n" +
@@ -108,11 +106,11 @@ public class BoardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping(value = "/api/android/board")
-    public CommonApiResponse<?> saveAndroidBoard(@RequestHeader("Authorization") String authorizationHeader,
-                                                 @RequestBody @Valid WriteBoardRequest request,
-                                                 @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles) throws IOException {
-        boardService.saveAndroidBoard(request, multipartFiles, authorizationHeader);
+    @PostMapping(value = "/api/board")
+    public CommonApiResponse<?> saveBoard(@RequestHeader("Authorization") String authorizationHeader,
+                                          @RequestPart @Valid WriteBoardRequest request,
+                                          @RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles) {
+        boardService.saveBoard(request, multipartFiles, authorizationHeader);
         return CommonApiResponse.createSuccess();
     }
 

@@ -144,22 +144,13 @@ public class BoardService {
 
     //게시물 등록
     @Transactional
-    public Long saveBoard(WriteBoardRequest request, String authorizationHeader) {
-        Member member = memberService.findMemberByToken(authorizationHeader);
-        Board board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
-                request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
-        boardRepository.save(board);
-        return board.getId();
-    }
-
-    @Transactional
-    public void saveAndroidBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) {
+    public Long saveBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         Board board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
                 request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
         saveBoardImageUrl(multipartFiles, board);
         boardRepository.save(board);
-
+        return board.getId();
     }
 
     //게시물 수정
