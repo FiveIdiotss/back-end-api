@@ -91,7 +91,7 @@ public class ChatController {
         ChatMessageDTO messageDTO = new ChatMessageDTO(
                 fileService.getFileType(file.getContentType()),
                 chatService.saveMultipartFile(file),
-                null,
+                file.getOriginalFilename(),
                 loginMember.getName(),
                 loginMember.getId(),
                 chatRoomId,
