@@ -33,6 +33,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.mementee.api.dto.chatDTO.LatestMessageDTO.createLatestMessageDTO;
+
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
@@ -62,10 +64,12 @@ public class ChatController {
 
         // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
         int unreadMessageCount = chatService.getUnreadMessageCount(chatRoomId, receiver.getId());
-        LatestMessageDTO latestChatMessage = LatestMessageDTO.createLatestMessageDTO(chatService.findLatestChatMessage(chatRoomId));
 
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
+        LatestMessageDTO latestChatMessage = createLatestMessageDTO(chatService.findLatestChatMessage(chatRoomId));
+
+        // 채팅 목록에 보내기
         extracted(chatRoomId, unreadMessageCount, latestChatMessage);
 
         //FCM 알림

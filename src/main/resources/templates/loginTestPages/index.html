@@ -52,7 +52,7 @@
     });
 
     function connectWebSocket() {
-        //var ws = new WebSocket('ws://localhost:8080/ws');
+        // var ws = new WebSocket('ws://localhost:8080/ws');
         var ws = new WebSocket('ws://menteetor.site:8080/ws');
 
         stompClient = Stomp.over(ws);
@@ -108,7 +108,6 @@
 
         if (message !== '') {
             var senderName = "이종현";
-            var time = new Date().toISOString();
 
             stompClient.send("/pub/hello", {
                 'senderId': senderId,
@@ -118,7 +117,6 @@
                 senderName: senderName,
                 senderId: senderId,
                 chatRoomId: chatRoomId,
-                localDateTime: time
             }));
 
             messageInput.value = '';
