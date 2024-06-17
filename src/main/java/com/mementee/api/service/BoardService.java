@@ -59,8 +59,11 @@ public class BoardService {
 
     //게시글 목록시 필요한 DTO List
     public List<BoardDTO> createBoardDTOs(List<Board> boards, String authorizationHeader){
-        if(authorizationHeader == null)
-            return BoardDTO.createBoardDTOs(boards, false);
+        if(authorizationHeader == null) {
+            return boards.stream()
+                    .map(b -> BoardDTO.createBoardDTO(b, false, findRepresentImage(b)))
+                    .collect(Collectors.toList());
+        }
         Member member = memberService.findMemberByToken(authorizationHeader);
         return boards.stream()
                 .map(b -> BoardDTO.createBoardDTO(b, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, b)), findRepresentImage(b)))
