@@ -51,19 +51,22 @@ public class BoardService {
     //게시글 조회시 필요한 DTO
     public BoardDTO createBoardDTO(Board board, String authorizationHeader){
         if(authorizationHeader == null)
-            return BoardDTO.createBoardDTO(board, false);
+            return BoardDTO.createBoardDTO(board, false, findRepresentImage(board));
 
         Member member = memberService.findMemberByToken(authorizationHeader);
-        return BoardDTO.createBoardDTO(board, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, board)));
+        return BoardDTO.createBoardDTO(board, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, board)), findRepresentImage(board));
     }
 
     //게시글 목록시 필요한 DTO List
     public List<BoardDTO> createBoardDTOs(List<Board> boards, String authorizationHeader){
-        if(authorizationHeader == null)
-            return BoardDTO.createBoardDTOs(boards, false);
+        if(authorizationHeader == null) {
+            return boards.stream()
+                    .map(b -> BoardDTO.createBoardDTO(b, false, findRepresentImage(b)))
+                    .collect(Collectors.toList());
+        }
         Member member = memberService.findMemberByToken(authorizationHeader);
         return boards.stream()
-                .map(b -> BoardDTO.createBoardDTO(b, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, b))))
+                .map(b -> BoardDTO.createBoardDTO(b, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, b)), findRepresentImage(b)))
                 .collect(Collectors.toList());
     }
 
@@ -78,6 +81,13 @@ public class BoardService {
     //게시물에 속한 이미지 조회
     public List<BoardImage> findBoarImagesByBoard(Board board){
         return boardImageRepository.findBoardImagesByBoard(board);
+    }
+
+    public String findRepresentImage(Board board){
+        Optional<BoardImage> image = boardImageRepository.findFirstByBoardOrderByIdAsc(board);
+        if (image.isPresent())
+            return image.get().getBoardImageUrl();
+        return "";
     }
 
     //잔체 게시물 조회
@@ -144,22 +154,13 @@ public class BoardService {
 
     //게시물 등록
     @Transactional
-    public Long saveBoard(WriteBoardRequest request, String authorizationHeader) {
-        Member member = memberService.findMemberByToken(authorizationHeader);
-        Board board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
-                request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
-        boardRepository.save(board);
-        return board.getId();
-    }
-
-    @Transactional
-    public void saveAndroidBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) {
+    public Long saveBoard(WriteBoardRequest request, List<MultipartFile> multipartFiles, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         Board board = new Board(request.getTitle(), request.getIntroduce(), request.getTarget(), request.getContent(), request.getConsultTime(),
                 request.getBoardCategory(), member, request.getTimes(), request.getAvailableDays());
         saveBoardImageUrl(multipartFiles, board);
         boardRepository.save(board);
-
+        return board.getId();
     }
 
     //게시물 수정

@@ -20,11 +20,8 @@ import lombok.RequiredArgsConstructor;
 import com.mementee.api.service.BoardService;
 import org.springframework.data.domain.*;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -59,7 +56,7 @@ public class BoardController {
 //    }
 
     //글 쓰기--------------------------------------
-    @Operation(summary = "글 쓰기 , 이미지 첨부 가능", description =
+    @Operation(summary = "글 쓰기 , 스웨거용 ", description =
             "  {\"title\": \"축구 교실\",\n" +
             "  \"introduce\": \"맨유 출신 입니다.\",\n" +
             "  \"target\": \"세모발들\",\n" +
@@ -80,14 +77,15 @@ public class BoardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping(value = "/api/board")
-    public CommonApiResponse<?> saveBoard(@RequestBody @Valid WriteBoardRequest request,
-                                          @RequestHeader("Authorization") String authorizationHeader){
-            boardService.saveBoard(request, authorizationHeader);
-            return CommonApiResponse.createSuccess();
+    @PostMapping(value = "/api/swagger/board")
+    public CommonApiResponse<?> saveSwaggerBoard(@RequestBody @Valid WriteBoardRequest request,
+                                                 @RequestHeader("Authorization") String authorizationHeader){
+        List<MultipartFile> multipartFiles = new ArrayList<>();
+        boardService.saveBoard(request, multipartFiles, authorizationHeader);
+        return CommonApiResponse.createSuccess();
     }
 
-    @Operation(summary = "안드로이드 용 (스웨거에서는 x)", description =
+    @Operation(summary = "글쓰기 스웨거 에서 x", description =
             "  {\"title\": \"축구 교실\",\n" +
                     "  \"introduce\": \"맨유 출신 입니다.\",\n" +
                     "  \"target\": \"세모발들\",\n" +
@@ -108,11 +106,11 @@ public class BoardController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping(value = "/api/android/board")
-    public CommonApiResponse<?> saveAndroidBoard(@RequestHeader("Authorization") String authorizationHeader,
-                                                 @RequestBody @Valid WriteBoardRequest request,
-                                                 @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles) throws IOException {
-        boardService.saveAndroidBoard(request, multipartFiles, authorizationHeader);
+    @PostMapping(value = "/api/board")
+    public CommonApiResponse<?> saveBoard(@RequestHeader("Authorization") String authorizationHeader,
+                                          @RequestPart @Valid WriteBoardRequest request,
+                                          @RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles) {
+        boardService.saveBoard(request, multipartFiles, authorizationHeader);
         return CommonApiResponse.createSuccess();
     }
 
@@ -142,40 +140,6 @@ public class BoardController {
     }
 
     //Page 멘토 글 전체 조회 --------------
-    @Operation(summary =  "페이지 단위로 멘토 전체 리스트 - 삭제 예정")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "성공"),
-            @ApiResponse(responseCode = "fail")})
-    @GetMapping("/api/pageBoards")
-    public CommonApiResponse<PaginationBoardResponse> pageBoardsList(@RequestParam int page, @RequestParam int size,
-                                                                  @RequestHeader(value = "Authorization", required = false) String authorizationHeader){
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
-
-        Page<Board> findBoards = boardService.findAllByPage(pageable);
-        PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
-
-        List<Board> response = findBoards.getContent();
-        List<BoardDTO> list = boardService.createBoardDTOs(response, authorizationHeader);
-        return CommonApiResponse.createSuccess(new PaginationBoardResponse(list, pageInfo));
-    }
-
-    //내 즐겨찾기 목록
-    @Operation(summary = "즐겨찾기 목록 - 삭제 예정")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "즐겨찾기 추가 성공"),
-            @ApiResponse(responseCode = "fail", description = "즐겨찾기 추가 실패")})
-    @GetMapping("/api/boards/favorites")
-    public CommonApiResponse<PaginationBoardResponse> findFavoriteBoards(@RequestParam int page, @RequestParam int size,
-                                                                         @RequestHeader("Authorization") String authorizationHeader){
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
-        Page<Board> findBoards = boardService.findFavoritesByMember(authorizationHeader, pageable);
-        PageInfo pageInfo = new PageInfo(page, size, (int)findBoards.getTotalElements(), findBoards.getTotalPages());
-
-        List<Board> response = findBoards.getContent();
-        List<BoardDTO> list = boardService.createBoardDTOs(response, authorizationHeader);
-        return CommonApiResponse.createSuccess(new PaginationBoardResponse(list, pageInfo));
-    }
-
     //필터별 목록
     @Operation(summary = "필터별 검색", description = "헤더 넣지 않고 RequestParam 에 아무것도 넣지 않으면 그냥 전체 게시판, " +
                                                    "헤더만 넣고 RequestParam 에 아무것도 넣지 않으면 전체 게시판이지만 즐겨찾기 된것은 true로 return, " +
