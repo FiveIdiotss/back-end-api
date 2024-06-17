@@ -61,10 +61,10 @@ public class EmailVerificationService {
     public ResponseEntity<String> requestCertification(EmailVerificationRequest request) {
         // 요청에 필요한 request 만드는 과정
         Map<String, String> requestBody = createRequestBodyWithKeyValue();
-
         requestBody.put("email", request.getEmail());
         requestBody.put("univName", request.getUnivName());
         requestBody.put("code", request.getCode());
+
         String response = webClient.post()
                 .uri("https://univcert.com/api/v1/certifycode")
                 .contentType(MediaType.APPLICATION_JSON)
