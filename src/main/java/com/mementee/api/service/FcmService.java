@@ -46,8 +46,6 @@ public class FcmService {
     private final ChatService chatService;
     private final MemberService memberService;
     private final BoardService boardService;
-    private final SubBoardService subBoardService;
-
 
     //title, otherPK 추가
     public FcmDTO createApplyFcmDTO(String authorizationHeader, Long boardId, ApplyRequest request){
@@ -82,7 +80,7 @@ public class FcmService {
             fcmToken.get().updateFCMToken(token);
     }
 
-    //채팅 알림 보내기
+    //알림 보내기
     public void sendMessageTo(FcmDTO fcmDTO){
         try {
             Member member = memberService.findMemberById(fcmDTO.getTargetMemberId());
