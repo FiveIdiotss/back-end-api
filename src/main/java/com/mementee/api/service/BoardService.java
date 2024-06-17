@@ -51,10 +51,10 @@ public class BoardService {
     //게시글 조회시 필요한 DTO
     public BoardDTO createBoardDTO(Board board, String authorizationHeader){
         if(authorizationHeader == null)
-            return BoardDTO.createBoardDTO(board, false);
+            return BoardDTO.createBoardDTO(board, false, findRepresentImage(board));
 
         Member member = memberService.findMemberByToken(authorizationHeader);
-        return BoardDTO.createBoardDTO(board, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, board)));
+        return BoardDTO.createBoardDTO(board, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, board)), findRepresentImage(board));
     }
 
     //게시글 목록시 필요한 DTO List
@@ -63,7 +63,7 @@ public class BoardService {
             return BoardDTO.createBoardDTOs(boards, false);
         Member member = memberService.findMemberByToken(authorizationHeader);
         return boards.stream()
-                .map(b -> BoardDTO.createBoardDTO(b, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, b))))
+                .map(b -> BoardDTO.createBoardDTO(b, BoardValidation.isFavorite(findFavoriteByMemberAndBoard(member, b)), findRepresentImage(b)))
                 .collect(Collectors.toList());
     }
 
@@ -78,6 +78,13 @@ public class BoardService {
     //게시물에 속한 이미지 조회
     public List<BoardImage> findBoarImagesByBoard(Board board){
         return boardImageRepository.findBoardImagesByBoard(board);
+    }
+
+    public String findRepresentImage(Board board){
+        Optional<BoardImage> image = boardImageRepository.findFirstByBoardOrderByIdAsc(board);
+        if (image.isPresent())
+            return image.get().getBoardImageUrl();
+        return "";
     }
 
     //잔체 게시물 조회

@@ -140,7 +140,6 @@ public class BoardController {
     }
 
     //Page 멘토 글 전체 조회 --------------
-
     //필터별 목록
     @Operation(summary = "필터별 검색", description = "헤더 넣지 않고 RequestParam 에 아무것도 넣지 않으면 그냥 전체 게시판, " +
                                                    "헤더만 넣고 RequestParam 에 아무것도 넣지 않으면 전체 게시판이지만 즐겨찾기 된것은 true로 return, " +
