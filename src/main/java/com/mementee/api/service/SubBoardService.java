@@ -155,23 +155,15 @@ public class SubBoardService {
         return s3Service.saveFile(multipartFile);
     }
 
-    //안드로이드용
+    //글 쓰기
     @Transactional
-    public void saveAndroidSubBoard(WriteAndroidSubBoardRequest request, List<MultipartFile> images, String authorizationHeader) {
+    public void saveSubBoard(WriteSubBoardRequest request, List<MultipartFile> images, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), request.getSubBoardType());
         saveSubBoardImageUrl(images, subBoard);
         subBoardRepository.save(subBoard);
     }
 
-    //자유 게시글 등록
-    @Transactional
-    public void saveFreeSubBoard(WriteSubBoardRequest request, String authorizationHeader) {
-        Member member = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), SubBoardType.QUEST);
-        //saveSubBoardImageUrl(request, subBoard);
-        subBoardRepository.save(subBoard);
-    }
 
     @Transactional
     public void saveRequestSubBoard(WriteSubBoardRequest request, String authorizationHeader) {
