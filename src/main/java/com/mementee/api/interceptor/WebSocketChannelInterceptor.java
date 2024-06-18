@@ -26,8 +26,12 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
         if (accessor != null) {
             // 웹소켓 CONNECT 시점에 특정 해더 정보에서 읽어온 chatRoomId에 messsage sender를 입장시킴.
             if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+                log.info("여기서 테스트");
+
                 String chatRoomIdHeader = accessor.getFirstNativeHeader("chatRoomId");
                 String senderIdHeader = accessor.getFirstNativeHeader("senderId");
+
+                log.info("SUBSCRIBED");
 
                 // 헤더 정보로 채팅방 아이디, 전송자 아이디가 넘어왔을 때 유저를 채팅방에 입장시킴. (enterChatRoom)
                 if (chatRoomIdHeader != null && senderIdHeader != null) {
