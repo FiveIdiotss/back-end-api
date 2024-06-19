@@ -24,6 +24,7 @@ public class ChatRoomDTO {
     private String boardTitle;
     private LocalDate date;                     // 상담 날짜
     private LocalTime startTime;                // 상담 시작 시간
+    private int consultTime;                    // 상담 시간
 
     private int unreadMessageCount;
 
@@ -45,7 +46,7 @@ public class ChatRoomDTO {
                 loginMember.getMemberImageUrl(),
                 chatRoom.getMatching().getBoard().getTitle(),
                 chatRoom.getMatching().getDate(),
-                chatRoom.getMatching().getStartTime(),
+                chatRoom.getMatching().getStartTime(), chatRoom.getMatching().getConsultTime(),
                 unreadMessageCount, boardId, matchingId, chatRoom.getMatching().getMentor().getId());
     }
 
