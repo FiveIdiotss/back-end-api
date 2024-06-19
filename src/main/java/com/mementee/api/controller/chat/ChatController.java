@@ -113,7 +113,7 @@ public class ChatController {
         // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
         chatService.saveMessage(messageDTO);
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
-//        return CommonApiResponse.createSuccess(messageDTO);
+        return CommonApiResponse.createSuccess(messageDTO);
     }
 
     @Operation(summary = "채팅방 ID로 모든 채팅 메시지 조회")
