@@ -53,7 +53,7 @@ public class Member {
         this.password = password;
         this.year = year;
         this.gender = gender;
-        this.role = Role.USER;
+        this.role = Role.ROLE_USER;
         this.school = school;
         this.major = major;
         this.memberImageUrl = defaultMemberImageUrl;
@@ -66,5 +66,9 @@ public class Member {
 
     public void changePassword(String password){
         this.password = password;
+    }
+
+    public void adminJoin(){
+        this.role = Role.ROLE_ADMIN;
     }
 }

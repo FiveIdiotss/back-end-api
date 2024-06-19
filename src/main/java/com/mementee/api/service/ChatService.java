@@ -85,6 +85,11 @@ public class ChatService {
         chatMessageRepository.save(chatMessage);
     }
 
+    @Transactional
+    public void updateState(ChatRoom chatRoom){
+        chatRoom.updateState(chatRoom);
+    }
+
     public ChatMessage createMessageByDTO(ChatMessageDTO messageDTO) {
         Member sender = memberService.findMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = findChatRoomById(messageDTO.getChatRoomId());

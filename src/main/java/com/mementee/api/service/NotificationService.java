@@ -23,8 +23,6 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final MemberService memberService;
     private final RedisService redisService;
-
-    @Lazy
     private final SimpMessagingTemplate websocketPublisher;
 
     public void sendNotification(Long targetMemberId) {

@@ -1,11 +1,12 @@
 package com.mementee.security;
 
+import com.mementee.api.domain.enumtype.Role;
 import com.mementee.api.service.BlackListTokenService;
+import com.mementee.api.service.CustomMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,9 +21,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${spring.jwt.secret}")
-    private String secretKey;
     private final BlackListTokenService bf;
+    private final CustomMemberService customMemberService;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -36,10 +36,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/webjars/**", "/swagger-resources/**").permitAll()
                         .requestMatchers("/api/image").authenticated()
+                        .requestMatchers("/api/members").hasRole("ADMIN")
                         .anyRequest().permitAll() //authenticated
                 )
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtFilter(secretKey, bf), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(bf, customMemberService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
