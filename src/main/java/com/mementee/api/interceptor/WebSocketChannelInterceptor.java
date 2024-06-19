@@ -29,6 +29,7 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
                 String chatRoomIdHeader = accessor.getFirstNativeHeader("chatRoomId");
                 String senderIdHeader = accessor.getFirstNativeHeader("senderId");
 
+                log.info("SUBSCRIBED");
                 // 헤더 정보로 채팅방 아이디, 전송자 아이디가 넘어왔을 때 유저를 채팅방에 입장시킴. (enterChatRoom)
                 if (chatRoomIdHeader != null && senderIdHeader != null) {
                     long chatRoomId = Long.parseLong(chatRoomIdHeader);
