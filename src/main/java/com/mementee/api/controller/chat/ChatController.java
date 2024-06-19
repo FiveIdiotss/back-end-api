@@ -90,7 +90,7 @@ public class ChatController {
 
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
-    public CommonApiResponse<ChatMessageDTO> sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader,
+    public void sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader,
                                                                 @RequestPart("file") MultipartFile file,
                                                                 @RequestParam Long chatRoomId) {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
@@ -113,7 +113,10 @@ public class ChatController {
         // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
         chatService.saveMessage(messageDTO);
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
-        return CommonApiResponse.createSuccess(messageDTO);
+
+        //FCM 알림
+        FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
+        fcmService.sendMessageTo(fcmDTO);
     }
 
     @Operation(summary = "채팅방 ID로 모든 채팅 메시지 조회")
