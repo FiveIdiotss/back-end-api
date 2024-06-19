@@ -18,8 +18,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
-    @Value("${spring.jwt.secret}")
-    private String secretKey;
     private final RefreshTokenRepository refreshTokenRepository;
 
     public Optional<RefreshToken> findRefreshTokenByMember(Member member){
@@ -34,8 +32,8 @@ public class RefreshTokenService {
     public TokenDTO getAccessKey(String authorizationHeader){
         RefreshToken storedRefreshToken = TokenValidation.isCheckStoredRefreshToken(findRefreshTokenByRefreshToken(authorizationHeader.split(" ")[1]));
 
-        String newAccessToken = JwtUtil.createAccessToken(storedRefreshToken.getMember().getEmail(), secretKey);
-        String newRefreshToken =  JwtUtil.createRefreshToken(secretKey);
+        String newAccessToken = JwtUtil.createAccessToken(storedRefreshToken.getMember().getEmail());
+        String newRefreshToken =  JwtUtil.createRefreshToken();
 
         storedRefreshToken.updateToken(newRefreshToken);
 

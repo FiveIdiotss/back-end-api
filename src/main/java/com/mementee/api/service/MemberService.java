@@ -9,6 +9,9 @@ import com.mementee.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import com.mementee.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +25,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberService {
 
-    @Value("${spring.jwt.secret}")      //JWT에 필요한 Key
-    private String secretKey;
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
 
@@ -35,15 +36,15 @@ public class MemberService {
 
     //로그인 시 토큰 TokenDTO 발급
     public TokenDTO createTokenDTO(Member member) {
-        String newAccessToken = JwtUtil.createAccessToken(member.getEmail(), secretKey);
-        String newRefreshToken = JwtUtil.createRefreshToken(secretKey);
+        String newAccessToken = JwtUtil.createAccessToken(member.getEmail());
+        String newRefreshToken = JwtUtil.createRefreshToken();
         return new TokenDTO(newAccessToken, newRefreshToken);
     }
 
     //토큰으로 회원 찾기
     public Member findMemberByToken(String authorizationHeader) {
         String token = authorizationHeader.split(" ")[1];
-        String email = JwtUtil.getMemberEmail(token, secretKey);
+        String email = JwtUtil.getMemberEmail(token);
         return findMemberByEmail(email);
     }
 
@@ -54,7 +55,6 @@ public class MemberService {
             throw new MemberNotFound();
         return member.get();
     }
-
 
     //로그인 시 이메일로 회원 조회
     public Member findMemberByEmail(String email) {
@@ -149,4 +149,24 @@ public class MemberService {
         String encodePw = passwordEncoder.encode(request.getPassword()); //비밀번호 암호화
         member.changePassword(encodePw);
     }
+
+    //관리자
+    @Transactional
+    public void adminJoin(CreateMemberRequest request) {
+        School school = schoolService.findSchoolByName(request.getSchoolName());
+        Major major = majorService.findMajorById(request.getMajorId());
+
+        //이미 있는 Email 있는지
+        MemberValidation.isDuplicateCheck(memberRepository.findMemberByEmail(request.getEmail()));
+
+        //회원가입시 기본 이미지로 설정
+        String defaultPhotoUrl = s3Service.getImageUrl("defaultImage.jpg");
+
+        String encodePw = passwordEncoder.encode(request.getPassword()); //비밀번호 암호화
+        Member member = new Member(request.getEmail(), request.getName(), encodePw, request.getYear(),
+                defaultPhotoUrl, request.getGender(), school, major);
+        member.adminJoin();
+        memberRepository.save(member);
+    }
+
 }

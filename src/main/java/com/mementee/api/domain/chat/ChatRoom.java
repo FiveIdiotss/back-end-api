@@ -2,6 +2,7 @@ package com.mementee.api.domain.chat;
 
 import com.mementee.api.domain.Matching;
 import com.mementee.api.domain.Member;
+import com.mementee.api.domain.enumtype.ExtendState;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,9 +31,21 @@ public class ChatRoom {
 
     private int unreadMessageCount;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ExtendState extendState;
+
     public ChatRoom(Member sender, Member receiver, Matching matching) {
         this.sender = sender;
         this.receiver = receiver;
         this.matching = matching;
+        this.extendState = ExtendState.EMPTY;
+    }
+
+    public void updateState(ChatRoom chatRoom){
+        if(chatRoom.getExtendState().equals(ExtendState.WAITING))
+            chatRoom.extendState = ExtendState.EMPTY;
+        else
+            chatRoom.extendState = ExtendState.WAITING;
     }
 }
