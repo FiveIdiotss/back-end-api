@@ -1,5 +1,7 @@
 package com.mementee.api.controller.chat;
 
+import com.mementee.api.domain.enumtype.ExtendState;
+import com.mementee.api.domain.enumtype.FileType;
 import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
@@ -10,9 +12,12 @@ import com.mementee.api.dto.chatDTO.ChatUpdateDTO;
 import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.*;
+import com.mementee.exception.conflict.ExtendConflictException;
 import com.mementee.exception.notFound.FileNotFound;
 import io.swagger.v3.oas.annotations.Operation;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +91,9 @@ public class ChatController {
 
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
-    public CommonApiResponse<ChatMessageDTO> sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader, @RequestPart("file") MultipartFile file, @RequestParam Long chatRoomId) {
+    public CommonApiResponse<ChatMessageDTO> sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader,
+                                                                @RequestPart("file") MultipartFile file,
+                                                                @RequestParam Long chatRoomId) {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
         ChatMessageDTO messageDTO = new ChatMessageDTO(
                 fileService.getFileType(file.getContentType()),
@@ -152,5 +159,54 @@ public class ChatController {
                 .collect(Collectors.toList());
 
         return CommonApiResponse.createSuccess(chatRoomDTOs);
+    }
+
+    //상담 연장 요청
+    @Operation(summary = "상담 연장")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @PostMapping("/extend/{chatRoomId}")
+    public CommonApiResponse<?> extendMatching(@RequestHeader("Authorization") String authorizationHeader,
+                                               @PathVariable Long chatRoomId) {
+        ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
+
+        if(chatRoom.getExtendState() == ExtendState.WAITING)
+            throw new ExtendConflictException();
+
+        Member loginMember = memberService.findMemberByToken(authorizationHeader);
+        ChatMessageDTO messageDTO = new ChatMessageDTO(
+                FileType.CONSULT_EXTEND,
+                null,
+                "상담 연장을 요청하였습니다.",
+                loginMember.getName(),
+                loginMember.getId(),
+                chatRoomId,
+                1,
+                LocalDateTime.now());
+
+        // If both users are in the chat room, set the readCount to 2.
+        chatService.setMessageReadCount(messageDTO);
+
+        // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
+        chatService.saveMessage(messageDTO);
+        Member receiver = chatService.getReceiver(loginMember.getId(), chatRoom);
+
+        // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
+        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoomId, receiver.getId());
+
+        // webSocket에 보내기
+        websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
+        LatestMessageDTO latestChatMessage = createLatestMessageDTO(chatService.findLatestChatMessage(chatRoomId));
+
+        // 채팅 목록에 보내기
+        extracted(chatRoomId, unreadMessageCount, latestChatMessage);
+
+        //FCM 알림
+        FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
+        fcmService.sendMessageTo(fcmDTO);
+
+        chatService.updateState(chatRoom);
+        return CommonApiResponse.createSuccess();
     }
 }

@@ -7,5 +7,13 @@ public enum FileType {
     ZIP,
     PDF,
     CONTACT,
-    FILE
+    FILE,
+    CONSULT_EXTEND;
+
+    enum EXTEND{
+        DECLINE, ACCEPT
+        ;
+
+    }
+
 }
