@@ -83,10 +83,9 @@ public class ChatController {
         websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, chatUpdateDTO);
     }
 
-
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
-    public CommonApiResponse<ChatMessageDTO> sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader, @RequestPart("file") MultipartFile file, @RequestParam Long chatRoomId) {
+    public void sendFile(@RequestHeader("Authorization") String authorizationHeader, @RequestPart("file") MultipartFile file, @RequestParam Long chatRoomId) {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
         ChatMessageDTO messageDTO = new ChatMessageDTO(
                 fileService.getFileType(file.getContentType()),
@@ -106,9 +105,9 @@ public class ChatController {
 
         // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
         chatService.saveMessage(messageDTO);
-        return CommonApiResponse.createSuccess(messageDTO);
+        websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
+//        return CommonApiResponse.createSuccess(messageDTO);
     }
-
 
     @Operation(summary = "채팅방 ID로 모든 채팅 메시지 조회")
     @GetMapping("/messages/{chatRoomId}")
@@ -131,13 +130,12 @@ public class ChatController {
 
     @Operation(summary = "상대방 ID로 해당 채팅방 조회. 상대방 프로필을 조회하고 메시지를 보낼 때, 둘 사이에 채팅방이 존재하는지 확인. 존재 하지 않으면 null 반환")
     @GetMapping("/chatRoom")
-    public CommonApiResponse<?> findChatRoomByReceiverId(@RequestParam Long receiverId, @RequestHeader("Authorization") String authorizationHeader) {
+    public CommonApiResponse<?> findChatRoomById(@RequestParam Long chatRoomId, @RequestHeader("Authorization") String authorizationHeader) {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
-        Member receiver = memberService.findMemberById(receiverId);
 
-        ChatRoom chatRoom = chatService.findChatRoomBySenderAndReceiver(loginMember, receiver);
+        ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
+        ChatRoomDTO chatRoomDTO = chatService.createChatRoomDTO(loginMember.getId(), chatRoom);
 
-        ChatRoomDTO chatRoomDTO = new ChatRoomDTO(chatRoom.getId(), receiverId, receiver.getName());
         return CommonApiResponse.createSuccess(chatRoomDTO);
     }
 
