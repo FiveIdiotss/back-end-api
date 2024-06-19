@@ -1,8 +1,13 @@
 package com.mementee.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mementee.api.domain.Member;
+import com.mementee.api.domain.enumtype.Role;
 import com.mementee.api.dto.CommonApiResponse;
+import com.mementee.api.dto.memberDTO.CustomMemberDetails;
 import com.mementee.api.service.BlackListTokenService;
+import com.mementee.api.service.CustomMemberService;
+import com.mementee.api.service.MemberService;
 import com.mementee.config.error.ErrorCode;
 import com.mementee.exception.unauthorized.InvalidTokenException;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -18,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -30,10 +36,9 @@ import java.util.List;
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
-    @Value("${spring.jwt.secret}")
-    private final String secretKey;
 
     private final BlackListTokenService bt;
+    private final CustomMemberService customMemberService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -56,21 +61,22 @@ public class JwtFilter extends OncePerRequestFilter {
             }
 
             //MemberEmail Token 에서 꺼내기
-            String memberEmail = JwtUtil.getMemberEmail(token, secretKey);
+            String memberEmail = JwtUtil.getMemberEmail(token);
+
             if (memberEmail == null) {
                 //이 부분은 refreshToken 으로 accessToken 재발급시 refresh 토큰에는 사용자 정보가 없기 때문에 return
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            //권한부여
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(memberEmail, null, List.of(new SimpleGrantedAuthority("USER")));
+            //UserDetails에 회원 정보 객체 담기
+            CustomMemberDetails customUserDetails = customMemberService.loadUserByUsername(memberEmail);
 
-            //Detail
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            //스프링 시큐리티 인증 토큰 생성
+            Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
+            //세션에 사용자 등록
+            SecurityContextHolder.getContext().setAuthentication(authToken);
             filterChain.doFilter(request, response);
         } catch (InvalidTokenException | ExpiredJwtException | SecurityException | MalformedJwtException |
                  SignatureException | UnsupportedJwtException e) {

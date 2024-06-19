@@ -14,6 +14,7 @@ import com.mementee.api.service.MajorService;
 import com.mementee.api.service.MemberService;
 import com.mementee.api.service.SchoolService;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +42,16 @@ public class MemberController {
             return CommonApiResponse.createSuccess();
     }
 
+    @Operation(summary = "관리자 등록")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "등록 성공"),
+            @ApiResponse(responseCode = "fail", description = "등록 실패")})
+    @PostMapping("/api/admin/signUp")
+    public CommonApiResponse<?> adminJoinMember(@RequestBody @Valid CreateMemberRequest request) {
+        memberService.adminJoin(request);
+        return CommonApiResponse.createSuccess();
+    }
+
     //목록 조회--------------------------------------
     @Operation(summary = "학교 목록")
     @ApiResponses(value = {
@@ -64,12 +75,12 @@ public class MemberController {
     }
 
     //회원등록이 되어 있는 모든 회원 조회--------------------------------------
-    @Operation(summary = "모든 회원 조회")
+    @Operation(summary = "모든 회원 조회 / admin 용")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/members")
-    public CommonApiResponse<List<MemberDTO>> memberList() {
+    public CommonApiResponse<List<MemberDTO>> memberList(@AuthenticationPrincipal CustomMemberDetails member) {
         List<MemberDTO> collect = MemberDTO.createMemberDTOs(memberService.findAll());
         return CommonApiResponse.createSuccess(collect);
     }
