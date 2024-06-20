@@ -42,15 +42,6 @@ public class MemberController {
             return CommonApiResponse.createSuccess();
     }
 
-    @Operation(summary = "관리자 등록")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "등록 성공"),
-            @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping("/api/admin/signUp")
-    public CommonApiResponse<?> adminJoinMember(@RequestBody @Valid CreateMemberRequest request) {
-        memberService.adminJoin(request);
-        return CommonApiResponse.createSuccess();
-    }
 
     //목록 조회--------------------------------------
     @Operation(summary = "학교 목록")
@@ -74,16 +65,6 @@ public class MemberController {
         return CommonApiResponse.createSuccess(collect);
     }
 
-    //회원등록이 되어 있는 모든 회원 조회--------------------------------------
-    @Operation(summary = "모든 회원 조회 / admin 용")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "성공"),
-            @ApiResponse(responseCode = "fail")})
-    @GetMapping("/api/members")
-    public CommonApiResponse<List<MemberDTO>> memberList(@AuthenticationPrincipal CustomMemberDetails member) {
-        List<MemberDTO> collect = MemberDTO.createMemberDTOs(memberService.findAll());
-        return CommonApiResponse.createSuccess(collect);
-    }
 
     //로그인--------------------------------------
     @Operation(summary = "로그인 - (access token 기간 1시간)")
