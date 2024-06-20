@@ -3,12 +3,9 @@ package com.mementee.api.service;
 import com.mementee.api.domain.Apply;
 import com.mementee.api.domain.Board;
 import com.mementee.api.domain.Member;
-import com.mementee.api.dto.applyDTO.ApplyInfoResponse;
 import com.mementee.api.repository.ApplyRepository;
 import com.mementee.api.validation.ApplyValidation;
-import com.mementee.exception.ForbiddenException;
-import com.mementee.exception.conflict.ApplyConflictException;
-import com.mementee.exception.conflict.MyApplyConflictException;
+import com.mementee.api.validation.MemberValidation;
 import com.mementee.exception.notFound.ApplyNotFound;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.dto.applyDTO.ApplyRequest;
@@ -69,5 +66,14 @@ public class ApplyService {
 
         Apply apply = new Apply(request.getDate(), request.getTime(), sendMember, receiveMember, board, request.getContent());
         applicationRepository.save(apply);
+    }
+
+    //신청 취소(삭제)
+    @Transactional
+    public void removeApply(Long applyId, String authorizationHeader) {
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        Apply apply = findApplyById(applyId);
+        MemberValidation.isCheckMe(member, apply.getSendMember());
+        applicationRepository.delete(apply);
     }
 }
