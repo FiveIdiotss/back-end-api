@@ -1,7 +1,7 @@
 package com.mementee.api.controller.chat;
 
 import com.mementee.api.domain.enumtype.ExtendState;
-import com.mementee.api.domain.enumtype.FileType;
+import com.mementee.api.domain.enumtype.DecisionStatus;
 import com.mementee.api.dto.CommonApiResponse;
 import com.mementee.api.dto.chatDTO.ChatMessageDTO;
 import com.mementee.api.dto.chatDTO.ChatRoomDTO;
@@ -12,7 +12,9 @@ import com.mementee.api.dto.chatDTO.ChatUpdateDTO;
 import com.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.mementee.api.dto.notificationDTO.FcmDTO;
 import com.mementee.api.service.*;
-import com.mementee.exception.conflict.ExtendConflictException;
+import com.mementee.exception.ForbiddenException;
+import com.mementee.exception.conflict.ExtendRequestConflictException;
+import com.mementee.exception.conflict.ExtendResponseConflictException;
 import com.mementee.exception.notFound.FileNotFound;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -49,6 +51,7 @@ import static com.mementee.api.dto.chatDTO.LatestMessageDTO.createLatestMessageD
 public class ChatController {
 
     private final ChatService chatService;
+    private final MatchingService matchingService;
     private final MemberService memberService;
     private final FcmService fcmService;
     private final FileService fileService;
@@ -56,43 +59,20 @@ public class ChatController {
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageDTO messageDTO) {
-        // If both users are in the chat room, set the readCount to 2.
-        chatService.setMessageReadCount(messageDTO);
-        //DB에 저장
-        chatService.saveMessage(messageDTO);
-
         Long senderId = messageDTO.getSenderId();
         Long chatRoomId = messageDTO.getChatRoomId();
 
         ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
         Member receiver = chatService.getReceiver(senderId, chatRoom);
 
-        // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
-        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoomId, receiver.getId());
-
-        // webSocket에 보내기
-        websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
-        LatestMessageDTO latestChatMessage = createLatestMessageDTO(chatService.findLatestChatMessage(chatRoomId));
-
-        // 채팅 목록에 보내기
-        extracted(chatRoomId, unreadMessageCount, latestChatMessage);
-
-        //FCM 알림
-        FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
-        fcmService.sendMessageTo(fcmDTO);
-    }
-
-    private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
-        ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
-        log.info("Latest Message: " + latestMessageDTO.getContent());
-        websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, chatUpdateDTO);
+        convenience(messageDTO, receiver, chatRoom);
     }
 
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
-    public void sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader,
-                                                                @RequestPart("file") MultipartFile file,
-                                                                @RequestParam Long chatRoomId) {
+    public CommonApiResponse<?> sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader,
+                                                   @RequestPart("file") MultipartFile file,
+                                                   @RequestParam Long chatRoomId) {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
         ChatMessageDTO messageDTO = new ChatMessageDTO(
                 fileService.getFileType(file.getContentType()),
@@ -117,6 +97,8 @@ public class ChatController {
         //FCM 알림
         FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
         fcmService.sendMessageTo(fcmDTO);
+
+        return CommonApiResponse.createSuccess();
     }
 
     @Operation(summary = "채팅방 ID로 모든 채팅 메시지 조회")
@@ -127,7 +109,7 @@ public class ChatController {
         Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
 
         return CommonApiResponse.createSuccess(allMessages.map(message -> new ChatMessageDTO(
-                message.getFileType(),
+                message.getMessageType(),
                 message.getFileURL(),
                 message.getContent(),
                 message.getSender().getName(),
@@ -173,19 +155,55 @@ public class ChatController {
         ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
 
         if(chatRoom.getExtendState() == ExtendState.WAITING)
-            throw new ExtendConflictException();
+            throw new ExtendRequestConflictException();
 
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
-        ChatMessageDTO messageDTO = new ChatMessageDTO(
-                FileType.CONSULT_EXTEND,
-                null,
-                "상담 연장을 요청하였습니다.",
-                loginMember.getName(),
-                loginMember.getId(),
-                chatRoomId,
-                1,
-                LocalDateTime.now());
+        Member mentee = chatRoom.getMatching().getMentee();
+        if(!loginMember.equals(mentee))
+            throw new ForbiddenException();
 
+        ChatMessageDTO messageDTO = ChatMessageDTO.createExtendRequest(loginMember, chatRoomId);
+        convenience(messageDTO, loginMember, chatRoom);
+
+        chatService.updateState(chatRoom);
+        return CommonApiResponse.createSuccess();
+    }
+
+    @Operation(summary = "상담 연장 수락/거절")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail")})
+    @PostMapping("/extend/request/{chatRoomId}")
+    public CommonApiResponse<?> extendAcceptOrDecline(@RequestHeader("Authorization") String authorizationHeader,
+                                                      @PathVariable Long chatRoomId,
+                                                      @RequestParam DecisionStatus status) {
+        ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
+        if(chatRoom.getExtendState() == ExtendState.EMPTY)
+            throw new ExtendResponseConflictException();
+
+        Member loginMember = memberService.findMemberByToken(authorizationHeader);
+        Member mentor = chatRoom.getMatching().getMentor();
+        if(!loginMember.equals(mentor))
+            throw new ForbiddenException();
+
+        ChatMessageDTO messageDTO = ChatMessageDTO.createExtendResponse(status, loginMember, chatRoomId);
+        convenience(messageDTO, loginMember, chatRoom);
+        
+        chatService.updateState(chatRoom);
+
+        if (status.equals(DecisionStatus.ACCEPT))
+            matchingService.extendConsultTime(chatRoom.getMatching());
+
+        return CommonApiResponse.createSuccess();
+    }
+
+    private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
+        ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
+        log.info("Latest Message: " + latestMessageDTO.getContent());
+        websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, chatUpdateDTO);
+    }
+
+    private void convenience(ChatMessageDTO messageDTO, Member loginMember, ChatRoom chatRoom){
         // If both users are in the chat room, set the readCount to 2.
         chatService.setMessageReadCount(messageDTO);
 
@@ -194,20 +212,17 @@ public class ChatController {
         Member receiver = chatService.getReceiver(loginMember.getId(), chatRoom);
 
         // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
-        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoomId, receiver.getId());
+        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoom.getId(), receiver.getId());
 
         // webSocket에 보내기
         websocketPublisher.convertAndSend("/sub/chats/" + messageDTO.getChatRoomId(), messageDTO);
-        LatestMessageDTO latestChatMessage = createLatestMessageDTO(chatService.findLatestChatMessage(chatRoomId));
+        LatestMessageDTO latestChatMessage = createLatestMessageDTO(chatService.findLatestChatMessage(chatRoom.getId()));
 
         // 채팅 목록에 보내기
-        extracted(chatRoomId, unreadMessageCount, latestChatMessage);
+        extracted(chatRoom.getId(), unreadMessageCount, latestChatMessage);
 
         //FCM 알림
         FcmDTO fcmDTO = fcmService.createChatFcmDTO(messageDTO);
         fcmService.sendMessageTo(fcmDTO);
-
-        chatService.updateState(chatRoom);
-        return CommonApiResponse.createSuccess();
     }
 }
