@@ -49,7 +49,8 @@ public enum ErrorCode {
     MY_APPLY_BOARD_CONFLICT(HttpStatus.CONFLICT, "E409005", "자신의 글에는 신청할 수 없습니다."),
     LIKE_SUB_BOARD_CONFLICT(HttpStatus.CONFLICT, "E409006", "이미 좋아요를 눌렀습니다."),
     EXTEND_REQUEST_CONFLICT(HttpStatus.CONFLICT, "E409007", "이미 연장 신청을 하였습니다."),
-    EXTEND_RESPONSE_CONFLICT(HttpStatus.CONFLICT, "E409007", "이미 처리된 신청입니다."),
+    EXTEND_RESPONSE_CONFLICT(HttpStatus.CONFLICT, "E409008", "이미 처리된 신청입니다."),
+    MATCHING_CONFLICT(HttpStatus.CONFLICT, "E409007", "이미 완료 된 신청입니다."),
 
     //413
     MAX_MULTIPART(HttpStatus.REQUEST_ENTITY_TOO_LARGE, "E413001", "파일 사이즈가 너무 큽니다"),

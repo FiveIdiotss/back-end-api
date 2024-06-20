@@ -7,6 +7,7 @@ import com.mementee.api.domain.chat.ChatRoom;
 import com.mementee.api.domain.enumtype.ApplyState;
 import com.mementee.api.repository.MatchingRepository;
 import com.mementee.api.repository.chat.ChatRoomRepository;
+import com.mementee.api.validation.MatchingValidation;
 import com.mementee.api.validation.MemberValidation;
 import lombok.RequiredArgsConstructor;
 import com.mementee.api.domain.Member;
@@ -29,18 +30,13 @@ public class MatchingService {
     private final MemberService memberService;
     private final ApplyService applyService;
 
-    private void isCheckCompleteApply(Apply apply){
-        if(apply.getApplyState() == ApplyState.COMPLETE)
-            throw new IllegalArgumentException("이미 완료된 신청입니다.");
-    }
-
     //수락 기능----------
     @Transactional
     public void saveMatching(Long applyId, String authorizationHeader) {
         Apply apply = applyService.findApplyById(applyId);
         Board board = apply.getBoard();
 
-        isCheckCompleteApply(apply);
+        MatchingValidation.isCheckCompleteApply(apply);
 
         LocalDate consultDate = apply.getDate();                        //신청할 때 등록한 날짜
         LocalTime consultTime = apply.getStartTime();                   //신청할 때 등록한 시작 시간
@@ -69,10 +65,7 @@ public class MatchingService {
     @Transactional
     public void declineMatching(Long applyId, String authorizationHeader){
         Apply apply = applyService.findApplyById(applyId);
-
-        isCheckCompleteApply(apply);
-
-        //신청 받은(게시물 글쓴이) 사람과 로그인한 사람
+        MatchingValidation.isCheckCompleteApply(apply);
         MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), apply.getReceiveMember());
         apply.updateState();
     }
