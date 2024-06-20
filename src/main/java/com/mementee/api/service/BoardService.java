@@ -83,6 +83,7 @@ public class BoardService {
         return boardImageRepository.findBoardImagesByBoard(board);
     }
 
+    //게시물의 대표 이미지
     public String findRepresentImage(Board board){
         Optional<BoardImage> image = boardImageRepository.findFirstByBoardOrderByIdAsc(board);
         if (image.isPresent())
@@ -90,10 +91,6 @@ public class BoardService {
         return "";
     }
 
-    //잔체 게시물 조회
-    public Page<Board> findAllByPage(Pageable pageable){
-        return boardRepository.findAll(pageable);
-    }
 
     //로그인한 유저가 즐겨찾기한 게시물 목록
     public Page<Board> findFavoritesByMember(String authorizationHeader, Pageable pageable){
