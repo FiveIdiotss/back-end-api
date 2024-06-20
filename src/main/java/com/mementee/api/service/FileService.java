@@ -1,14 +1,13 @@
 package com.mementee.api.service;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.mementee.api.domain.enumtype.FileType;
+import com.mementee.api.domain.enumtype.MessageType;
 import ezvcard.Ezvcard;
 import ezvcard.VCard;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -17,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-import static com.mementee.api.domain.enumtype.FileType.*;
+import static com.mementee.api.domain.enumtype.MessageType.*;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +41,7 @@ public class FileService {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
-    public FileType getFileType(String contentType) {
+    public MessageType getFileType(String contentType) {
         if (contentType.startsWith("image")) return IMAGE;
         if (contentType.startsWith("video")) return VIDEO;
         if ("application/pdf".equals(contentType)) return PDF;

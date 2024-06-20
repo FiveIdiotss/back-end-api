@@ -42,15 +42,6 @@ public class MemberController {
             return CommonApiResponse.createSuccess();
     }
 
-    @Operation(summary = "관리자 등록")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "등록 성공"),
-            @ApiResponse(responseCode = "fail", description = "등록 실패")})
-    @PostMapping("/api/admin/signUp")
-    public CommonApiResponse<?> adminJoinMember(@RequestBody @Valid CreateMemberRequest request) {
-        memberService.adminJoin(request);
-        return CommonApiResponse.createSuccess();
-    }
 
     //목록 조회--------------------------------------
     @Operation(summary = "학교 목록")
@@ -74,16 +65,6 @@ public class MemberController {
         return CommonApiResponse.createSuccess(collect);
     }
 
-    //회원등록이 되어 있는 모든 회원 조회--------------------------------------
-    @Operation(summary = "모든 회원 조회 / admin 용")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "success", description = "성공"),
-            @ApiResponse(responseCode = "fail")})
-    @GetMapping("/api/members")
-    public CommonApiResponse<List<MemberDTO>> memberList(@AuthenticationPrincipal CustomMemberDetails member) {
-        List<MemberDTO> collect = MemberDTO.createMemberDTOs(memberService.findAll());
-        return CommonApiResponse.createSuccess(collect);
-    }
 
     //로그인--------------------------------------
     @Operation(summary = "로그인 - (access token 기간 1시간)")
@@ -124,7 +105,7 @@ public class MemberController {
             @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
     @PostMapping(value = "/api/member/image" ,
                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CommonApiResponse<?> updatedMemberImage(@RequestHeader("Authorization") String authorizationHeader,
+    public CommonApiResponse<String> updatedMemberImage(@RequestHeader("Authorization") String authorizationHeader,
                                                    @RequestPart("imageFile") MultipartFile multipartFile) {
             String imageUrl = memberService.updatedMemberImage(authorizationHeader, multipartFile);
             return CommonApiResponse.createSuccess(imageUrl);
@@ -135,7 +116,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
             @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
     @PostMapping("/api/member/defaultImage")
-    public CommonApiResponse<?> updatedDefaultMemberImage(@RequestHeader("Authorization") String authorizationHeader) {
+    public CommonApiResponse<String> updatedDefaultMemberImage(@RequestHeader("Authorization") String authorizationHeader) {
             String imageUrl = memberService.updatedDefaultMemberImage(authorizationHeader);
             return CommonApiResponse.createSuccess(imageUrl);
     }

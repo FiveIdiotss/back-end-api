@@ -54,8 +54,9 @@ public class ApplyController {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
     @GetMapping("/api/pageMyApply")
-    public CommonApiResponse<?> pageApplyList(@RequestHeader("Authorization") String authorizationHeader, @RequestParam SendReceive sendReceive,
-                                        @RequestParam int page, @RequestParam int size){
+    public CommonApiResponse<?> pageApplyList(@RequestHeader("Authorization") String authorizationHeader,
+                                              @RequestParam SendReceive sendReceive,
+                                              @RequestParam int page, @RequestParam int size){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
 
         Page<Apply> findApplies = applyService.findMyApplyByPage(memberService.findMemberByToken(authorizationHeader), sendReceive, pageable);
@@ -105,5 +106,16 @@ public class ApplyController {
         Apply apply = applyService.findApplyById(applyId);
         ApplyValidation.isCheckContainMyApply(apply, memberService.findMemberByToken(authorizationHeader));
         return CommonApiResponse.createSuccess(ApplyInfoResponse.createApplyInfo(apply));
+    }
+
+    @Operation(summary = "신청 취소(삭제)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "삭제 성공"),
+            @ApiResponse(responseCode = "fail", description = "삭제 실패")})
+    @DeleteMapping("/api/apply/{applyId}")
+    public CommonApiResponse<?> cancelApply(@PathVariable Long applyId,
+                                            @RequestHeader("Authorization") String authorizationHeader){
+        applyService.removeApply(applyId, authorizationHeader);
+        return CommonApiResponse.createSuccess();
     }
 }

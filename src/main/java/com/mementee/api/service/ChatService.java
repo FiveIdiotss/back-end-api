@@ -93,7 +93,7 @@ public class ChatService {
     public ChatMessage createMessageByDTO(ChatMessageDTO messageDTO) {
         Member sender = memberService.findMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = findChatRoomById(messageDTO.getChatRoomId());
-        return new ChatMessage(messageDTO.getFileType(), messageDTO.getFileURL(), messageDTO.getContent(), sender, chatRoom, messageDTO.getLocalDateTime());
+        return new ChatMessage(messageDTO.getMessageType(), messageDTO.getFileURL(), messageDTO.getContent(), sender, chatRoom, messageDTO.getLocalDateTime());
     }
 
     //회원 조회 로직, memberId는 Sender
