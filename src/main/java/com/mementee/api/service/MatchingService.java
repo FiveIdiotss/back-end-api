@@ -77,6 +77,11 @@ public class MatchingService {
         apply.updateState();
     }
 
+    @Transactional
+    public void extendConsultTime(Matching matching){
+        matching.extendConsultTime();
+    }
+
     //멘토/멘티 매칭 목록
     public List<Matching> findMatchingsByMember(BoardType boardType, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);

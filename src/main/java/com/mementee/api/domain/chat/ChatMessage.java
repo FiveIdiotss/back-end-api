@@ -38,8 +38,8 @@ public class ChatMessage {
 
     private LocalDateTime localDateTime;
 
-    public ChatMessage(FileType fileType, String fileURL, String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime) {
-        this.fileType = fileType;
+    public ChatMessage(MessageType messageType, String fileURL, String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime) {
+        this.messageType = messageType;
         this.fileURL = fileURL;
         this.content = content;
         this.sender = sender;
