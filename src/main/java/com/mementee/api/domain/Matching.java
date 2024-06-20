@@ -53,4 +53,9 @@ public class Matching {
         this.mentor = mentor;
         this.mentee = mentee;
     }
+
+    public void extendConsultTime(){
+        this.consultTime = this.consultTime + 30;
+
+    }
 }

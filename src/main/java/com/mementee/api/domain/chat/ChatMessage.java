@@ -1,7 +1,7 @@
 package com.mementee.api.domain.chat;
 
 import com.mementee.api.domain.Member;
-import com.mementee.api.domain.enumtype.FileType;
+import com.mementee.api.domain.enumtype.MessageType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +19,7 @@ public class ChatMessage {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private FileType fileType;
+    private MessageType messageType;
 
     private String fileURL;
 
@@ -38,8 +38,8 @@ public class ChatMessage {
 
     private LocalDateTime localDateTime;
 
-    public ChatMessage(FileType fileType, String fileURL, String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime) {
-        this.fileType = fileType;
+    public ChatMessage(MessageType messageType, String fileURL, String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime) {
+        this.messageType = messageType;
         this.fileURL = fileURL;
         this.content = content;
         this.sender = sender;

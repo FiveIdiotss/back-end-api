@@ -34,28 +34,10 @@ public class BoardController {
 
     private final NotificationService notificationService;
     private final BoardService boardService;
-    private final ApplyService applicationService;
+    private final ApplyService applyService;
     private final FcmService fcmService;
     private final RedisTemplate<String, String> redisTemplate;
 
-    //Slice 글 리스트로 전체 조회---------------
-    //멘토,멘티 글 전체 조회
-//    @Operation(description =  "페이지 단위로 멘토/멘티 전체 리스트")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "success", description = "성공"),
-//            @ApiResponse(responseCode = "fail")})
-//    @GetMapping("/api/boards")
-//    public Slice<BoardDTO> boardList(@RequestParam int page, @RequestParam int size){
-//        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
-//
-//        Slice<Board> findBoards = boardService.findAllByBoardType(pageable);
-//        Slice<BoardDTO> slice = findBoards.map(b -> new BoardDTO(b.getId(), b.getBoardCategory(), b.getTitle(), b.getIntroduce(), b.getTarget(),b.getContent(),
-//                b.getMember().getYear(), b.getMember().getSchool().getName(), b.getMember().getMajor().getName(), b.getMember().getId(), b.getMember().getName(), b.getWriteTime()));
-//
-//        return slice;
-//    }
-
-    //글 쓰기--------------------------------------
     @Operation(summary = "글 쓰기 , 스웨거용 ", description =
             "  {\"title\": \"축구 교실\",\n" +
             "  \"introduce\": \"맨유 출신 입니다.\",\n" +
@@ -114,7 +96,6 @@ public class BoardController {
         return CommonApiResponse.createSuccess();
     }
 
-    //게시글 조회 --------------------
     @Operation(summary = "글 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "글 조회 성공"),
@@ -126,7 +107,6 @@ public class BoardController {
             return CommonApiResponse.createSuccess(response);
     }
 
-    //게시물 수정 ---------------
     @Operation(summary = "게시물 수정", description = "상담가능 시간 또는 요일 수정 시 이미 신청되있던 사람에 대하여 예외 발생 시켜야함 (ex- 바뀌기 전 시간에 신청한 사람이 있을경우)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
@@ -139,8 +119,6 @@ public class BoardController {
             return CommonApiResponse.createSuccess();
     }
 
-    //Page 멘토 글 전체 조회 --------------
-    //필터별 목록
     @Operation(summary = "필터별 검색", description = "헤더 넣지 않고 RequestParam 에 아무것도 넣지 않으면 그냥 전체 게시판, " +
                                                    "헤더만 넣고 RequestParam 에 아무것도 넣지 않으면 전체 게시판이지만 즐겨찾기 된것은 true로 return, " +
                                                    "RequestParam 에 따라 필터별 검색 Page return")
@@ -163,7 +141,6 @@ public class BoardController {
         return CommonApiResponse.createSuccess(new PaginationBoardResponse(list, pageInfo));
     }
 
-    //특정 멤버가 쓴 글 목록
     @Operation(summary = "특정 멤버가 쓴 글 목록")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "글 리스트 조회 성공"),
@@ -181,8 +158,6 @@ public class BoardController {
         return CommonApiResponse.createSuccess(new PaginationBoardResponse(list, pageInfo));
     }
 
-    //게시물 즐겨찾기
-    //즐겨찾기 추가 -------------------
     @Operation(summary = "즐겨찾기 추가")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "즐겨찾기 추가 성공"),
@@ -194,7 +169,6 @@ public class BoardController {
             return CommonApiResponse.createSuccess();
     }
 
-    //즐겨찾기 삭제
     @Operation(summary = "즐겨찾기 삭제")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "즐겨찾기 삭제 성공"),
@@ -206,7 +180,6 @@ public class BoardController {
             return CommonApiResponse.createSuccess();
     }
 
-    //신청 기능 -------------------
     @Operation(summary = "게시글에 멘티 신청",description = "이미 신청한 글이거나, 자신이 쓴 글에 신청시 오류" +
             "{\n" +
             "  \"content\": \"구민회 탈모\",\n" +
@@ -219,7 +192,7 @@ public class BoardController {
     @PostMapping("/api/board/{boardId}")
     public CommonApiResponse<?> boardApply(@RequestBody @Valid ApplyRequest request, @PathVariable Long boardId,
                                            @RequestHeader("Authorization") String authorizationHeader){
-        applicationService.sendApply(authorizationHeader, boardId, request);
+        applyService.sendApply(authorizationHeader, boardId, request);
         FcmDTO fcmDTO = fcmService.createApplyFcmDTO(authorizationHeader, boardId, request);
         fcmService.sendMessageTo(fcmDTO);
         notificationService.saveNotification(fcmDTO);
@@ -238,5 +211,4 @@ public class BoardController {
         // 결과 반환;
         return CommonApiResponse.createSuccess(new ArrayList<>(popularKeywords));
     }
-
 }

@@ -79,11 +79,6 @@ public class SubBoardService {
         return subBoardImageRepository.findSubBoardImageBySubBoard(subBoard);
     }
 
-    //모든 자유 게시글 목록
-    public Page<SubBoard> findAllFreeSubBoard(Pageable pageable) {
-        return subBoardRepository.findAllBySubBoardType(SubBoardType.QUEST, pageable);
-    }
-
     //특정 멤버가 쓴 질문/요청 게시글 목록
     public Page<SubBoard> findSubBoardsBySubBoardTypeAndMember(SubBoardType subBoardType, Long memberId, Pageable pageable){
         Member member = memberService.findMemberById(memberId);
@@ -150,26 +145,12 @@ public class SubBoardService {
         }
     }
 
-    //게시글에 첨부할 이미지, 파일 등의 링크 return
-    public String saveSubBoardImage(MultipartFile multipartFile) {
-        return s3Service.saveFile(multipartFile);
-    }
-
     //글 쓰기
     @Transactional
     public void saveSubBoard(WriteSubBoardRequest request, List<MultipartFile> images, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), request.getSubBoardType());
         saveSubBoardImageUrl(images, subBoard);
-        subBoardRepository.save(subBoard);
-    }
-
-
-    @Transactional
-    public void saveRequestSubBoard(WriteSubBoardRequest request, String authorizationHeader) {
-        Member member = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), SubBoardType.REQUEST);
-        //aveSubBoardImageUrl(request.getImages(), subBoard);
         subBoardRepository.save(subBoard);
     }
 
@@ -182,7 +163,6 @@ public class SubBoardService {
         //modifySubBoardImage(updatedImages, subBoard);
         subBoard.modifySubBoard(request);
     }
-
 
     //좋아요 누르기
     @Transactional
@@ -204,7 +184,6 @@ public class SubBoardService {
         subBoard.minusLikeCount();
         subBoardLikeRepository.delete(subBoardLike);
     }
-
 
     //댓글 수정
     @Transactional
