@@ -15,10 +15,6 @@ public class CommonApiResponse<T> {
         return new CommonApiResponse<>(true, data, "");
     }
 
-    public static CommonApiResponse<?> createSuccess(String data) {
-        return new CommonApiResponse<>(true, data, "");
-    }
-
     public static CommonApiResponse<?> createSuccess() {
         return new CommonApiResponse<>(true, "", "");
     }

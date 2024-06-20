@@ -22,7 +22,7 @@ public class SocialController {
 
     @Operation(summary = "해당 URL 클릭 시 해당 소셜 로그인 페이지로 이동")
     @GetMapping("/{socialLoginType}")
-    public CommonApiResponse<?> socialLogin(@PathVariable(name = "socialLoginType") SocialLoginType socialLoginType) {
+    public CommonApiResponse<String> socialLogin(@PathVariable(name = "socialLoginType") SocialLoginType socialLoginType) {
         String url = oAuthService.requestAuthorizedURL(socialLoginType);
         return CommonApiResponse.createSuccess(url);
     }

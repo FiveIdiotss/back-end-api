@@ -124,7 +124,7 @@ public class MemberController {
             @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
     @PostMapping(value = "/api/member/image" ,
                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CommonApiResponse<?> updatedMemberImage(@RequestHeader("Authorization") String authorizationHeader,
+    public CommonApiResponse<String> updatedMemberImage(@RequestHeader("Authorization") String authorizationHeader,
                                                    @RequestPart("imageFile") MultipartFile multipartFile) {
             String imageUrl = memberService.updatedMemberImage(authorizationHeader, multipartFile);
             return CommonApiResponse.createSuccess(imageUrl);
@@ -135,7 +135,7 @@ public class MemberController {
             @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
             @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
     @PostMapping("/api/member/defaultImage")
-    public CommonApiResponse<?> updatedDefaultMemberImage(@RequestHeader("Authorization") String authorizationHeader) {
+    public CommonApiResponse<String> updatedDefaultMemberImage(@RequestHeader("Authorization") String authorizationHeader) {
             String imageUrl = memberService.updatedDefaultMemberImage(authorizationHeader);
             return CommonApiResponse.createSuccess(imageUrl);
     }
