@@ -29,6 +29,9 @@ public class Member {
     @Column(nullable = false)
     private int year;                //학번
 
+    @Column(nullable = false)
+    private int consultCount;
+
     @Column(name = "member_image_url")
     private String memberImageUrl;      //프로필 사진
 
@@ -54,6 +57,7 @@ public class Member {
         this.name = name;
         this.password = password;
         this.year = year;
+        this.consultCount = 0;
         this.gender = gender;
         this.role = Role.ROLE_USER;
         this.school = school;
@@ -68,6 +72,10 @@ public class Member {
 
     public void changePassword(String password){
         this.password = password;
+    }
+
+    public void addConsultCount(){
+        this.consultCount++;
     }
 
     public void adminJoin(){
