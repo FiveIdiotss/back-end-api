@@ -56,6 +56,7 @@ public class MatchingService {
             chatRoomRepository.save(chatRoom);
         }
 
+        mentor.addConsultCount();
         board.addUnavailableTimes(consultDate, consultTime);
         apply.updateState();
     }
