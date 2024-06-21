@@ -33,6 +33,12 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build
+
     - name: Set environment variables
       run: |
         echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> $GITHUB_ENV
@@ -47,11 +53,7 @@ jobs:
         echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> $GITHUB_ENV
         echo "UNIVCERT_KEY=${{ secrets.UNIVCERT_KEY }}" >> $GITHUB_ENV
         echo "AWS_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }}" >> $GITHUB_ENV
-        echo "AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}" >> $GITHUB_ENV
-
-
-    - name: Build with Gradle Wrapper
-      run: ./gradlew build
+        echo "AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}" >> $GITHUB_ENV  
 
     # --------------------------추가      
     - name: Make Zip File
