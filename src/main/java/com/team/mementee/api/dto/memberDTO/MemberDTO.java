@@ -14,6 +14,7 @@ public class MemberDTO {
     private String email;
     private String name;
     private int year;                //학번
+    private int consultCount;
     private Gender gender;
     private String schoolName;
     private String majorName;
@@ -22,7 +23,7 @@ public class MemberDTO {
 
     public static MemberDTO createMemberDTO(Member member) {
         return new MemberDTO(member.getId(), member.getEmail(), member.getName(), member.getYear(),
-                member.getGender(), member.getSchool().getName(),
+                member.getConsultCount(), member.getGender(), member.getSchool().getName(),
                 member.getMajor().getName(),
                 member.getMemberImageUrl());
     }
