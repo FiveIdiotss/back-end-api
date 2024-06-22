@@ -53,9 +53,12 @@ jobs:
         echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> $GITHUB_ENV
         echo "UNIVCERT_KEY=${{ secrets.UNIVCERT_KEY }}" >> $GITHUB_ENV
         echo "AWS_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }}" >> $GITHUB_ENV
-        echo "AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}" >> $GITHUB_ENV  
+        echo "AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}" >> $GITHUB_ENV 
+        echo "FIREBASE_CONFIG_PATH=${{ secrets.FIREBASE_CONFIG_PATH }}" >> $GITHUB_ENV
+        echo "FIREBASE_URL=${{ secrets.FIREBASE_URL }}" >> $GITHUB_ENV
+      
 
-    # --------------------------추가      
+      # --------------------------추가
     - name: Make Zip File
       run: zip -qq -r ./$GITHUB_SHA.zip .
       shell: bash
