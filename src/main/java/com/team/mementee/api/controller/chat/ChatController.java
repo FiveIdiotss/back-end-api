@@ -169,11 +169,12 @@ public class ChatController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
-    @PostMapping("/extend/request/{chatRoomId}")
+    @PostMapping("/extend/{chatId}")
     public CommonApiResponse<?> extendAcceptOrDecline(@RequestHeader("Authorization") String authorizationHeader,
-                                                      @PathVariable Long chatRoomId,
+                                                      @PathVariable Long chatId,
                                                       @RequestParam DecisionStatus status) {
-        ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
+        ChatMessage chatMessage = chatService.findChatMessageById(chatId);
+        ChatRoom chatRoom = chatMessage.getChatRoom();
         if(chatRoom.getExtendState() == ExtendState.EMPTY)
             throw new ExtendResponseConflictException();
 
@@ -182,10 +183,11 @@ public class ChatController {
         if(!loginMember.equals(mentor))
             throw new ForbiddenException();
 
-        ChatMessageDTO messageDTO = ChatMessageDTO.createExtendResponse(status, loginMember, chatRoomId);
+        ChatMessageRequest messageDTO = ChatMessageRequest.createExtendResponse(status, loginMember, chatRoom.getId());
         convenience(messageDTO, loginMember, chatRoom);
-        
+
         chatService.updateState(chatRoom);
+        chatService.changeToComplete(chatMessage);
 
         if (status.equals(DecisionStatus.ACCEPT))
             matchingService.extendConsultTime(chatRoom.getMatching());

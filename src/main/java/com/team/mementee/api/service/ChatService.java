@@ -90,7 +90,12 @@ public class ChatService {
         chatRoom.updateState(chatRoom);
     }
 
-    public ChatMessage createMessageByDTO(ChatMessageDTO messageDTO) {
+    @Transactional
+    public void changeToComplete(ChatMessage chatMessage){
+        chatMessage.changeToComplete();
+    }
+
+    public ChatMessage createMessageByChatMessageRequest(ChatMessageRequest messageDTO) {
         Member sender = memberService.findMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = findChatRoomById(messageDTO.getChatRoomId());
         return new ChatMessage(messageDTO.getMessageType(), messageDTO.getFileURL(), messageDTO.getContent(), sender, chatRoom, messageDTO.getLocalDateTime());
