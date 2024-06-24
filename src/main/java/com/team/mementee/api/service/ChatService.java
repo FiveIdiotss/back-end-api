@@ -80,8 +80,8 @@ public class ChatService {
     }
 
     @Transactional
-    public void saveMessage(ChatMessageDTO messageDTO) {
-        ChatMessage chatMessage = createMessageByDTO(messageDTO);
+    public void saveMessage(ChatMessageRequest request) {
+        ChatMessage chatMessage = createMessageByChatMessageRequest(request);
         chatMessageRepository.save(chatMessage);
     }
 
@@ -122,16 +122,11 @@ public class ChatService {
         return chatRoom.get();
     }
 
-    public Long findOtherMemberId(Long chatRoomId, Long memberId) {
-        ChatRoom chatRoom = findChatRoomById(chatRoomId);
-
-        if (chatRoom.getSender().getId().equals(memberId)) {
-            return chatRoom.getReceiver().getId();
-        } else if (chatRoom.getReceiver().getId().equals(memberId)) {
-            return chatRoom.getSender().getId();
-        } else {
-            throw new MemberNotFound();
-        }
+    public ChatMessage findChatMessageById(Long chatId) {
+        Optional<ChatMessage> chatMessage = chatMessageRepository.findById(chatId);
+        if (chatMessage.isEmpty())
+            throw new ChatMessageNotFound();
+        return chatMessage.get();
     }
 
     // 채팅방 ID로 채팅방 메세지 조회
