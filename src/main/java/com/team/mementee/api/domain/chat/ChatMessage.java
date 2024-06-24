@@ -46,4 +46,8 @@ public class ChatMessage {
         this.chatRoom = chatRoom;
         this.localDateTime = localDateTime;
     }
+
+    public void changeToComplete(){
+        this.messageType = MessageType.CONSULT_EXTEND_COMPLETE;
+    }
 }
