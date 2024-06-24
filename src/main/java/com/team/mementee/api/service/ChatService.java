@@ -134,14 +134,6 @@ public class ChatService {
         }
     }
 
-    // 상대방 아이디로 해당 채팅방 조회
-    public ChatRoom findChatRoomBySenderAndReceiver(Member loginMember, Member receiver) {
-        Optional<ChatRoom> chatRoom = chatRoomRepository.findChatRoomBySenderAndReceiver(loginMember, receiver);
-        if (chatRoom.isPresent())
-            return chatRoom.get();
-        throw new ChatRoomNotFound();
-    }
-
     // 채팅방 ID로 채팅방 메세지 조회
     public Slice<ChatMessage> findAllMessagesByChatRoomId(Long chatRoomId, Pageable pageable) {
         ChatRoom chatRoom = findChatRoomById(chatRoomId);
