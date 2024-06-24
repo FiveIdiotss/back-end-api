@@ -36,6 +36,7 @@ public enum ErrorCode {
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "E404012", "파일이 존재하지 않습니다."),
     HEADER_NOT_FOUND(HttpStatus.NOT_FOUND, "E404013", "헤더 정보가 존재하지 않습니다."),
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "E404014", "해당 알림이 존재하지 않습니다."),
+    CHAT_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "E404015", "해당 채팅 메세지가 존재하지 않습니다."),
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "E2", "잘못된 HTTP 메서드를 호출했습니다."),
