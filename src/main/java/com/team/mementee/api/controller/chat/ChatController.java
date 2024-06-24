@@ -104,6 +104,7 @@ public class ChatController {
         Slice<ChatMessage> allMessages = chatService.findAllMessagesByChatRoomId(chatRoomId, pageable);
 
         return CommonApiResponse.createSuccess(allMessages.map(message -> new ChatMessageDTO(
+                message.getId(),
                 message.getMessageType(),
                 message.getFileURL(),
                 message.getContent(),
