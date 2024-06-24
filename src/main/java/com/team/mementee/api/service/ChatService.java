@@ -3,13 +3,13 @@ package com.team.mementee.api.service;
 import com.team.mementee.api.domain.Member;
 import com.team.mementee.api.domain.chat.ChatMessage;
 import com.team.mementee.api.domain.chat.ChatRoom;
-import com.team.mementee.api.dto.chatDTO.ChatMessageDTO;
+import com.team.mementee.api.dto.chatDTO.ChatMessageRequest;
 import com.team.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.team.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.team.mementee.api.repository.chat.ChatMessageRepository;
 import com.team.mementee.api.repository.chat.ChatRoomRepository;
+import com.team.mementee.exception.notFound.ChatMessageNotFound;
 import com.team.mementee.exception.notFound.ChatRoomNotFound;
-import com.team.mementee.exception.notFound.MemberNotFound;
 import com.team.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -53,10 +53,10 @@ public class ChatService {
         return redisTemplate.opsForSet().size(key);
     }
 
-    public void setMessageReadCount(ChatMessageDTO messageDTO) {
+    public void setMessageReadCount(ChatMessageRequest request) {
         // If both users are in the chat room, set the readCount to 2.
-        Long userNumber = getNumberOfUserInChatRoom(messageDTO.getChatRoomId());
-        if (userNumber == 2) messageDTO.setReadCount(2);
+        Long userNumber = getNumberOfUserInChatRoom(request.getChatRoomId());
+        if (userNumber == 2) request.setReadCount(2);
     }
 
     @Transactional
@@ -80,8 +80,8 @@ public class ChatService {
     }
 
     @Transactional
-    public void saveMessage(ChatMessageDTO messageDTO) {
-        ChatMessage chatMessage = createMessageByDTO(messageDTO);
+    public void saveMessage(ChatMessageRequest request) {
+        ChatMessage chatMessage = createMessageByChatMessageRequest(request);
         chatMessageRepository.save(chatMessage);
     }
 
@@ -90,7 +90,12 @@ public class ChatService {
         chatRoom.updateState(chatRoom);
     }
 
-    public ChatMessage createMessageByDTO(ChatMessageDTO messageDTO) {
+    @Transactional
+    public void changeToComplete(ChatMessage chatMessage){
+        chatMessage.changeToComplete();
+    }
+
+    public ChatMessage createMessageByChatMessageRequest(ChatMessageRequest messageDTO) {
         Member sender = memberService.findMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = findChatRoomById(messageDTO.getChatRoomId());
         return new ChatMessage(messageDTO.getMessageType(), messageDTO.getFileURL(), messageDTO.getContent(), sender, chatRoom, messageDTO.getLocalDateTime());
@@ -122,24 +127,11 @@ public class ChatService {
         return chatRoom.get();
     }
 
-    public Long findOtherMemberId(Long chatRoomId, Long memberId) {
-        ChatRoom chatRoom = findChatRoomById(chatRoomId);
-
-        if (chatRoom.getSender().getId().equals(memberId)) {
-            return chatRoom.getReceiver().getId();
-        } else if (chatRoom.getReceiver().getId().equals(memberId)) {
-            return chatRoom.getSender().getId();
-        } else {
-            throw new MemberNotFound();
-        }
-    }
-
-    // 상대방 아이디로 해당 채팅방 조회
-    public ChatRoom findChatRoomBySenderAndReceiver(Member loginMember, Member receiver) {
-        Optional<ChatRoom> chatRoom = chatRoomRepository.findChatRoomBySenderAndReceiver(loginMember, receiver);
-        if (chatRoom.isPresent())
-            return chatRoom.get();
-        throw new ChatRoomNotFound();
+    public ChatMessage findChatMessageById(Long chatId) {
+        Optional<ChatMessage> chatMessage = chatMessageRepository.findById(chatId);
+        if (chatMessage.isEmpty())
+            throw new ChatMessageNotFound();
+        return chatMessage.get();
     }
 
     // 채팅방 ID로 채팅방 메세지 조회
