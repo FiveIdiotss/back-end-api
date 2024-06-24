@@ -3,13 +3,13 @@ package com.team.mementee.api.service;
 import com.team.mementee.api.domain.Member;
 import com.team.mementee.api.domain.chat.ChatMessage;
 import com.team.mementee.api.domain.chat.ChatRoom;
-import com.team.mementee.api.dto.chatDTO.ChatMessageDTO;
+import com.team.mementee.api.dto.chatDTO.ChatMessageRequest;
 import com.team.mementee.api.dto.chatDTO.ChatRoomDTO;
 import com.team.mementee.api.dto.chatDTO.LatestMessageDTO;
 import com.team.mementee.api.repository.chat.ChatMessageRepository;
 import com.team.mementee.api.repository.chat.ChatRoomRepository;
+import com.team.mementee.exception.notFound.ChatMessageNotFound;
 import com.team.mementee.exception.notFound.ChatRoomNotFound;
-import com.team.mementee.exception.notFound.MemberNotFound;
 import com.team.mementee.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -53,10 +53,10 @@ public class ChatService {
         return redisTemplate.opsForSet().size(key);
     }
 
-    public void setMessageReadCount(ChatMessageDTO messageDTO) {
+    public void setMessageReadCount(ChatMessageRequest request) {
         // If both users are in the chat room, set the readCount to 2.
-        Long userNumber = getNumberOfUserInChatRoom(messageDTO.getChatRoomId());
-        if (userNumber == 2) messageDTO.setReadCount(2);
+        Long userNumber = getNumberOfUserInChatRoom(request.getChatRoomId());
+        if (userNumber == 2) request.setReadCount(2);
     }
 
     @Transactional
