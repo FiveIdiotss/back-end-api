@@ -145,7 +145,7 @@ public class ChatController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "성공"),
             @ApiResponse(responseCode = "fail")})
-    @PostMapping("/extend/{chatRoomId}")
+    @PostMapping("/extend/request/{chatRoomId}")
     public CommonApiResponse<?> extendMatching(@RequestHeader("Authorization") String authorizationHeader,
                                                @PathVariable Long chatRoomId) {
         ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
