@@ -149,7 +149,7 @@ public class SubBoardService {
     @Transactional
     public void saveSubBoard(WriteSubBoardRequest request, List<MultipartFile> images, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), request.getSubBoardType());
+        SubBoard subBoard = new SubBoard(request.getTitle(), request.getContent(), member, request.getBoardCategory(), request.getSubBoardType(), request.getPlatform());
         saveSubBoardImageUrl(images, subBoard);
         subBoardRepository.save(subBoard);
     }

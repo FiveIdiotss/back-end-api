@@ -2,6 +2,7 @@ package com.team.mementee.api.dto.subBoardDTO;
 
 
 import com.team.mementee.api.domain.enumtype.BoardCategory;
+import com.team.mementee.api.domain.enumtype.Platform;
 import com.team.mementee.api.domain.enumtype.SubBoardType;
 import lombok.Data;
 
@@ -12,4 +13,5 @@ public class WriteSubBoardRequest {
     private BoardCategory boardCategory;
 
     private SubBoardType subBoardType;
+    private Platform platform;
 }
