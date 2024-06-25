@@ -2,6 +2,7 @@ package com.team.mementee.api.dto.boardDTO;
 
 import com.team.mementee.api.domain.Board;
 import com.team.mementee.api.domain.enumtype.BoardCategory;
+import com.team.mementee.api.domain.enumtype.Platform;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,7 @@ public class BoardDTO {
     private boolean isFavorite;
 
     private String representImage;
+    private Platform platform;
 
 
     public static BoardDTO createBoardDTO(Board board, boolean isFavorite, String representImage) {
@@ -42,6 +44,6 @@ public class BoardDTO {
                 board.getTarget(), board.getContent(), board.getMember().getYear(),
                 board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
                 board.getMember().getId(), board.getMember().getName(), board.getMember().getMemberImageUrl(),
-                board.getWriteTime(), isFavorite, representImage);
+                board.getWriteTime(), isFavorite, representImage, board.getPlatform());
     }
 }
