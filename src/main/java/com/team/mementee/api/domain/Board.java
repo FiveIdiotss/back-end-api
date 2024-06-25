@@ -1,6 +1,7 @@
 package com.team.mementee.api.domain;
 
 import com.team.mementee.api.domain.enumtype.BoardCategory;
+import com.team.mementee.api.domain.enumtype.Platform;
 import com.team.mementee.api.domain.subdomain.UnavailableTime;
 import com.team.mementee.api.dto.boardDTO.WriteBoardRequest;
 import jakarta.persistence.*;
@@ -53,6 +54,10 @@ public class Board {
     @Column(nullable = false)
     private BoardCategory boardCategory;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Platform platform;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -74,7 +79,7 @@ public class Board {
     private List<UnavailableTime> unavailableTimes = new ArrayList<>();
 
     public Board(String title, String introduce, String target, String content,
-                 int consultTime, BoardCategory boardCategory, Member member,
+                 int consultTime, BoardCategory boardCategory, Platform platform, Member member,
                  List<ScheduleTime> times, List<DayOfWeek> availableDays) {
         this.title = title;
         this.introduce = introduce;
@@ -84,6 +89,7 @@ public class Board {
         this.times = times;
         this.availableDays = availableDays;
         this.boardCategory = boardCategory;
+        this.platform = platform;
         this.member = member;
         this.writeTime = LocalDateTime.now();
         this.boardType = BoardType.MENTOR;
@@ -100,6 +106,7 @@ public class Board {
         this.content = request.getContent();
         this.consultTime = request.getConsultTime();
         this.boardCategory = request.getBoardCategory();
+        this.platform = request.getPlatform();
         this.times = request.getTimes();
         this.availableDays = request.getAvailableDays();
         this.writeTime = LocalDateTime.now();

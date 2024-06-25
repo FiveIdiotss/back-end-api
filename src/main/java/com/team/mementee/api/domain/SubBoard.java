@@ -1,6 +1,7 @@
 package com.team.mementee.api.domain;
 
 import com.team.mementee.api.domain.enumtype.BoardCategory;
+import com.team.mementee.api.domain.enumtype.Platform;
 import com.team.mementee.api.domain.enumtype.SubBoardType;
 import com.team.mementee.api.dto.subBoardDTO.WriteSubBoardRequest;
 import jakarta.persistence.*;
@@ -37,14 +38,18 @@ public class SubBoard {
     private Member member;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column(nullable = false)
     private BoardCategory boardCategory;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Platform platform;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SubBoardType subBoardType;
 
-    public SubBoard(String title, String content, Member member, BoardCategory boardCategory, SubBoardType subBoardType) {
+    public SubBoard(String title, String content, Member member, BoardCategory boardCategory, SubBoardType subBoardType,  Platform platform) {
         this.title = title;
         this.content = content;
         this.member = member;
@@ -53,6 +58,7 @@ public class SubBoard {
         this.replyCount = 0;
         this.boardCategory = boardCategory;
         this.subBoardType = subBoardType;
+        this.platform = platform;
     }
 
     public void modifySubBoard(WriteSubBoardRequest request){
