@@ -44,7 +44,8 @@ public class SubBoardController {
     @Operation(summary = "질문/요청 글쓰기", description =
             "  {\"title\": \"이거 아시는분\",\n" +
                     "  \"content\": \"1+1 이 뭔가요?\"," +
-                    "  \"boardCategory\": \"이공\" }\n")
+                    "  \"boardCategory\": \"이공\"," +
+                    "  \"platform\": \"WEB\"}\n")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
@@ -59,7 +60,8 @@ public class SubBoardController {
     @Operation(summary = "질문 글쓰기 / 요청 스웨거 용", description =
             "  {\"title\": \"이거 아시는분\",\n" +
             "  \"content\": \"1+1 이 뭔가요?\"," +
-            "  \"boardCategory\": \"이공\" }\n")
+            "  \"boardCategory\": \"이공\"," +
+            "  \"platform\": \"WEB\"}\n")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})

@@ -45,6 +45,7 @@ public class BoardController {
             "  \"content\": \"맨유출신한테 축구배우실분 모집합니다.\",\n" +
             "  \"consultTime\": 30,\n" +
             "  \"boardCategory\": \"예체능\",\n" +
+            "  \"platform\": \"WEB\"}\n" +
             "  \"times\": [\n" +
             "    {  \"startTime\": \"09:00:00\",\n" +
             "      \"endTime\": \"12:00:00\" },\n" +
@@ -74,6 +75,7 @@ public class BoardController {
                     "  \"content\": \"맨유출신한테 축구배우실분 모집합니다.\",\n" +
                     "  \"consultTime\": 30,\n" +
                     "  \"boardCategory\": \"예체능\",\n" +
+                    "  \"platform\": \"WEB\"}\n" +
                     "  \"times\": [\n" +
                     "    {  \"startTime\": \"09:00:00\",\n" +
                     "      \"endTime\": \"12:00:00\" },\n" +
