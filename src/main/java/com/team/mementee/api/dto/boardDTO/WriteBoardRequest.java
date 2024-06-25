@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.team.mementee.api.domain.enumtype.BoardCategory;
+import com.team.mementee.api.domain.enumtype.Platform;
 import com.team.mementee.api.domain.subdomain.ScheduleTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class WriteBoardRequest {
     private String content;
     private int consultTime;
     private BoardCategory boardCategory;
+    private Platform platform;
 
     @DateTimeFormat(pattern = "HH:mm:ss")
     @JsonSerialize(using = LocalTimeSerializer.class)
