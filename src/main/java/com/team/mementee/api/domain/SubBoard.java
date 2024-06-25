@@ -64,6 +64,8 @@ public class SubBoard {
     public void modifySubBoard(WriteSubBoardRequest request){
         this.title = request.getTitle();
         this.content = request.getContent();
+        this.boardCategory = request.getBoardCategory();
+        this.platform = request.getPlatform();
     }
 
     public void plusLikeCount(){
