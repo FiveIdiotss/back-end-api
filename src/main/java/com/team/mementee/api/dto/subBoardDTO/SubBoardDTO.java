@@ -32,19 +32,14 @@ public class SubBoardDTO {
     private int replyCount;
     private boolean isLike;
 
+    private String representImage;
     private Platform platform;
 
-    public static SubBoardDTO createSubBoardDTO(SubBoard subBoard, boolean isLike) {
+    public static SubBoardDTO createSubBoardDTO(SubBoard subBoard, boolean isLike, String representImage) {
         return new SubBoardDTO(subBoard.getId(), subBoard.getBoardCategory(),subBoard.getTitle(), subBoard.getContent(),
                 subBoard.getMember().getYear(), subBoard.getMember().getSchool().getName(), subBoard.getMember().getMajor().getName(),
                 subBoard.getMember().getId(), subBoard.getMember().getMemberImageUrl(), subBoard.getMember().getName(), subBoard.getWriteTime(),
-                subBoard.getLikeCount(), subBoard.getReplyCount(), isLike, subBoard.getPlatform());
-    }
-
-    public static List<SubBoardDTO> createSubBoardDTOs(List<SubBoard> subBoards, boolean isLike) {
-        return subBoards.stream()
-                .map(b -> createSubBoardDTO(b, isLike))
-                .toList();
+                subBoard.getLikeCount(), subBoard.getReplyCount(), isLike, representImage, subBoard.getPlatform());
     }
 }
 
