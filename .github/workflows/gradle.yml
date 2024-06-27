@@ -28,17 +28,6 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # Configure Gradle for optimal use in GiHub Actions, including caching of downloaded dependencies.
-    # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
-
-    - name: Build with Gradle Wrapper
-      run: ./gradlew build
-
     - name: Set environment variables
       run: |
         echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> $GITHUB_ENV
@@ -56,6 +45,17 @@ jobs:
         echo "AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}" >> $GITHUB_ENV 
         echo "FIREBASE_CONFIG_PATH=${{ secrets.FIREBASE_CONFIG_PATH }}" >> $GITHUB_ENV
         echo "FIREBASE_URL=${{ secrets.FIREBASE_URL }}" >> $GITHUB_ENV
+
+      # Configure Gradle for optimal use in GiHub Actions, including caching of downloaded dependencies.
+      # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
@@ -81,31 +81,32 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_PRIVATE_KEY }} # pem 키
        # 도커 작업
+#          docker run -d --log-driver=syslog -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
         script: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
           docker stop $(docker ps -a -q) || true
           docker rm $(docker ps -a -q) || true
           docker run -d \
-          --log-driver=syslog \
-          -p 8080:8080 \
-          -e SPRING_PROFILES_ACTIVE=prod \
-          -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
-          -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
-          -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-          -e DATASOURCE_URL=${{ secrets.DATASOURCE_URL }} \
-          -e DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }} \
-          -e DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }} \
-          -e NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} \
-          -e NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }} \
-          -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
-          -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
-          -e UNIVCERT_KEY=${{ secrets.UNIVCERT_KEY }} \
-          -e AWS_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }} \
-          -e AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }} \
-          -e FIREBASE_CONFIG_PATH=${{ secrets.FIREBASE_CONFIG_PATH }} \
-          -e FIREBASE_URL=${{ secrets.FIREBASE_URL }} \
-          ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest      
+            --log-driver=syslog \
+            -p 8080:8080 \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
+            -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
+            -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            -e DATASOURCE_URL=${{ secrets.DATASOURCE_URL }} \
+            -e DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }} \
+            -e DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }} \
+            -e NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} \
+            -e NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }} \
+            -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+            -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
+            -e UNIVCERT_KEY=${{ secrets.UNIVCERT_KEY }} \
+            -e AWS_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }} \
+            -e AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }} \
+            -e FIREBASE_CONFIG_PATH=${{ secrets.FIREBASE_CONFIG_PATH }} \
+            -e FIREBASE_URL=${{ secrets.FIREBASE_URL }} \
+            ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest      
           docker image prune -a -f || true
 
 # S3 + Code Deploy
