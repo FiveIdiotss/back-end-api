@@ -10,6 +10,7 @@ import com.team.mementee.api.domain.Member;
 import com.team.mementee.api.domain.SubBoard;
 import com.team.mementee.api.domain.chat.ChatRoom;
 import com.team.mementee.api.domain.enumtype.NotificationType;
+import com.team.mementee.api.domain.enumtype.SubBoardType;
 import com.team.mementee.api.dto.applyDTO.ApplyRequest;
 import com.team.mementee.api.dto.chatDTO.ChatMessageRequest;
 import com.team.mementee.api.dto.notificationDTO.FcmDTO;
@@ -59,8 +60,11 @@ public class FcmService {
     public FcmDTO createReplyFcmDTO(String authorizationHeader, SubBoard subBoard, ReplyRequest request){
         Member sender = memberService.findMemberByToken(authorizationHeader);
         Long receiverId = subBoard.getMember().getId();
+        NotificationType notificationType;
+        if(subBoard.getSubBoardType().equals(SubBoardType.QUEST)) notificationType = NotificationType.REPLY_QUEST;
+        else notificationType = NotificationType.REPLY_REQUEST;
         return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
-                subBoard.getTitle(), request.getContent(), subBoard.getId(), NotificationType.REPLY);
+                subBoard.getTitle(), request.getContent(), subBoard.getId(), notificationType);
     }
 
     public FcmDTO createChatFcmDTO(ChatMessageRequest messageDTO){
