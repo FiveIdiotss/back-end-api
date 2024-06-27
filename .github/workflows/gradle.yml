@@ -73,11 +73,14 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }} # pem 키
        # 도커 작업
         script: |
+          # Install QEMU
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          # Pull and run Docker container
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
-          sudo docker stop $(sudo docker ps -a -q)
-          sudo docker run -d --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
-          sudo docker rm $(sudo docker ps --filter 'status=exited' -a -q)
-          sudo docker image prune -a -f
+          sudo docker stop $(sudo docker ps -a -q) || true
+          sudo docker run -d --platform linux/arm64/v8 --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
+          sudo docker rm $(sudo docker ps --filter 'status=exited' -a -q) || true
+          sudo docker image prune -a -f || true
 
 # S3 + Code Deploy
 #    - name: Make Zip File
