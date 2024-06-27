@@ -51,18 +51,21 @@ public class SubBoardService {
     //게시글 조회시 필요한 DTO
     public SubBoardDTO createSubBoardDTO(SubBoard subBoard, String authorizationHeader) {
         if (authorizationHeader == null)
-            return SubBoardDTO.createSubBoardDTO(subBoard, false);
+            return SubBoardDTO.createSubBoardDTO(subBoard, false, findRepresentImage(subBoard));
         Member member = memberService.findMemberByToken(authorizationHeader);
-        return SubBoardDTO.createSubBoardDTO(subBoard, SubBoardValidation.isSubBoardLike(findSubBoardLikeByMemberAndBoard(member, subBoard)));
+        return SubBoardDTO.createSubBoardDTO(subBoard, SubBoardValidation.isSubBoardLike(findSubBoardLikeByMemberAndBoard(member, subBoard)), findRepresentImage(subBoard));
     }
 
     //게시글 목록시 필요한 DTO List
     public List<SubBoardDTO> createSubBoardDTOs(List<SubBoard> subBoards, String authorizationHeader) {
         if (authorizationHeader == null)
-            return SubBoardDTO.createSubBoardDTOs(subBoards, false);
+            return subBoards.stream()
+                    .map(b -> SubBoardDTO.createSubBoardDTO(b, false, findRepresentImage(b)))
+                    .toList();
+
         Member member = memberService.findMemberByToken(authorizationHeader);
         return subBoards.stream()
-                .map(b -> SubBoardDTO.createSubBoardDTO(b, SubBoardValidation.isSubBoardLike(findSubBoardLikeByMemberAndBoard(member, b))))
+                .map(b -> SubBoardDTO.createSubBoardDTO(b, SubBoardValidation.isSubBoardLike(findSubBoardLikeByMemberAndBoard(member, b)), findRepresentImage(b)))
                 .toList();
     }
 
@@ -83,6 +86,14 @@ public class SubBoardService {
     public Page<SubBoard> findSubBoardsBySubBoardTypeAndMember(SubBoardType subBoardType, Long memberId, Pageable pageable){
         Member member = memberService.findMemberById(memberId);
         return subBoardRepository.findSubBoardsBySubBoardTypeAndMember(subBoardType, member, pageable);
+    }
+
+    //게시물의 대표 이미지
+    public String findRepresentImage(SubBoard subBoard){
+        Optional<SubBoardImage> image = subBoardImageRepository.findFirstBySubBoardOrderByIdAsc(subBoard);
+        if (image.isPresent())
+            return image.get().getSubBoardImageUrl();
+        return "";
     }
 
     //Member 와 Board 에 대한 좋아요 Entity 조회
