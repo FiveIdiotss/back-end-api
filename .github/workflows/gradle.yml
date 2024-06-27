@@ -61,8 +61,8 @@ jobs:
     - name: Docker build & push to Docker hub
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }} .
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
+        docker buildx build --platform linux/arm64/v8,linux/amd64 --tag ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest --push .
+# docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
 
       # EC2 배포
     - name: Docker image pull & Deploy to EC2
@@ -73,15 +73,11 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }} # pem 키
        # 도커 작업
         script: |
-          # Install QEMU
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-          # Pull and run Docker container
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
-          sudo docker stop $(sudo docker ps -a -q) || true
-          sudo docker run -d --platform linux/arm64/v8 --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
-          sudo docker rm $(sudo docker ps --filter 'status=exited' -a -q) || true
-          sudo docker image prune -a -f || true
-
+          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
+          docker stop $(docker ps -a -q)
+          docker run -d --log-driver=syslog -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
+          docker rm $(docker ps --filter 'status=exited' -a -q)
+          docker image prune -a -f
 # S3 + Code Deploy
 #    - name: Make Zip File
 #      run: zip -qq -r ./$GITHUB_SHA.zip .
