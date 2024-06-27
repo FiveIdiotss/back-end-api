@@ -59,10 +59,13 @@ public class SubBoardService {
     //게시글 목록시 필요한 DTO List
     public List<SubBoardDTO> createSubBoardDTOs(List<SubBoard> subBoards, String authorizationHeader) {
         if (authorizationHeader == null)
-            return SubBoardDTO.createSubBoardDTOs(subBoards, false);
+            return subBoards.stream()
+                    .map(b -> SubBoardDTO.createSubBoardDTO(b, false, findRepresentImage(b)))
+                    .toList();
+
         Member member = memberService.findMemberByToken(authorizationHeader);
         return subBoards.stream()
-                .map(b -> SubBoardDTO.createSubBoardDTO(b, SubBoardValidation.isSubBoardLike(findSubBoardLikeByMemberAndBoard(member, b))))
+                .map(b -> SubBoardDTO.createSubBoardDTO(b, SubBoardValidation.isSubBoardLike(findSubBoardLikeByMemberAndBoard(member, b)), findRepresentImage(b)))
                 .toList();
     }
 
