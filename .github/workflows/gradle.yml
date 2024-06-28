@@ -26,7 +26,8 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-#      - name: Build with Gradle Wrapper
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
 #        env:
 #          REDIS_HOST: ${{ secrets.REDIS_HOST }}
 #          REDIS_PORT: ${{ secrets.REDIS_PORT }}
