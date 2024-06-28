@@ -22,25 +22,21 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
-          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "DATASOURCE_URL=${{ secrets.DATASOURCE_URL }}" >> .env
-          echo "DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }}" >> .env
-          echo "DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }}" >> .env
-          echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> .env
-          echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
-          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
-          echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
-          echo "UNIVCERT_KEY=${{ secrets.UNIVCERT_KEY }}" >> .env
-          echo "AWS_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }}" >> .env
-          echo "AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}" >> .env
-          echo "FIREBASE_CONFIG_PATH=${{ secrets.FIREBASE_CONFIG_PATH }}" >> .env
-          echo "FIREBASE_URL=${{ secrets.FIREBASE_URL }}" >> .env
-          cat .env  # .env 파일 내용 출력하여 확인
-
-      - name: Verify .env file
-        run: ls -l .env  # .env 파일이 생성되었는지 확인
+          export REDIS_HOST=${{ secrets.REDIS_HOST }}
+          export REDIS_PORT=${{ secrets.REDIS_PORT }}
+          export JWT_SECRET=${{ secrets.JWT_SECRET }}
+          export DATASOURCE_URL=${{ secrets.DATASOURCE_URL }}
+          export DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }}
+          export DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }}
+          export NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
+          export NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
+          export KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
+          export KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
+          export UNIVCERT_KEY=${{ secrets.UNIVCERT_KEY }}
+          export AWS_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }}
+          export AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}
+          export FIREBASE_CONFIG_PATH=${{ secrets.FIREBASE_CONFIG_PATH }}
+          export FIREBASE_URL=${{ secrets.FIREBASE_URL }}
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
@@ -64,7 +60,6 @@ jobs:
         run: |
           docker buildx create --use
           docker buildx build --platform linux/amd64,linux/arm64/v8 --push --tag ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest .
-          cat .env  # 다시 한 번 .env 파일 내용 출력하여 확인
 
       - name: SSH into EC2 and deploy
         uses: appleboy/ssh-action@master
