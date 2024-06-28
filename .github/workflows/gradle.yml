@@ -88,6 +88,8 @@ jobs:
               -e api.univcert.key=${{ secrets.UNIVCERT_KEY }} \
               -e cloud.aws.credentials.access-key=${{ secrets.AWS_S3_ACCESS_KEY }} \
               -e cloud.aws.credentials.secret-key=${{ secrets.AWS_S3_SECRET_KEY }} \
+              -e cloud.aws.region.static=${{ secrets.AWS_S3_REGION }} \
+              -e cloud.aws.s3.bucket=${{ secrets.AWS_S3_BUCKET }} \
               -e firebase.config-path=${{ secrets.FIREBASE_CONFIG_PATH }} \
               -e firebase.url=${{ secrets.FIREBASE_URL }} \
               ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest 
