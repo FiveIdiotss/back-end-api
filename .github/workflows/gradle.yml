@@ -20,31 +20,29 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set environment variables
-        run: |
-          export REDIS_HOST=${{ secrets.REDIS_HOST }}
-          export REDIS_PORT=${{ secrets.REDIS_PORT }}
-          export JWT_SECRET=${{ secrets.JWT_SECRET }}
-          export DATASOURCE_URL=${{ secrets.DATASOURCE_URL }}
-          export DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }}
-          export DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }}
-          export NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
-          export NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
-          export KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
-          export KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
-          export UNIVCERT_KEY=${{ secrets.UNIVCERT_KEY }}
-          export AWS_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }}
-          export AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}
-          export FIREBASE_CONFIG_PATH=${{ secrets.FIREBASE_CONFIG_PATH }}
-          export FIREBASE_URL=${{ secrets.FIREBASE_URL }}
-
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
+        uses: gradle/gradle-build-action@v2
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
       - name: Build with Gradle Wrapper
+        env:
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DATASOURCE_URL: ${{ secrets.DATASOURCE_URL }}
+          DATASOURCE_USERNAME: ${{ secrets.DATASOURCE_USERNAME }}
+          DATASOURCE_PASSWORD: ${{ secrets.DATASOURCE_PASSWORD }}
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          UNIVCERT_KEY: ${{ secrets.UNIVCERT_KEY }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
+          FIREBASE_CONFIG_PATH: ${{ secrets.FIREBASE_CONFIG_PATH }}
+          FIREBASE_URL: ${{ secrets.FIREBASE_URL }}
         run: ./gradlew build
 
       - name: Log in to Docker Hub
@@ -54,7 +52,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Docker build & push to Docker hub
         run: |
@@ -106,4 +104,4 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@417ae3ccd767c252f5661f1ace9f835f9654f2b5
+        uses: gradle/gradle-build-action@v2
