@@ -24,15 +24,9 @@ public class S3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-    @Value("${cloud.aws.s3.bucket_image}")
-    private String bucket_image;
-    @Value("${cloud.aws.s3.bucket_video}")
-    private String bucket_video;
-    @Value("${cloud.aws.s3.bucket_pdf}")
-    private String bucket_pdf;
 
-    @Value("${cloud.aws.s3.bucket_temp}")
-    private String tempBucket;
+//    @Value("${cloud.aws.s3.bucket_temp}")
+//    private String tempBucket;
 
 
     public String saveFile(MultipartFile multipartFile) {
@@ -78,25 +72,25 @@ public class S3Service {
 
 
     //임시 버킷
-    public String saveFileToTemp(MultipartFile multipartFile) {
-        System.out.println();
-        return saveToS3(multipartFile, tempBucket);
-    }
-
-    //영구 버킷으로 이동 후 임시 버킷 옮긴 자료는 삭제
-    public String moveFileToPermanent(String tempFileUrl) {
-        try {
-            String tempFileName = fileService.extractFileNameFromUrl(tempFileUrl); // URL에서 파일 이름 추출
-
-            String permanentFileName = fileService.generateFileName(fileService.getExtension(tempFileName));
-            CopyObjectRequest copyObjRequest = new CopyObjectRequest(tempBucket, tempFileName, bucket, permanentFileName);
-            amazonS3.copyObject(copyObjRequest);
-            amazonS3.deleteObject(new DeleteObjectRequest(tempBucket, tempFileName));
-            return amazonS3.getUrl(bucket, permanentFileName).toString();
-        } catch (Exception e) {
-            log.error("Error moving file to permanent storage: {}", e.getMessage(), e);
-            return null;
-        }
-    }
+//    public String saveFileToTemp(MultipartFile multipartFile) {
+//        System.out.println();
+//        return saveToS3(multipartFile, tempBucket);
+//    }
+//
+//    //영구 버킷으로 이동 후 임시 버킷 옮긴 자료는 삭제
+//    public String moveFileToPermanent(String tempFileUrl) {
+//        try {
+//            String tempFileName = fileService.extractFileNameFromUrl(tempFileUrl); // URL에서 파일 이름 추출
+//
+//            String permanentFileName = fileService.generateFileName(fileService.getExtension(tempFileName));
+//            CopyObjectRequest copyObjRequest = new CopyObjectRequest(tempBucket, tempFileName, bucket, permanentFileName);
+//            amazonS3.copyObject(copyObjRequest);
+//            amazonS3.deleteObject(new DeleteObjectRequest(tempBucket, tempFileName));
+//            return amazonS3.getUrl(bucket, permanentFileName).toString();
+//        } catch (Exception e) {
+//            log.error("Error moving file to permanent storage: {}", e.getMessage(), e);
+//            return null;
+//        }
+//    }
 
 }
