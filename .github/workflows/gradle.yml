@@ -26,24 +26,24 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle Wrapper
-        env:
-          REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          DATASOURCE_URL: ${{ secrets.DATASOURCE_URL }}
-          DATASOURCE_USERNAME: ${{ secrets.DATASOURCE_USERNAME }}
-          DATASOURCE_PASSWORD: ${{ secrets.DATASOURCE_PASSWORD }}
-          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
-          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
-          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
-          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
-          UNIVCERT_KEY: ${{ secrets.UNIVCERT_KEY }}
-          AWS_ACCESS_KEY: ${{ secrets.AWS_S3_ACCESS_KEY }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
-          FIREBASE_CONFIG_PATH: ${{ secrets.FIREBASE_CONFIG_PATH }}
-          FIREBASE_URL: ${{ secrets.FIREBASE_URL }}
-        run: ./gradlew build
+#      - name: Build with Gradle Wrapper
+#        env:
+#          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+#          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+#          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+#          DATASOURCE_URL: ${{ secrets.DATASOURCE_URL }}
+#          DATASOURCE_USERNAME: ${{ secrets.DATASOURCE_USERNAME }}
+#          DATASOURCE_PASSWORD: ${{ secrets.DATASOURCE_PASSWORD }}
+#          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+#          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+#          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+#          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+#          UNIVCERT_KEY: ${{ secrets.UNIVCERT_KEY }}
+#          AWS_ACCESS_KEY: ${{ secrets.AWS_S3_ACCESS_KEY }}
+#          AWS_SECRET_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
+#          FIREBASE_CONFIG_PATH: ${{ secrets.FIREBASE_CONFIG_PATH }}
+#          FIREBASE_URL: ${{ secrets.FIREBASE_URL }}
+#        run: ./gradlew build
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -80,16 +80,16 @@ jobs:
               -e spring.datasource.url=${{ secrets.DATASOURCE_URL }} \
               -e spring.datasource.username=${{ secrets.DATASOURCE_USERNAME }} \
               -e spring.datasource.password=${{ secrets.DATASOURCE_PASSWORD }} \
-              -e naver.client.id=${{ secrets.NAVER_CLIENT_ID }} \
-              -e naver.client.secret=${{ secrets.NAVER_CLIENT_SECRET }} \
-              -e kakao.client.id=${{ secrets.KAKAO_CLIENT_ID }} \
-              -e kakao.client.secret=${{ secrets.KAKAO_CLIENT_SECRET }} \
+              -e spring.security.oauth2.client.registration.naver.client-id=${{ secrets.NAVER_CLIENT_ID }} \
+              -e spring.security.oauth2.client.registration.naver.client-secret=${{ secrets.NAVER_CLIENT_SECRET }} \
+              -e spring.security.oauth2.client.registration.kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }} \
+              -e spring.security.oauth2.client.registration.kakao.client-secret=${{ secrets.KAKAO_CLIENT_SECRET }} \
               -e api.univcert.key=${{ secrets.UNIVCERT_KEY }} \
-              -e aws.access.key=${{ secrets.AWS_S3_ACCESS_KEY }} \
-              -e aws.secret.key=${{ secrets.AWS_S3_SECRET_KEY }} \
+              -e cloud.aws.credentials.access-key=${{ secrets.AWS_S3_ACCESS_KEY }} \
+              -e cloud.aws.credentials.secret-key=${{ secrets.AWS_S3_SECRET_KEY }} \
               -e firebase.config-path=${{ secrets.FIREBASE_CONFIG_PATH }} \
               -e firebase.url=${{ secrets.FIREBASE_URL }} \
-              ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest      
+              ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest 
             docker image prune -a -f || true
 
   dependency-submission:
