@@ -74,21 +74,21 @@ jobs:
               --log-driver=syslog \
               -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=prod \
-              -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
-              -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e DATASOURCE_URL=${{ secrets.DATASOURCE_URL }} \
-              -e DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME }} \
-              -e DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD }} \
-              -e NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} \
-              -e NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }} \
-              -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
-              -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
-              -e UNIVCERT_KEY=${{ secrets.UNIVCERT_KEY }} \
-              -e AWS_ACCESS_KEY=${{ secrets.AWS_S3_ACCESS_KEY }} \
-              -e AWS_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }} \
-              -e FIREBASE_CONFIG_PATH=${{ secrets.FIREBASE_CONFIG_PATH }} \
-              -e FIREBASE_URL=${{ secrets.FIREBASE_URL }} \
+              -e spring.data.redis.host=${{ secrets.REDIS_HOST }} \
+              -e spring.data.redis.port=${{ secrets.REDIS_PORT }} \
+              -e spring.jwt.secret=${{ secrets.JWT_SECRET }} \
+              -e spring.datasource.url=${{ secrets.DATASOURCE_URL }} \
+              -e spring.datasource.username=${{ secrets.DATASOURCE_USERNAME }} \
+              -e spring.datasource.password=${{ secrets.DATASOURCE_PASSWORD }} \
+              -e naver.client.id=${{ secrets.NAVER_CLIENT_ID }} \
+              -e naver.client.secret=${{ secrets.NAVER_CLIENT_SECRET }} \
+              -e kakao.client.id=${{ secrets.KAKAO_CLIENT_ID }} \
+              -e kakao.client.secret=${{ secrets.KAKAO_CLIENT_SECRET }} \
+              -e api.univcert.key=${{ secrets.UNIVCERT_KEY }} \
+              -e aws.access.key=${{ secrets.AWS_S3_ACCESS_KEY }} \
+              -e aws.secret.key=${{ secrets.AWS_S3_SECRET_KEY }} \
+              -e firebase.config-path=${{ secrets.FIREBASE_CONFIG_PATH }} \
+              -e firebase.url=${{ secrets.FIREBASE_URL }} \
               ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest      
             docker image prune -a -f || true
 
