@@ -22,7 +22,16 @@ repositories {
 	mavenCentral()
 }
 
+allprojects {
+	repositories {
+		maven { url 'https://jitpack.io' }
+	}
+}
+
 dependencies {
+
+	//portone 결제 연동 시스템
+	implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
 
 	//firebase
 	implementation 'com.google.firebase:firebase-admin:9.1.1'
