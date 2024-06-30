@@ -56,7 +56,7 @@
 
 ## Architecture
 
-![image](https://github.com/FiveIdiotss/back-end-api/assets/109346159/3bbf852d-6447-4e9a-87c5-cb819f873c57)
+![image](https://github.com/FiveIdiotss/back-end-api/assets/109346159/65115643-1038-4472-b724-71ef5acc3b9d)
 
 
 
