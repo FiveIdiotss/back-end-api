@@ -56,7 +56,8 @@
 
 ## Architecture
 
-![image](https://github.com/FiveIdiotss/back-end-api/assets/109346159/34336d00-09cf-4e10-b35b-0319fd913b92)
+![image](https://github.com/FiveIdiotss/back-end-api/assets/109346159/3bbf852d-6447-4e9a-87c5-cb819f873c57)
+
 
 
 
@@ -72,7 +73,6 @@ Back-End : <br>
 - <img src="https://img.shields.io/badge/amazon%20ec2-FF9900?style=for-the-badge&logo=amazon%20ec2&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20rds-527FFF?style=for-the-badge&logo=amazon%20rds&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20route%2053-8C4FFF?style=for-the-badge&logo=amazon%20route%2053&logoColor=white">
-- <img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white">
 - <img src="https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white">
 
 
