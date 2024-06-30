@@ -73,6 +73,8 @@ Back-End : <br>
 - <img src="https://img.shields.io/badge/amazon%20rds-527FFF?style=for-the-badge&logo=amazon%20rds&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20route%2053-8C4FFF?style=for-the-badge&logo=amazon%20route%2053&logoColor=white">
 - <img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white">
+- <img src="https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white">
+
 
 Front-End 웹 :
 - <img src="https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=next.js&logoColor=white">
@@ -101,6 +103,7 @@ Collaboration :
 
 
 etc: 
+- <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
 - <img src="https://img.shields.io/badge/firebase%20cloud%20messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20s3-569A31?style=for-the-badge&logo=amazon%20s3&logoColor=white">
 - <img src="https://img.shields.io/badge/web%20socket-000?style=for-the-badge&logo=alogoColor=white">
@@ -174,12 +177,13 @@ etc:
   - 알림 목록
 
 
-
 - 💬 채팅방
 
   - 멘토, 멘티 매칭 시 실시간 채팅
 
   - 채팅방 목록
+ 
+  - 각 채팅방에 대한 읽지 않는 메세지 갯수 실시간 카운트 / 조회 시 초기화
 
   - 채팅 읽음 처리
 
@@ -220,7 +224,8 @@ etc:
 - 🔔 알림
 
     - 채팅, 신청 등에 대한 알림
-
+    
+    - 실시간 알림 카운트 / 조회 시 초기화 
 
 - 💸 결제(예정)
   - 코인 충전 
@@ -231,6 +236,8 @@ etc:
 
 ## 개발과정 
 
+- 각 API에 대한 응답값을 공통으로 처리하기 위해 CommonAPIResponse 클래스를 만들어 해당 api에 성공 여부, 실패 시 오류 메세지, 성공 시 응답 값을 포함해서 FE에 전달
+
 - 이용자가 로그아웃을 했지만 accessToken 은 만료되지 않아 탈취되었을 경우 위험에 대비하여 BlackList Entity 를 추가하여 로그아웃 시 해당 accessToken 을 db에 저장하는 방식 채택
 
 - 처음 알림 서비스기능을 구현할 때 SSE 를 통해 구현하려고 했다. SSE 는 별도의 프로토콜 없이 HTTP 만으로 구현이 가능하며 네트워크 연결이 끊어지면 자동으로 재연결을 시도하며 실시간으로 서버에서 클라이언트로 데이터를 전송할 수 있지만 클라이언트에서 페이지를 닫을때(백그라운드 상태) 서버에서 감지하기 어렵다는 점 때문에 FCM 방식을 채택
@@ -240,14 +247,15 @@ etc:
 - 채팅방에서 이미지 전송을 위해 이미지 파일을 Base64로 직렬화하여 웹소켓을 통해 전송하는 방식을 사용했지만, 이 방식은 웹소켓을 통한 파일 전송 시 최대 파일 용량 제한, 직렬화 과정의 복잡성, 그리고 다양한 형식의 파일(비디오, 연락처 등) 전송에 부적합하다는 문제점이 존재. 이러한 이유로 HTTP 프로토콜의 multipart/form-data 형식을 사용한 전송 방법을 채택. (메시지는 웹소켓을 통해 전송하고 그 외의 파일들은 HTTP 프로토콜을 통해 전송.)
 
 - Front End의 next.js에 대한 AWS EC2를 따로 생성하려고 했지만 비용적인 측면을 고려해 docker container를 사용하여 하나의 EC2로 Back, Front를 배포하기로 결정
+
+- 무분별하게 사용하는 try-catch 문과 각 부분에 예외처리에 대해 정리가 되어있지 않아 가독성이 떨어졌다. 이때문에 @RestControllerAdvice 어노테이션을 사용해 예외를 효과적으로 처리.   
+
 ---
  
 ## 개선 사항
 
 - 현재 redis 는 pub/sub 기능을 이용하여 실시간 채팅 위주로 사용중이다.
 이 프로젝트의 서비스들에 대한 정보는 메인 DB에 모두 저장하는 방식으로 진행하였는데 지금은 서비스 규모가 작기 때문에 별 다른 문제가 발생하고 있지 않고 있지만 채팅내역, FCM 토큰, RefreshToken 등의 정보는 redis 저장소를 이용하여 캐시 처리를 통해 메인 DB에 부담을 줄여주는 방식에 대한 충분한 고려를 통해 서비스를 개발 요망
-
-
 
 - 현재 aws ec2 에 spring boot 를 띄워 was 를 사용하고 있는데 보안적인 측면이나 성능 (로드 밸런싱등)에 대한 보완을 위해 nginx 도입을 고려해야 할것 같다.
 
