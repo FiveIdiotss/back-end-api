@@ -3,6 +3,10 @@
 
 - 프로젝트 기간 : 24.01 ~ 24.06
 - 프로젝트 인원 : 4명
+  - Back-End : 2명
+  - Front-End 
+    - Android : 1명
+    - Web : 1명
 
 ---
 
@@ -34,6 +38,8 @@
 - 멘토는 신청 요청에 대한 세부 사항을 보고 매칭여부를 결정한다.
 
 - 매칭이 성사될 경우 실시간 채팅을 통해 멘토와 멘티간의 실시간 상담이 이어진다.
+
+- 매칭이 성사된 후 채팅 진행 중 멘티는 멘토에게 상담시간 연장을 신청할 수 있다.
   
 - 모든 이용자는 질문 게시판을 통해 질문 글을 올릴수 있으며 댓글을 통해 소통을 할 수 있다.
   
@@ -66,6 +72,7 @@ Back-End : <br>
 - <img src="https://img.shields.io/badge/amazon%20ec2-FF9900?style=for-the-badge&logo=amazon%20ec2&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20rds-527FFF?style=for-the-badge&logo=amazon%20rds&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20route%2053-8C4FFF?style=for-the-badge&logo=amazon%20route%2053&logoColor=white">
+- <img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white">
 - <img src="https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white">
 
 
@@ -77,7 +84,6 @@ Front-End 웹 :
 - <img src="https://img.shields.io/badge/tailwind%20css-06B6D4?style=for-the-badge&logo=tailwind%20css&logoColor=white">
 - <img src="https://img.shields.io/badge/zustand-000000?style=for-the-badge&logo=next&logoColor=white">
 
-
 Front-End 모바일 :
 - <img src="https://img.shields.io/badge/databinding-000000?style=for-the-badge&logo=next&logoColor=white">
 - <img src="https://img.shields.io/badge/coroutine-000000?style=for-the-badge&logo=jetpack&logoColor=white">
@@ -86,6 +92,7 @@ Front-End 모바일 :
 
 
 Tools :
+- <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
 - <img src="https://img.shields.io/badge/android%20studio-3DDC84?style=for-the-badge&logo=android%20studio&logoColor=white">
 - <img src="https://img.shields.io/badge/visual%20studio%20code%20studio-007ACC?style=for-the-badge&logo=visual%20studio%20code&logoColor=white">
 - <img src="https://img.shields.io/badge/intellij%20idea-000000?style=for-the-badge&logo=intellij%20idea&logoColor=white">
@@ -96,6 +103,7 @@ Collaboration :
 
 
 etc: 
+- <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
 - <img src="https://img.shields.io/badge/firebase%20cloud%20messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20s3-569A31?style=for-the-badge&logo=amazon%20s3&logoColor=white">
 - <img src="https://img.shields.io/badge/web%20socket-000?style=for-the-badge&logo=alogoColor=white">
@@ -123,6 +131,8 @@ etc:
 
 - 🔐 계정
 
+  - 관리자 계정
+
   - 회원가입
 
   - 대학교 인증
@@ -146,6 +156,8 @@ etc:
   - 즐겨찾기 
 
   - 게시판 필터별로 목록 조회 (검색, 즐겨찾기, 날짜, 카테고리, 학교별)
+
+  - 게시판 목록에서 각 게시물에 대한 대표 이미지 보기
 
   - 무한 스크롤
 
@@ -176,6 +188,10 @@ etc:
   - 채팅 읽음 처리
 
   - 텍스트 이외에 이미지, 파일 등 전송
+
+  - 채팅방 시간 연장 신청 (중복 연장 신청x)
+
+  - 채팅방 시간 연장 수락/거절
 
 
 
@@ -211,6 +227,11 @@ etc:
     
     - 실시간 알림 카운트 / 조회 시 초기화 
 
+- 💸 결제(예정)
+  - 코인 충전 
+  - 코인 교환
+  - 코인 환전
+ 
 ---
 
 ## 개발과정 
@@ -225,6 +246,8 @@ etc:
 
 - 채팅방에서 이미지 전송을 위해 이미지 파일을 Base64로 직렬화하여 웹소켓을 통해 전송하는 방식을 사용했지만, 이 방식은 웹소켓을 통한 파일 전송 시 최대 파일 용량 제한, 직렬화 과정의 복잡성, 그리고 다양한 형식의 파일(비디오, 연락처 등) 전송에 부적합하다는 문제점이 존재. 이러한 이유로 HTTP 프로토콜의 multipart/form-data 형식을 사용한 전송 방법을 채택. (메시지는 웹소켓을 통해 전송하고 그 외의 파일들은 HTTP 프로토콜을 통해 전송.)
 
+- Front End의 next.js에 대한 AWS EC2를 따로 생성하려고 했지만 비용적인 측면을 고려해 docker container를 사용하여 하나의 EC2로 Back, Front를 배포하기로 결정
+
 - 무분별하게 사용하는 try-catch 문과 각 부분에 예외처리에 대해 정리가 되어있지 않아 가독성이 떨어졌다. 이때문에 @RestControllerAdvice 어노테이션을 사용해 예외를 효과적으로 처리.   
 
 ---
@@ -235,6 +258,4 @@ etc:
 이 프로젝트의 서비스들에 대한 정보는 메인 DB에 모두 저장하는 방식으로 진행하였는데 지금은 서비스 규모가 작기 때문에 별 다른 문제가 발생하고 있지 않고 있지만 채팅내역, FCM 토큰, RefreshToken 등의 정보는 redis 저장소를 이용하여 캐시 처리를 통해 메인 DB에 부담을 줄여주는 방식에 대한 충분한 고려를 통해 서비스를 개발 요망
 
 - 현재 aws ec2 에 spring boot 를 띄워 was 를 사용하고 있는데 보안적인 측면이나 성능 (로드 밸런싱등)에 대한 보완을 위해 nginx 도입을 고려해야 할것 같다.
-
-- Back-End 는 2명이서 협업을 통해 진행하였는데 GitHub에 Merge를 한 후 git action 을 통해 배포하고 있는데 배포 과정에서 잦은 끊김 현상과 느린 속도로 인해 문제가 발생하는 경우가 있었고 과금문제 또한 무시할 수 없었다. 이 때문에 가볍고 빠르게 배포가 가능한 Docker Container 통해 협업하는 사항에 대한 고려가 필요 할것 같다.
 

@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.PageRequest;
@@ -45,12 +46,17 @@ import java.util.stream.Collectors;
 @Tag(name = "실시간 채팅 기능")
 public class ChatController {
 
+    @Value("${websocket.unread-path}")
+    private String websocketUnreadPath;
+    @Value("${websocket.chat-path}")
+    private String websocketChatPath;
     private final ChatService chatService;
     private final MatchingService matchingService;
     private final MemberService memberService;
     private final FcmService fcmService;
     private final FileService fileService;
     private final SimpMessagingTemplate websocketPublisher;
+
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageRequest request) {
@@ -87,7 +93,7 @@ public class ChatController {
 
         // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
         chatService.saveMessage(request);
-        websocketPublisher.convertAndSend("/sub/chats/" + request.getChatRoomId(), request);
+        websocketPublisher.convertAndSend(websocketChatPath + request.getChatRoomId(), request);
 
         //FCM 알림
         FcmDTO fcmDTO = fcmService.createChatFcmDTO(request);
@@ -198,7 +204,7 @@ public class ChatController {
     private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
         ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
         log.info("Latest Message: " + latestMessageDTO.getContent());
-        websocketPublisher.convertAndSend("/sub/unreadCount/" + chatRoomId, chatUpdateDTO);
+        websocketPublisher.convertAndSend(websocketUnreadPath + chatRoomId, chatUpdateDTO);
     }
 
     private void convenience(ChatMessageRequest request, Member loginMember, ChatRoom chatRoom){
@@ -213,7 +219,7 @@ public class ChatController {
         int unreadMessageCount = chatService.getUnreadMessageCount(chatRoom.getId(), receiver.getId());
 
         // webSocket에 보내기
-        websocketPublisher.convertAndSend("/sub/chats/" + request.getChatRoomId(), request);
+        websocketPublisher.convertAndSend(websocketChatPath + request.getChatRoomId(), request);
         LatestMessageDTO latestChatMessage = LatestMessageDTO.createLatestMessageDTO(chatService.findLatestChatMessage(chatRoom.getId()));
 
         // 채팅 목록에 보내기

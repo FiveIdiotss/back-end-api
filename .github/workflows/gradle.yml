@@ -86,6 +86,11 @@ jobs:
               -e cloud.aws.s3.bucket=${{ secrets.AWS_S3_BUCKET }} \
               -e firebase.config-path=${{ secrets.FIREBASE_CONFIG_PATH }} \
               -e firebase.url=${{ secrets.FIREBASE_URL }} \
+            
+              -e websocket.chat-path=${{ secrets.WEBSOCKET_CHAT_PATH }} \
+              -e websocket.unread-path=${{ secrets.WEBSOCKET_UNREAD_PATH }} \
+              -e websocket.notification-path=${{ secrets.WEBSOCKET_NOTIFICATION_PATH }} \
+            
               ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest 
             docker image prune -a -f || true
 
