@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Optional;
 
@@ -19,11 +20,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class NotificationService {
 
+    @Value("${websocket.notification-path}")
+    private String websocketPath;
     private final NotificationRepository notificationRepository;
     private final MemberService memberService;
     private final RedisService redisService;
     private final SimpMessagingTemplate websocketPublisher;
-
     public void sendNotification(Long targetMemberId) {
 
         // 알림 발생 시 Redis에 알림 개수 증가
@@ -33,7 +35,7 @@ public class NotificationService {
         Integer unreadCount = redisService.getUnreadCount(targetMemberId);
 
         // WebSocket을 통해 실시간으로 클라이언트에 알림 개수 전송
-        websocketPublisher.convertAndSend("/sub/notifications/" + targetMemberId, unreadCount);
+        websocketPublisher.convertAndSend(websocketPath + targetMemberId, unreadCount);
     }
 
     public Notification findNotificationById(Long notificationId){
