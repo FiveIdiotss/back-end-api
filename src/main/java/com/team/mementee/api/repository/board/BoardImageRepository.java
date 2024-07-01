@@ -14,5 +14,5 @@ public interface BoardImageRepository  extends JpaRepository<BoardImage, Long>{
     List<BoardImage> findBoardImagesByBoard(Board board);
 
     @Query("SELECT bi FROM BoardImage bi WHERE bi.board = :board ORDER BY bi.id ASC")
-    Optional<BoardImage> findFirstByBoardOrderByIdAsc(@Param("board") Board board);
+    List<BoardImage> findFirstByBoardOrderByIdAsc(@Param("board") Board board);
 }

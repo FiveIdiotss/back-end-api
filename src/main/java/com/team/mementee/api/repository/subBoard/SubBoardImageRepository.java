@@ -13,5 +13,5 @@ public interface SubBoardImageRepository extends JpaRepository<SubBoardImage, Lo
     List<SubBoardImage> findSubBoardImageBySubBoard(SubBoard subBoard);
 
     @Query("SELECT si FROM SubBoardImage si WHERE si.subBoard = :subBoard ORDER BY si.id ASC")
-    Optional<SubBoardImage> findFirstBySubBoardOrderByIdAsc(@Param("subBoard") SubBoard subBoard);
+    List<SubBoardImage> findFirstBySubBoardOrderByIdAsc(@Param("subBoard") SubBoard subBoard);
 }
