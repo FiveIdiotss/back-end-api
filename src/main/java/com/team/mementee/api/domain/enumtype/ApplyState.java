@@ -1,5 +1,6 @@
 package com.team.mementee.api.domain.enumtype;
 
+import jakarta.persistence.Lob;
 import lombok.Getter;
 
 @Getter
@@ -9,6 +10,7 @@ public enum ApplyState {
     COMPLETE("신청 수락"),
     REJECT("신청 거절");
 
+    @Lob
     String content;
 
     ApplyState(String content) {
