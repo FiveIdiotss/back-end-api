@@ -83,10 +83,10 @@ public class BoardService {
     }
 
     //게시물의 대표 이미지
-    public String findRepresentImage(Board board){
-        Optional<BoardImage> image = boardImageRepository.findFirstByBoardOrderByIdAsc(board);
-        if (image.isPresent())
-            return image.get().getBoardImageUrl();
+    public String findRepresentImage(Board board) {
+        List<BoardImage> images = boardImageRepository.findFirstByBoardOrderByIdAsc(board);
+        if (!images.isEmpty())
+            return images.get(0).getBoardImageUrl();
         return "";
     }
 
