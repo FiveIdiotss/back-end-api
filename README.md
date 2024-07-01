@@ -56,7 +56,9 @@
 
 ## Architecture
 
-![image](https://github.com/FiveIdiotss/back-end-api/assets/109346159/34336d00-09cf-4e10-b35b-0319fd913b92)
+![image](https://github.com/FiveIdiotss/back-end-api/assets/109346159/9f4b2ad7-9d56-4a39-9a28-58a3d275d003)
+
+
 
 
 
@@ -72,7 +74,6 @@ Back-End : <br>
 - <img src="https://img.shields.io/badge/amazon%20ec2-FF9900?style=for-the-badge&logo=amazon%20ec2&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20rds-527FFF?style=for-the-badge&logo=amazon%20rds&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20route%2053-8C4FFF?style=for-the-badge&logo=amazon%20route%2053&logoColor=white">
-- <img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white">
 - <img src="https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white">
 
 
@@ -92,7 +93,6 @@ Front-End 모바일 :
 
 
 Tools :
-- <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
 - <img src="https://img.shields.io/badge/android%20studio-3DDC84?style=for-the-badge&logo=android%20studio&logoColor=white">
 - <img src="https://img.shields.io/badge/visual%20studio%20code%20studio-007ACC?style=for-the-badge&logo=visual%20studio%20code&logoColor=white">
 - <img src="https://img.shields.io/badge/intellij%20idea-000000?style=for-the-badge&logo=intellij%20idea&logoColor=white">
