@@ -42,6 +42,7 @@ public class Apply {
     @JoinColumn(name = "board_id")
     private Board board;
 
+    @Lob
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ApplyState applyState;              //수락 또는 거절을 눌렀을때 또는 아직 아무것도 누르지 않았을 경우
