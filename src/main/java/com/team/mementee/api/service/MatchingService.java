@@ -4,6 +4,7 @@ import com.team.mementee.api.domain.Apply;
 import com.team.mementee.api.domain.Board;
 import com.team.mementee.api.domain.Matching;
 import com.team.mementee.api.domain.chat.ChatRoom;
+import com.team.mementee.api.dto.applyDTO.ReasonOfRejectRequest;
 import com.team.mementee.api.repository.MatchingRepository;
 import com.team.mementee.api.repository.chat.ChatRoomRepository;
 import com.team.mementee.api.validation.MatchingValidation;
@@ -63,11 +64,12 @@ public class MatchingService {
 
     //거절-----
     @Transactional
-    public void declineMatching(Long applyId, String authorizationHeader){
+    public void declineMatching(Long applyId, ReasonOfRejectRequest request, String authorizationHeader){
         Apply apply = applyService.findApplyById(applyId);
         MatchingValidation.isCheckCompleteApply(apply);
         MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), apply.getReceiveMember());
         apply.updateState();
+        apply.getApplyState().reasonOfReject(request.getContent());
     }
 
     @Transactional
