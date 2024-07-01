@@ -59,7 +59,7 @@ public class MatchingService {
 
         mentor.addConsultCount();
         board.addUnavailableTimes(consultDate, consultTime);
-        apply.updateState();
+        apply.updateCompleteState();
     }
 
     //거절-----
@@ -68,7 +68,7 @@ public class MatchingService {
         Apply apply = applyService.findApplyById(applyId);
         MatchingValidation.isCheckCompleteApply(apply);
         MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), apply.getReceiveMember());
-        apply.updateState();
+        apply.updateRejectState();
         apply.getApplyState().reasonOfReject(request.getContent());
     }
 
