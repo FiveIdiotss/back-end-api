@@ -58,8 +58,12 @@ public class Apply {
     }
 
     //신청 상황 업데이트
-    public void updateState(){
+    public void updateCompleteState(){
         this.applyState = ApplyState.COMPLETE;
+    }
+
+    public void updateRejectState(){
+        this.applyState = ApplyState.REJECT;
     }
 
 }
