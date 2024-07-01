@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
+@Transactional
 @RequiredArgsConstructor
 public class InitDb {
 
