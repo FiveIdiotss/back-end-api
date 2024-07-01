@@ -92,7 +92,6 @@ jobs:
               ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest 
             docker image prune -a -f || true
 
-
   dependency-submission:
     runs-on: ubuntu-latest
     permissions:
