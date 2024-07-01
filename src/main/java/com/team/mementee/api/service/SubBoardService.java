@@ -89,10 +89,10 @@ public class SubBoardService {
     }
 
     //게시물의 대표 이미지
-    public String findRepresentImage(SubBoard subBoard){
-        Optional<SubBoardImage> image = subBoardImageRepository.findFirstBySubBoardOrderByIdAsc(subBoard);
-        if (image.isPresent())
-            return image.get().getSubBoardImageUrl();
+    public String findRepresentImage(SubBoard subBoard) {
+        List<SubBoardImage> images = subBoardImageRepository.findFirstBySubBoardOrderByIdAsc(subBoard);
+        if (!images.isEmpty())
+            return images.get(0).getSubBoardImageUrl();
         return "";
     }
 

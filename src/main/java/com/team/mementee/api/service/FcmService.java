@@ -24,6 +24,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -128,13 +129,21 @@ public class FcmService {
         return objectMapper.writeValueAsString(fcmMessage);
     }
 
+//    private String getAccessToken() throws IOException {
+//        GoogleCredentials googleCredentials = GoogleCredentials
+//                .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream())
+//                .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+//
+//        googleCredentials.refreshIfExpired();
+//
+//        return googleCredentials.getAccessToken().getTokenValue();
+//    }
+
     private String getAccessToken() throws IOException {
         GoogleCredentials googleCredentials = GoogleCredentials
-                .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream())
+                .fromStream(new FileInputStream(firebaseConfigPath))
                 .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
-
         googleCredentials.refreshIfExpired();
-
         return googleCredentials.getAccessToken().getTokenValue();
     }
 }
