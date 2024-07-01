@@ -89,8 +89,6 @@ jobs:
               -e websocket.chat-path=${{ secrets.WEBSOCKET_CHAT_PATH }} \
               -e websocket.unread-path=${{ secrets.WEBSOCKET_UNREAD_PATH }} \
               -e websocket.notification-path=${{ secrets.WEBSOCKET_NOTIFICATION_PATH }} \
-            
-              -v /home/ubuntu/firebase:/home/ubuntu/firebase
               ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest 
             docker image prune -a -f || true
 
