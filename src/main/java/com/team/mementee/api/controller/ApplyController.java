@@ -90,8 +90,9 @@ public class ApplyController {
             @ApiResponse(responseCode = "fail", description = "거절 실패")})
     @PostMapping("/api/reject/{applyId}")
     public CommonApiResponse<?> boardDeny(@RequestHeader("Authorization") String authorizationHeader,
+                                          @RequestBody ReasonOfRejectRequest request,
                                           @PathVariable Long applyId){
-            matchingService.declineMatching(applyId, authorizationHeader);
+            matchingService.declineMatching(applyId, request, authorizationHeader);
             return CommonApiResponse.createSuccess();
     }
 
