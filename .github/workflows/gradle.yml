@@ -56,6 +56,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
             docker-compose -f /home/ubuntu/compose/docker-compose.yml up -d
 
+
   dependency-submission:
     runs-on: ubuntu-latest
     permissions:
