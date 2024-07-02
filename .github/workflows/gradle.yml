@@ -45,12 +45,11 @@ jobs:
 
       - name: SSH into EC2 and deploy with Docker Compose
         uses: appleboy/ssh-action@master
-        env:
-          COMPOSE: "/home/ubuntu/compose/docker-compose.yml"
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          envs: COMPOSE="/home/ubuntu/compose/docker-compose.yml"
           script: |
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker-compose -f $COMPOSE down --rmi all
