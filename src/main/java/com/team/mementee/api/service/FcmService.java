@@ -123,7 +123,8 @@ public class FcmService {
                                 "content", fcmDTO.getContent(),
                                 "senderImageUrl", fcmDTO.getSenderImageUrl(),
                                 "senderId", String.valueOf(fcmDTO.getSenderId()),
-                                "type", fcmDTO.getNotificationType().name()
+                                "type", fcmDTO.getNotificationType().name(),
+                                "otherPK", String.valueOf(fcmDTO.getOtherPK())
                         ))
                         .build()).validateOnly(false).build();
         return objectMapper.writeValueAsString(fcmMessage);
