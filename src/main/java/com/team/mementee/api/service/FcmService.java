@@ -17,6 +17,7 @@ import com.team.mementee.api.dto.notificationDTO.FcmDTO;
 import com.team.mementee.api.dto.notificationDTO.FcmMessage;
 import com.team.mementee.api.dto.subBoardDTO.ReplyRequest;
 import com.team.mementee.api.repository.fcm.FcmTokenRepository;
+import com.team.mementee.exception.ServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -140,11 +141,15 @@ public class FcmService {
 //        return googleCredentials.getAccessToken().getTokenValue();
 //    }
 
-    private String getAccessToken() throws IOException {
-        GoogleCredentials googleCredentials = GoogleCredentials
-                .fromStream(new FileInputStream(firebaseConfigPath))
-                .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
-        googleCredentials.refreshIfExpired();
-        return googleCredentials.getAccessToken().getTokenValue();
+    private String getAccessToken() {
+        try {
+            GoogleCredentials googleCredentials = GoogleCredentials
+                    .fromStream(new FileInputStream(firebaseConfigPath))
+                    .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+            googleCredentials.refreshIfExpired();
+            return googleCredentials.getAccessToken().getTokenValue();
+        }catch (IOException e){
+            throw new ServerErrorException();
+        }
     }
 }
