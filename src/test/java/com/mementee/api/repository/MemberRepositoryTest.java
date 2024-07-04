@@ -1,7 +1,7 @@
 //package com.mementee.api.repository;
 //
-//import com.mementee.api.domain.Member;
-//import com.mementee.api.service.MemberService;
+//import com.team.domain.api.mementee.Member;
+//import com.team.service.api.mementee.MemberService;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;

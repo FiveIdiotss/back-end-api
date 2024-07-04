@@ -1,17 +1,17 @@
 //package com.mementee.api.service;
 //
-//import com.mementee.api.domain.enumtype.BoardCategory;
-//import com.mementee.api.domain.subdomain.ScheduleTime;
-//import com.mementee.api.dto.applyDTO.ApplyRequest;
-//import com.mementee.api.dto.boardDTO.WriteBoardRequest;
-//import com.mementee.api.dto.memberDTO.CreateMemberRequest;
-//import com.mementee.api.dto.memberDTO.LoginMemberRequest;
-//import com.mementee.api.dto.memberDTO.LoginMemberResponse;
-//import com.mementee.api.repository.ApplyRepository;
-//import com.mementee.api.repository.board.BoardRepository;
-//import com.mementee.api.repository.member.MemberRepository;
-//import com.mementee.exception.conflict.ApplyConflictException;
-//import com.mementee.exception.conflict.MyApplyConflictException;
+//import com.team.enumtype.domain.api.mementee.BoardCategory;
+//import com.team.subdomain.domain.api.mementee.ScheduleTime;
+//import com.team.applyDTO.dto.api.mementee.ApplyRequest;
+//import com.team.boardDTO.dto.api.mementee.WriteBoardRequest;
+//import com.team.memberDTO.dto.api.mementee.CreateMemberRequest;
+//import com.team.memberDTO.dto.api.mementee.LoginMemberRequest;
+//import com.team.memberDTO.dto.api.mementee.LoginMemberResponse;
+//import com.team.repository.api.mementee.ApplyRepository;
+//import com.team.board.repository.api.mementee.BoardRepository;
+//import com.team.member.repository.api.mementee.MemberRepository;
+//import com.team.conflict.exception.mementee.ApplyConflictException;
+//import com.team.conflict.exception.mementee.MyApplyConflictException;
 //import jakarta.transaction.Transactional;
 //import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,7 @@
 //import java.time.LocalTime;
 //import java.util.List;
 //
-//import static com.mementee.api.domain.enumtype.Gender.MALE;
+//import static com.team.enumtype.domain.api.mementee.Gender.MALE;
 //import static org.junit.jupiter.api.Assertions.*;
 //
 //@ExtendWith(SpringExtension.class)

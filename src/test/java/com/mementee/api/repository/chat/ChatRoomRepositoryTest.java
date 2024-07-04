@@ -1,10 +1,10 @@
 //package com.mementee.api.repository.chat;
 //
-//import com.mementee.api.domain.Member;
-//import com.mementee.api.domain.chat.ChatMessage;
-//import com.mementee.api.domain.chat.ChatRoom;
-//import com.mementee.api.repository.member.MemberRepository;
-//import com.mementee.api.service.MemberService;
+//import com.team.domain.api.mementee.Member;
+//import com.team.chat.domain.api.mementee.ChatMessage;
+//import com.team.chat.domain.api.mementee.ChatRoom;
+//import com.team.member.repository.api.mementee.MemberRepository;
+//import com.team.service.api.mementee.MemberService;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;

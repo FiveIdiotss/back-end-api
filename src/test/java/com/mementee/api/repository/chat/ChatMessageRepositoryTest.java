@@ -1,7 +1,7 @@
 //
 //package com.mementee.api.repository.chat;
 //
-//import com.mementee.api.domain.chat.ChatMessage;
+//import com.team.chat.domain.api.mementee.ChatMessage;
 //import jakarta.persistence.EntityManager;
 //import jakarta.persistence.PersistenceContext;
 //import org.junit.jupiter.api.Test;

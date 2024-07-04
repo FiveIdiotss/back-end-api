@@ -1,12 +1,12 @@
 //package com.mementee.api.service;
 //
-//import com.mementee.api.domain.Member;
-//import com.mementee.api.domain.RefreshToken;
+//import com.team.domain.api.mementee.Member;
+//import com.team.domain.api.mementee.RefreshToken;
 //import com.mementee.api.dto.memberDTO.*;
-//import com.mementee.api.repository.member.MemberRepository;
-//import com.mementee.api.repository.member.SchoolRepository;
-//import com.mementee.exception.conflict.EmailConflictException;
-//import com.mementee.exception.unauthorized.LoginFailedException;
+//import com.team.member.repository.api.mementee.MemberRepository;
+//import com.team.member.repository.api.mementee.SchoolRepository;
+//import com.team.conflict.exception.mementee.EmailConflictException;
+//import com.team.unauthorized.exception.mementee.LoginFailedException;
 //import jakarta.transaction.Transactional;
 //import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +16,7 @@
 //
 //import java.util.Optional;
 //
-//import static com.mementee.api.domain.enumtype.Gender.MALE;
+//import static com.team.enumtype.domain.api.mementee.Gender.MALE;
 //import static org.junit.jupiter.api.Assertions.*;
 //
 //@ExtendWith(SpringExtension.class)
