@@ -12,5 +12,4 @@ public class Payment {
     @Column(name = "payment_id")
     private Long id;
 
-
 }
