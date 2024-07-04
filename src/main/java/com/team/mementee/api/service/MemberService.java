@@ -1,7 +1,5 @@
 package com.team.mementee.api.service;
 
-import com.mementee.api.domain.*;
-import com.mementee.api.dto.memberDTO.*;
 import com.team.mementee.api.dto.memberDTO.*;
 import com.team.mementee.api.repository.member.MemberRepository;
 import com.team.mementee.api.validation.MemberValidation;
