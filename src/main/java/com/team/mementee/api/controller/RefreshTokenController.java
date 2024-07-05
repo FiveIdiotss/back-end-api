@@ -26,8 +26,8 @@ public class RefreshTokenController {
             @ApiResponse(responseCode = "fail", description = "발급 실패")})
     @GetMapping("/api/refresh")
     public CommonApiResponse<TokenDTO> updatedAccess(@RequestHeader("Authorization") String authorizationHeader) {
-            TokenDTO tokenDTO = refreshService.getAccessKey(authorizationHeader);
-            return CommonApiResponse.createSuccess(tokenDTO);
+        TokenDTO tokenDTO = refreshService.getAccessKey(authorizationHeader);
+        return CommonApiResponse.createSuccess(tokenDTO);
     }
 }
 

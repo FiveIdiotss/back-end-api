@@ -37,8 +37,8 @@ public class MemberController {
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping("/api/member/signUp")
     public CommonApiResponse<?> joinMember(@RequestBody @Valid CreateMemberRequest request) {
-            memberService.join(request);
-            return CommonApiResponse.createSuccess();
+        memberService.join(request);
+        return CommonApiResponse.createSuccess();
     }
 
 
@@ -72,7 +72,7 @@ public class MemberController {
             @ApiResponse(responseCode = "fail", description = "로그인 실패")})
     @PostMapping("/api/member/signIn")
     public CommonApiResponse<LoginMemberResponse> signIn(@Valid @RequestBody LoginMemberRequest request) {
-            return CommonApiResponse.createSuccess(memberService.login(request));
+        return CommonApiResponse.createSuccess(memberService.login(request));
     }
 
     //로그아웃-----------------
@@ -82,8 +82,8 @@ public class MemberController {
             @ApiResponse(responseCode = "fail", description = "로그아웃 실패")})
     @PostMapping("/api/member/signOut")
     public CommonApiResponse<?> signOut(@RequestHeader("Authorization") String authorizationHeader) {
-            memberService.logout(authorizationHeader);
-            return CommonApiResponse.createSuccess();
+        memberService.logout(authorizationHeader);
+        return CommonApiResponse.createSuccess();
     }
 
     //회원 정보-----------------------------------
@@ -93,8 +93,8 @@ public class MemberController {
             @ApiResponse(responseCode = "fail", description = "회원 조회 실패")})
     @GetMapping("/api/member/{memberId}")
     public CommonApiResponse<MemberInfoResponse> memberInfo(@PathVariable Long memberId) {
-            Member member = memberService.findMemberById(memberId);
-            return CommonApiResponse.createSuccess(MemberInfoResponse.createMemberInfoResponse(member));
+        Member member = memberService.findMemberById(memberId);
+        return CommonApiResponse.createSuccess(MemberInfoResponse.createMemberInfoResponse(member));
     }
 
     //프로필 변경
@@ -102,12 +102,12 @@ public class MemberController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "프로필 변경 성공"),
             @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
-    @PostMapping(value = "/api/member/image" ,
-                consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/api/member/image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonApiResponse<String> updatedMemberImage(@RequestHeader("Authorization") String authorizationHeader,
-                                                   @RequestPart("imageFile") MultipartFile multipartFile) {
-            String imageUrl = memberService.updatedMemberImage(authorizationHeader, multipartFile);
-            return CommonApiResponse.createSuccess(imageUrl);
+                                                        @RequestPart("imageFile") MultipartFile multipartFile) {
+        String imageUrl = memberService.updatedMemberImage(authorizationHeader, multipartFile);
+        return CommonApiResponse.createSuccess(imageUrl);
     }
 
     @Operation(summary = "프로필 기본 사진으로 변경")
@@ -116,8 +116,8 @@ public class MemberController {
             @ApiResponse(responseCode = "fail", description = "프로필 변경 실패")})
     @PostMapping("/api/member/defaultImage")
     public CommonApiResponse<String> updatedDefaultMemberImage(@RequestHeader("Authorization") String authorizationHeader) {
-            String imageUrl = memberService.updatedDefaultMemberImage(authorizationHeader);
-            return CommonApiResponse.createSuccess(imageUrl);
+        String imageUrl = memberService.updatedDefaultMemberImage(authorizationHeader);
+        return CommonApiResponse.createSuccess(imageUrl);
     }
 
     //비밀번호 변경 전 검증
