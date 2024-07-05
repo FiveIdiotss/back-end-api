@@ -61,4 +61,9 @@ public class ChatTestController {
         return "loginTestPages/notificationCountPage";
     }
 
+    @GetMapping("/payment")
+    public String payment() {
+        return "payment/payment";
+    }
+
 }

@@ -27,7 +27,7 @@ public class ImageUrlController {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
             @ApiResponse(responseCode = "fail", description = "등록 실패")})
     @PostMapping(value = "/api/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CommonApiResponse<String> saveImage(@RequestPart MultipartFile multipartFile){
+    public CommonApiResponse<String> saveImage(@RequestPart MultipartFile multipartFile) {
 //        String tempUrl = s3Service.saveFileToTemp(multipartFile);
         String tempUrl = s3Service.save(multipartFile);
         return CommonApiResponse.createSuccess(tempUrl);

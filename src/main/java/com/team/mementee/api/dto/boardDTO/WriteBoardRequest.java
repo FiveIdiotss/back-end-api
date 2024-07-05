@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.team.mementee.api.domain.enumtype.BoardCategory;
 import com.team.mementee.api.domain.enumtype.Platform;
 import com.team.mementee.api.domain.subdomain.ScheduleTime;
+import com.team.mementee.exception.ServerErrorException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -38,22 +39,29 @@ public class WriteBoardRequest {
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     private List<ScheduleTime> times;
 
-   //private List<LocalDate> availableDays;    // 상담 가능한 날짜
     private List<DayOfWeek> availableDays;
 
     public static class LocalTimeSerializer extends JsonSerializer<LocalTime> {
         @Override
-        public void serialize(LocalTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            String formattedTime = value.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-            gen.writeString(formattedTime);
+        public void serialize(LocalTime value, JsonGenerator gen, SerializerProvider serializers) {
+            try {
+                String formattedTime = value.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+                gen.writeString(formattedTime);
+            } catch (IOException e) {
+                throw new ServerErrorException();
+            }
         }
     }
 
     public static class LocalTimeDeserializer extends JsonDeserializer<LocalTime> {
         @Override
-        public LocalTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-            String timeString = p.getValueAsString();
-            return LocalTime.parse(timeString, DateTimeFormatter.ofPattern("HH:mm:ss"));
+        public LocalTime deserialize(JsonParser p, DeserializationContext ctxt) {
+            try {
+                String timeString = p.getValueAsString();
+                return LocalTime.parse(timeString, DateTimeFormatter.ofPattern("HH:mm:ss"));
+            } catch (IOException e){
+                throw new ServerErrorException();
+            }
         }
     }
 }
