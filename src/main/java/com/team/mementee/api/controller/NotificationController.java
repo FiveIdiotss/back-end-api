@@ -34,7 +34,8 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    private final FcmService fcmService;;
+    private final FcmService fcmService;
+    ;
     private final MemberService memberService;
     private final RedisService redisService;
 
@@ -53,7 +54,7 @@ public class NotificationController {
     @Operation(summary = "자신의 FCM 토큰 DB에 저장")
     @PostMapping("/api/fcm")
     public CommonApiResponse<?> saveFCMToken(@RequestHeader("Authorization") String authorizationHeader,
-                                             @RequestParam String myToken){
+                                             @RequestParam String myToken) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         fcmService.saveFCMToken(member, myToken);
         return CommonApiResponse.createSuccess();
@@ -62,10 +63,10 @@ public class NotificationController {
     @Operation(summary = "알림 목록")
     @GetMapping("/api/push")
     public CommonApiResponse<PaginationFcmResponse> notificationList(@RequestParam int page, @RequestParam int size,
-                                                                     @RequestHeader("Authorization") String authorizationHeader){
+                                                                     @RequestHeader("Authorization") String authorizationHeader) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending()); //내림차 순(최신순)
         Page<Notification> fcms = notificationService.findNotificationsByReceiveMember(authorizationHeader, pageable);
-        PageInfo pageInfo = new PageInfo(page, size, (int)fcms.getTotalElements(), fcms.getTotalPages());
+        PageInfo pageInfo = new PageInfo(page, size, (int) fcms.getTotalElements(), fcms.getTotalPages());
 
         List<Notification> response = fcms.getContent();
         List<NotificationDTO> list = NotificationDTO.createNotificationDTOs(response);
@@ -75,21 +76,21 @@ public class NotificationController {
     @Operation(summary = "알림 삭제")
     @DeleteMapping("/api/push/{notificationId}")
     public CommonApiResponse<?> deleteNotification(@RequestHeader("Authorization") String authorizationHeader,
-                                                   @PathVariable Long notificationId){
+                                                   @PathVariable Long notificationId) {
         notificationService.deleteNotification(authorizationHeader, notificationId);
         return CommonApiResponse.createSuccess();
     }
 
     @Operation(summary = "알림 받을 상대방 ID 입력 (테스트용)")
     @PostMapping("/api/push/fcm")
-    public CommonApiResponse<?> pushMessage(@RequestParam Long targetMemberId){
+    public CommonApiResponse<?> pushMessage(@RequestParam Long targetMemberId) {
         notificationService.sendNotification(targetMemberId);
         return CommonApiResponse.createSuccess();
     }
 
     @Operation(summary = "알림 리셋 (테스트용)")
     @PostMapping("/api/push/reset")
-    public CommonApiResponse<?> resetMessage(@RequestParam Long targetMemberId){
+    public CommonApiResponse<?> resetMessage(@RequestParam Long targetMemberId) {
         redisService.resetUnreadCount(targetMemberId);
         return CommonApiResponse.createSuccess();
     }

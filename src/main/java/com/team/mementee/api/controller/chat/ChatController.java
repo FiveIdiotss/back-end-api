@@ -156,12 +156,12 @@ public class ChatController {
                                                @PathVariable Long chatRoomId) {
         ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
 
-        if(chatRoom.getExtendState() == ExtendState.WAITING)
+        if (chatRoom.getExtendState() == ExtendState.WAITING)
             throw new ExtendRequestConflictException();
 
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
         Member mentee = chatRoom.getMatching().getMentee();
-        if(!loginMember.equals(mentee))
+        if (!loginMember.equals(mentee))
             throw new ForbiddenException();
 
         ChatMessageRequest request = ChatMessageRequest.createExtendRequest(loginMember, chatRoomId);
@@ -181,12 +181,12 @@ public class ChatController {
                                                       @RequestParam DecisionStatus status) {
         ChatMessage chatMessage = chatService.findChatMessageById(chatId);
         ChatRoom chatRoom = chatMessage.getChatRoom();
-        if(chatRoom.getExtendState() == ExtendState.EMPTY)
+        if (chatRoom.getExtendState() == ExtendState.EMPTY)
             throw new ExtendResponseConflictException();
 
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
         Member mentor = chatRoom.getMatching().getMentor();
-        if(!loginMember.equals(mentor))
+        if (!loginMember.equals(mentor))
             throw new ForbiddenException();
 
         ChatMessageRequest messageDTO = ChatMessageRequest.createExtendResponse(status, loginMember, chatRoom.getId());
@@ -207,7 +207,7 @@ public class ChatController {
         websocketPublisher.convertAndSend(websocketUnreadPath + chatRoomId, chatUpdateDTO);
     }
 
-    private void convenience(ChatMessageRequest request, Member loginMember, ChatRoom chatRoom){
+    private void convenience(ChatMessageRequest request, Member loginMember, ChatRoom chatRoom) {
         // If both users are in the chat room, set the readCount to 2.
         chatService.setMessageReadCount(request);
 
