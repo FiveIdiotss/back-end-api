@@ -50,6 +50,11 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
+            # Exit script on any error
+            set -e
+            # Docker Hub에서 로그아웃 (이미 로그아웃 상태일 경우 무시)
+            docker logout || true
+            
             echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
             docker-compose -f /home/ubuntu/compose/docker-compose.yml down --rmi all --remove-orphans
             docker network prune -f
