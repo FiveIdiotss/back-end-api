@@ -40,23 +40,19 @@ public class BoardController {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Operation(summary = "글 쓰기 , 스웨거용 ", description =
-            "  {\"title\": \"축구 교실\",\n" +
+            " {\n" +
+                    "  \"title\": \"축구 교실\",\n" +
                     "  \"introduce\": \"맨유 출신 입니다.\",\n" +
                     "  \"target\": \"세모발들\",\n" +
                     "  \"content\": \"맨유출신한테 축구배우실분 모집합니다.\",\n" +
                     "  \"consultTime\": 30,\n" +
                     "  \"boardCategory\": \"예체능\",\n" +
-                    "  \"platform\": \"WEB\"}\n" +
+                    "  \"platform\": \"WEB\",\n" +
                     "  \"times\": [\n" +
-                    "    {  \"startTime\": \"09:00:00\",\n" +
-                    "      \"endTime\": \"12:00:00\" },\n" +
-                    "    {  \"startTime\": \"14:00:00\",\n" +
-                    "      \"endTime\": \"17:00:00\" }\n" +
+                    "    { \"startTime\": \"09:00:00\", \"endTime\": \"12:00:00\" },\n" +
+                    "    { \"startTime\": \"14:00:00\", \"endTime\": \"17:00:00\" }\n" +
                     "  ],\n" +
-                    "  \"availableDays\": [\n" +
-                    "    \"MONDAY \",\n" +
-                    "    \"SUNDAY\"\n" +
-                    "  ]\n" +
+                    "  \"availableDays\": [\"MONDAY\", \"SUNDAY\"]\n" +
                     "}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "success", description = "등록 성공"),
