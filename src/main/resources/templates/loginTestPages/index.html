@@ -52,12 +52,12 @@
     });
 
     function connectWebSocket() {
-        //var ws = new WebSocket('ws://localhost:8080/ws');
+        // var ws = new WebSocket('ws://localhost:8080/ws');
         var ws = new WebSocket('wss://menteetor.site/ws');
 
         stompClient = Stomp.over(ws);
 
-        stompClient.connect({}, function () {
+        stompClient.connect({ 'authorization': 'Bearer ' + accessToken }, function () {
             [[${chatRooms}]].forEach(function (chatRoom) {
                 var chatRoomId = chatRoom.chatRoomId;
                 var subscription = stompClient.subscribe('/sub/unreadCount/' + chatRoomId, function (chatUpdateDTO) {
