@@ -1,12 +1,12 @@
 package com.team.mementee.api.controller.chat;
 
-import com.team.mementee.api.domain.enumtype.ExtendState;
-import com.team.mementee.api.domain.enumtype.DecisionStatus;
-import com.team.mementee.api.dto.CommonApiResponse;
-import com.team.mementee.api.dto.chatDTO.*;
 import com.team.mementee.api.domain.Member;
 import com.team.mementee.api.domain.chat.ChatMessage;
 import com.team.mementee.api.domain.chat.ChatRoom;
+import com.team.mementee.api.domain.enumtype.DecisionStatus;
+import com.team.mementee.api.domain.enumtype.ExtendState;
+import com.team.mementee.api.dto.CommonApiResponse;
+import com.team.mementee.api.dto.chatDTO.*;
 import com.team.mementee.api.dto.notificationDTO.FcmDTO;
 import com.team.mementee.api.service.*;
 import com.team.mementee.exception.ForbiddenException;
@@ -14,25 +14,21 @@ import com.team.mementee.exception.conflict.ExtendRequestConflictException;
 import com.team.mementee.exception.conflict.ExtendResponseConflictException;
 import com.team.mementee.exception.notFound.FileNotFound;
 import io.swagger.v3.oas.annotations.Operation;
-
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,9 +53,34 @@ public class ChatController {
     private final FileService fileService;
     private final SimpMessagingTemplate websocketPublisher;
 
+    @GetMapping("/test")
+    public String testMethod() {
+        return "TEstComplete";
+    }
+
+
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageRequest request) {
+
+//        // WebSocket 세션에서 세션 ID 가져오기
+//        String sessionId = headerAccessor.getSessionId();
+//        System.out.println(sessionId);
+//        System.out.println(authorizationHeader);
+//
+//        // Redis에서 사용자 정보 조회
+//        Object user = redisTemplate.opsForHash().get("session:" + sessionId, "user");
+//
+//        if (user == null) {
+//            // 사용자 정보가 없을 경우 Redis에 저장
+//            user = memberService.findMemberByToken(authorizationHeader); // authToken을 통해 사용자 정보 조회 (예: JWT 디코딩)
+//            if (user == null) {
+//                throw new IllegalStateException("User not found with provided token.");
+//            }
+//            redisTemplate.opsForHash().put("session:" + sessionId, "user", user);
+//        }
+
+
         Long senderId = request.getSenderId();
         Long chatRoomId = request.getChatRoomId();
 
