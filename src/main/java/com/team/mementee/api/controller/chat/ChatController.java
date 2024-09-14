@@ -55,7 +55,7 @@ public class ChatController {
 
     @GetMapping("/test")
     public String testMethod() {
-        return "TEstComplete";
+        return "TestComplete";
     }
 
 
