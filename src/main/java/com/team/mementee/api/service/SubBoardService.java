@@ -40,6 +40,10 @@ public class SubBoardService {
     private final MemberService memberService;
     private final S3Service s3Service;
 
+    public List<SubBoard> findAllByTitleContaining(String query) {
+        return subBoardRepository.findAllByTitleContaining(query);
+    }
+
     //게시글 조회시 필요한 Info
     public SubBoardInfoResponse createSubBoardInfoResponse(Long subBoardId, String authorizationHeader) {
         SubBoard subBoard = findSubBoardById(subBoardId);

@@ -1,6 +1,8 @@
 package com.team.mementee.api.repository.subBoard;
 
-import com.team.mementee.api.domain.*;
+import com.team.mementee.api.domain.Member;
+import com.team.mementee.api.domain.School;
+import com.team.mementee.api.domain.SubBoard;
 import com.team.mementee.api.domain.enumtype.BoardCategory;
 import com.team.mementee.api.domain.enumtype.SubBoardType;
 import org.springframework.data.domain.Page;
@@ -9,7 +11,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface SubBoardRepository extends JpaRepository<SubBoard, Long> {
+
+    // 제목 검색
+    List<SubBoard> findAllByTitleContaining(String query);
 
     //특정 멤버가 작성한 게시물
     Page<SubBoard> findSubBoardsBySubBoardTypeAndMember(SubBoardType subBoardType, Member member, Pageable pageable);
