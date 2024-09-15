@@ -53,13 +53,6 @@ public class ChatController {
     private final FileService fileService;
     private final SimpMessagingTemplate websocketPublisher;
 
-    @GetMapping("/test")
-    public String testMethod() {
-        return "TestComplete";
-    }
-
-
-
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageRequest request) {
 
@@ -237,7 +230,7 @@ public class ChatController {
         Member receiver = chatService.getReceiver(loginMember.getId(), chatRoom);
 
         // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
-        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoom.getId(), receiver.getId());
+        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoom.getId(), loginMember.getId());
 
         // webSocket에 보내기
         websocketPublisher.convertAndSend(websocketChatPath + request.getChatRoomId(), request);
