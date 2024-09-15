@@ -105,6 +105,7 @@ Collaboration :
 
 
 etc: 
+- <img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx%20studio&logoColor=white">
 - <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
 - <img src="https://img.shields.io/badge/firebase%20cloud%20messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20s3-569A31?style=for-the-badge&logo=amazon%20s3&logoColor=white">
