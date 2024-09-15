@@ -95,10 +95,10 @@ public class ChatService {
         chatMessage.changeToComplete();
     }
 
-    public ChatMessage createMessageByChatMessageRequest(ChatMessageRequest messageDTO) {
-        Member sender = memberService.findMemberById(messageDTO.getSenderId());
-        ChatRoom chatRoom = findChatRoomById(messageDTO.getChatRoomId());
-        return new ChatMessage(messageDTO.getMessageType(), messageDTO.getFileURL(), messageDTO.getContent(), sender, chatRoom, messageDTO.getLocalDateTime());
+    public ChatMessage createMessageByChatMessageRequest(ChatMessageRequest request) {
+        Member sender = memberService.findMemberById(request.getSenderId());
+        ChatRoom chatRoom = findChatRoomById(request.getChatRoomId());
+        return new ChatMessage(request.getMessageType(), request.getFileURL(), request.getContent(), sender, chatRoom, request.getLocalDateTime(), request.getReadCount());
     }
 
     //회원 조회 로직, memberId는 Sender
