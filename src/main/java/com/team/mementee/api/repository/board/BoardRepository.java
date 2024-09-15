@@ -11,8 +11,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 
 public interface BoardRepository extends JpaRepository<com.team.mementee.api.domain.Board, Long>{
+
+    // 제목 검색
+    List<Board> findAllByTitleContaining(String query);
 
     //특정 멤버가 작성한 게시물
     Page<Board> findBoardsByMember(Member member, Pageable pageable);

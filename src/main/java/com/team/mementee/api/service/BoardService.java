@@ -39,6 +39,10 @@ public class BoardService {
     private final MemberService memberService;
     private final RedisTemplate<String, String> redisTemplate;
 
+    public List<Board> findAllByTitleContaining(String query) {
+        return boardRepository.findAllByTitleContaining(query);
+    }
+
     //게시글 조회시 필요한 Info
     public BoardInfoResponse createBoardInfoResponse(Long boardId, String authorizationHeader){
         Board board = findBoardById(boardId);
