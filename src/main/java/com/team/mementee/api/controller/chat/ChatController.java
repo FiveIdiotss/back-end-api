@@ -55,25 +55,6 @@ public class ChatController {
 
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageRequest request) {
-
-//        // WebSocket 세션에서 세션 ID 가져오기
-//        String sessionId = headerAccessor.getSessionId();
-//        System.out.println(sessionId);
-//        System.out.println(authorizationHeader);
-//
-//        // Redis에서 사용자 정보 조회
-//        Object user = redisTemplate.opsForHash().get("session:" + sessionId, "user");
-//
-//        if (user == null) {
-//            // 사용자 정보가 없을 경우 Redis에 저장
-//            user = memberService.findMemberByToken(authorizationHeader); // authToken을 통해 사용자 정보 조회 (예: JWT 디코딩)
-//            if (user == null) {
-//                throw new IllegalStateException("User not found with provided token.");
-//            }
-//            redisTemplate.opsForHash().put("session:" + sessionId, "user", user);
-//        }
-
-
         Long senderId = request.getSenderId();
         Long chatRoomId = request.getChatRoomId();
 
@@ -81,6 +62,36 @@ public class ChatController {
         Member receiver = chatService.getReceiver(senderId, chatRoom);
 
         convenience(request, receiver, chatRoom);
+    }
+
+    private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
+        ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
+        log.info("Latest Message: " + latestMessageDTO.getContent());
+        websocketPublisher.convertAndSend(websocketUnreadPath + chatRoomId, chatUpdateDTO);
+    }
+
+    private void convenience(ChatMessageRequest request, Member loginMember, ChatRoom chatRoom) {
+        // If both users are in the chat room, set the readCount to 2.
+        System.out.println(request);
+        chatService.setMessageReadCount(request);
+        System.out.println(request.getReadCount());
+
+        // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
+        chatService.saveMessage(request);
+
+        // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
+        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoom.getId(), loginMember.getId());
+
+        // webSocket에 보내기
+        websocketPublisher.convertAndSend(websocketChatPath + request.getChatRoomId(), request);
+        LatestMessageDTO latestChatMessage = LatestMessageDTO.createLatestMessageDTO(chatService.findLatestChatMessage(chatRoom.getId()));
+
+        // 채팅 목록에 보내기
+        extracted(chatRoom.getId(), unreadMessageCount, latestChatMessage);
+
+        //FCM 알림
+        FcmDTO fcmDTO = fcmService.createChatFcmDTO(request);
+        fcmService.sendMessageTo(fcmDTO);
     }
 
     @Operation(description = "파일 전송 처리")
@@ -215,32 +226,5 @@ public class ChatController {
         return CommonApiResponse.createSuccess();
     }
 
-    private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
-        ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
-        log.info("Latest Message: " + latestMessageDTO.getContent());
-        websocketPublisher.convertAndSend(websocketUnreadPath + chatRoomId, chatUpdateDTO);
-    }
 
-    private void convenience(ChatMessageRequest request, Member loginMember, ChatRoom chatRoom) {
-        // If both users are in the chat room, set the readCount to 2.
-        chatService.setMessageReadCount(request);
-
-        // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
-        chatService.saveMessage(request);
-        Member receiver = chatService.getReceiver(loginMember.getId(), chatRoom);
-
-        // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
-        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoom.getId(), loginMember.getId());
-
-        // webSocket에 보내기
-        websocketPublisher.convertAndSend(websocketChatPath + request.getChatRoomId(), request);
-        LatestMessageDTO latestChatMessage = LatestMessageDTO.createLatestMessageDTO(chatService.findLatestChatMessage(chatRoom.getId()));
-
-        // 채팅 목록에 보내기
-        extracted(chatRoom.getId(), unreadMessageCount, latestChatMessage);
-
-        //FCM 알림
-        FcmDTO fcmDTO = fcmService.createChatFcmDTO(request);
-        fcmService.sendMessageTo(fcmDTO);
-    }
 }
