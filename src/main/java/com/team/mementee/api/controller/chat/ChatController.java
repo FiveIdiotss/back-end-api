@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -166,7 +166,7 @@ public class ChatController {
 
         List<ChatRoomDTO> chatRoomDTOs = allChatRooms.stream()
                 .map(chatRoom -> chatService.createChatRoomDTO(member.getId(), chatRoom))
-                .collect(Collectors.toList());
+                .toList();
 
         return CommonApiResponse.createSuccess(chatRoomDTOs);
     }
