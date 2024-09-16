@@ -13,6 +13,7 @@ import com.team.mementee.exception.ForbiddenException;
 import com.team.mementee.exception.conflict.ExtendRequestConflictException;
 import com.team.mementee.exception.conflict.ExtendResponseConflictException;
 import com.team.mementee.exception.notFound.FileNotFound;
+import com.team.mementee.exception.unauthorized.UnauthorizedException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -31,8 +32,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -153,6 +154,11 @@ public class ChatController {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
 
         ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
+        if (!Objects.equals(loginMember.getId(), chatRoom.getSender().getId())
+                && !Objects.equals(loginMember.getId(), chatRoom.getReceiver().getId())) {
+            throw new UnauthorizedException();
+        }
+
         ChatRoomDTO chatRoomDTO = chatService.createChatRoomDTO(loginMember.getId(), chatRoom);
 
         return CommonApiResponse.createSuccess(chatRoomDTO);
