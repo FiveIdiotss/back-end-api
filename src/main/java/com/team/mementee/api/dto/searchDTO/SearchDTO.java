@@ -25,9 +25,9 @@ public class SearchDTO {
                 .boardTitles(boards.stream().map(Board::getTitle).toList())
                 .subBoardTitle_quest(subBoards.stream().filter(subBoard -> subBoard.getSubBoardType() == SubBoardType.QUEST).map(SubBoard::getTitle).toList())
                 .subBoardTitle_request(subBoards.stream().filter(subBoard -> subBoard.getSubBoardType() == SubBoardType.REQUEST).map(SubBoard::getTitle).toList())
-                .boardContent(boards_content.stream().map(Board::getContent).toList())
-                .subBoardContent_quest(subboards_content.stream().filter(subBoard -> subBoard.getSubBoardType() == SubBoardType.QUEST).map(SubBoard::getContent).toList())
-                .subBoardContent_request(subboards_content.stream().filter(subBoard -> subBoard.getSubBoardType() == SubBoardType.REQUEST).map(SubBoard::getContent).toList())
+                .boardContent(boards_content.stream().map(Board::getTitle).toList())
+                .subBoardContent_quest(subboards_content.stream().filter(subBoard -> subBoard.getSubBoardType() == SubBoardType.QUEST).map(SubBoard::getTitle).toList())
+                .subBoardContent_request(subboards_content.stream().filter(subBoard -> subBoard.getSubBoardType() == SubBoardType.REQUEST).map(SubBoard::getTitle).toList())
                 .build();
     }
 
