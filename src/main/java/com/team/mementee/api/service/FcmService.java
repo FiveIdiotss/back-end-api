@@ -54,7 +54,7 @@ public class FcmService {
         Member sender = memberService.findMemberByToken(authorizationHeader);
         Apply apply = applyService.findApplyById(applyId);
         Board board = apply.getBoard();
-        Long receiverId = board.getMember().getId();
+        Long receiverId = apply.getSendMember().getId();
         return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
                 board.getTitle(), "수락", applyId, NotificationType.MATCHING_COMPLETE);
     }
@@ -63,7 +63,7 @@ public class FcmService {
         Member sender = memberService.findMemberByToken(authorizationHeader);
         Apply apply = applyService.findApplyById(applyId);
         Board board = apply.getBoard();
-        Long receiverId = board.getMember().getId();
+        Long receiverId = apply.getSendMember().getId();
         return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
                 board.getTitle(), request.getContent(), applyId, NotificationType.MATCHING_DECLINE);
     }
