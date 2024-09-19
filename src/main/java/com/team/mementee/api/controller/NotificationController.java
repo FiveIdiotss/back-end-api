@@ -35,7 +35,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     private final FcmService fcmService;
-    ;
+
     private final MemberService memberService;
     private final RedisService redisService;
 
