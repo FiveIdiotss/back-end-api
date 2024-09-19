@@ -27,9 +27,11 @@ public class SearchController {
     // 제목, 내용, 학과
     @GetMapping("/api/search")
     public CommonApiResponse<?> getSearchFilters(@RequestParam String query) {
-        List<Board> boards = boardService.findAllByTitleContaining(query);
-        List<SubBoard> subBoards = subBoardService.findAllByTitleContaining(query);
-        return CommonApiResponse.createSuccess(SearchDTO.toEntity(boards, subBoards));
+        List<Board> boards_title = boardService.findAllByTitleContaining(query);
+        List<Board> boards_content = boardService.findAllByContentContaining(query);
+        List<SubBoard> subBoards_title = subBoardService.findAllByTitleContaining(query);
+        List<SubBoard> subBoards_content = subBoardService.findAllByContentContaining(query);
+        return CommonApiResponse.createSuccess(SearchDTO.toEntity(boards_title, subBoards_title, boards_content, subBoards_content));
     }
 
 }
