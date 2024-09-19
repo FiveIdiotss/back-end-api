@@ -4,14 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.net.HttpHeaders;
-import com.team.mementee.api.domain.Board;
-import com.team.mementee.api.domain.FcmToken;
-import com.team.mementee.api.domain.Member;
-import com.team.mementee.api.domain.SubBoard;
+import com.team.mementee.api.domain.*;
 import com.team.mementee.api.domain.chat.ChatRoom;
 import com.team.mementee.api.domain.enumtype.NotificationType;
 import com.team.mementee.api.domain.enumtype.SubBoardType;
 import com.team.mementee.api.dto.applyDTO.ApplyRequest;
+import com.team.mementee.api.dto.applyDTO.ReasonOfRejectRequest;
 import com.team.mementee.api.dto.chatDTO.ChatMessageRequest;
 import com.team.mementee.api.dto.notificationDTO.FcmDTO;
 import com.team.mementee.api.dto.notificationDTO.FcmMessage;
@@ -49,8 +47,28 @@ public class FcmService {
     private final ChatService chatService;
     private final MemberService memberService;
     private final BoardService boardService;
+    private final ApplyService applyService;
 
     //title, otherPK 추가
+
+    public FcmDTO createMatchinCompleteFcmDTO(String authorizationHeader, Long applyId){
+        Member sender = memberService.findMemberByToken(authorizationHeader);
+        Apply apply = applyService.findApplyById(applyId);
+        Board board = apply.getBoard();
+        Long receiverId = board.getMember().getId();
+        return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
+                board.getTitle(), "수락", applyId, NotificationType.MATCHING_COMPLETE);
+    }
+
+    public FcmDTO createMatchingDeclineFcmDTO(String authorizationHeader, Long applyId, ReasonOfRejectRequest request){
+        Member sender = memberService.findMemberByToken(authorizationHeader);
+        Apply apply = applyService.findApplyById(applyId);
+        Board board = apply.getBoard();
+        Long receiverId = board.getMember().getId();
+        return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
+                board.getTitle(), request.getContent(), applyId, NotificationType.MATCHING_DECLINE);
+    }
+
     public FcmDTO createApplyFcmDTO(String authorizationHeader, Long boardId, ApplyRequest request){
         Member sender = memberService.findMemberByToken(authorizationHeader);
         Board board = boardService.findBoardById(boardId);
