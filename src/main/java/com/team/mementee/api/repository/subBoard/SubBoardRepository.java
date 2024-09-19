@@ -18,6 +18,8 @@ public interface SubBoardRepository extends JpaRepository<SubBoard, Long> {
     // 제목 검색
     List<SubBoard> findAllByTitleContaining(String query);
 
+    List<SubBoard> findAllByContentContaining(String query);
+
     //특정 멤버가 작성한 게시물
     Page<SubBoard> findSubBoardsBySubBoardTypeAndMember(SubBoardType subBoardType, Member member, Pageable pageable);
 
