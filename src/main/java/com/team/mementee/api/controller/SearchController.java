@@ -24,6 +24,7 @@ public class SearchController {
     private final BoardService boardService;
     private final SubBoardService subBoardService;
 
+    // 제목, 내용, 학과
     @GetMapping("/api/search")
     public CommonApiResponse<?> getSearchFilters(@RequestParam String query) {
         List<Board> boards = boardService.findAllByTitleContaining(query);
