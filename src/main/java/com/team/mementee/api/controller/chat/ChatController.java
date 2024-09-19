@@ -1,42 +1,39 @@
 package com.team.mementee.api.controller.chat;
 
-import com.team.mementee.api.domain.enumtype.ExtendState;
-import com.team.mementee.api.domain.enumtype.DecisionStatus;
-import com.team.mementee.api.dto.CommonApiResponse;
-import com.team.mementee.api.dto.chatDTO.*;
 import com.team.mementee.api.domain.Member;
 import com.team.mementee.api.domain.chat.ChatMessage;
 import com.team.mementee.api.domain.chat.ChatRoom;
+import com.team.mementee.api.domain.enumtype.DecisionStatus;
+import com.team.mementee.api.domain.enumtype.ExtendState;
+import com.team.mementee.api.dto.CommonApiResponse;
+import com.team.mementee.api.dto.chatDTO.*;
 import com.team.mementee.api.dto.notificationDTO.FcmDTO;
 import com.team.mementee.api.service.*;
 import com.team.mementee.exception.ForbiddenException;
 import com.team.mementee.exception.conflict.ExtendRequestConflictException;
 import com.team.mementee.exception.conflict.ExtendResponseConflictException;
 import com.team.mementee.exception.notFound.FileNotFound;
+import com.team.mementee.exception.unauthorized.UnauthorizedException;
 import io.swagger.v3.oas.annotations.Operation;
-
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @RestController
 @SecurityRequirement(name = "Bearer Authentication")
@@ -57,7 +54,6 @@ public class ChatController {
     private final FileService fileService;
     private final SimpMessagingTemplate websocketPublisher;
 
-
     @MessageMapping("/hello")
     public void sendMessage(ChatMessageRequest request) {
         Long senderId = request.getSenderId();
@@ -67,6 +63,36 @@ public class ChatController {
         Member receiver = chatService.getReceiver(senderId, chatRoom);
 
         convenience(request, receiver, chatRoom);
+    }
+
+    private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
+        ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
+        log.info("Latest Message: " + latestMessageDTO.getContent());
+        websocketPublisher.convertAndSend(websocketUnreadPath + chatRoomId, chatUpdateDTO);
+    }
+
+    private void convenience(ChatMessageRequest request, Member loginMember, ChatRoom chatRoom) {
+        // If both users are in the chat room, set the readCount to 2.
+        System.out.println(request);
+        chatService.setMessageReadCount(request);
+        System.out.println(request.getReadCount());
+
+        // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
+        chatService.saveMessage(request);
+
+        // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
+        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoom.getId(), loginMember.getId());
+
+        // webSocket에 보내기
+        websocketPublisher.convertAndSend(websocketChatPath + request.getChatRoomId(), request);
+        LatestMessageDTO latestChatMessage = LatestMessageDTO.createLatestMessageDTO(chatService.findLatestChatMessage(chatRoom.getId()));
+
+        // 채팅 목록에 보내기
+        extracted(chatRoom.getId(), unreadMessageCount, latestChatMessage);
+
+        //FCM 알림
+        FcmDTO fcmDTO = fcmService.createChatFcmDTO(request);
+        fcmService.sendMessageTo(fcmDTO);
     }
 
     @Operation(description = "파일 전송 처리")
@@ -128,6 +154,11 @@ public class ChatController {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
 
         ChatRoom chatRoom = chatService.findChatRoomById(chatRoomId);
+        if (!Objects.equals(loginMember.getId(), chatRoom.getSender().getId())
+                && !Objects.equals(loginMember.getId(), chatRoom.getReceiver().getId())) {
+            throw new UnauthorizedException();
+        }
+
         ChatRoomDTO chatRoomDTO = chatService.createChatRoomDTO(loginMember.getId(), chatRoom);
 
         return CommonApiResponse.createSuccess(chatRoomDTO);
@@ -141,7 +172,7 @@ public class ChatController {
 
         List<ChatRoomDTO> chatRoomDTOs = allChatRooms.stream()
                 .map(chatRoom -> chatService.createChatRoomDTO(member.getId(), chatRoom))
-                .collect(Collectors.toList());
+                .toList();
 
         return CommonApiResponse.createSuccess(chatRoomDTOs);
     }
@@ -201,32 +232,5 @@ public class ChatController {
         return CommonApiResponse.createSuccess();
     }
 
-    private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
-        ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
-        log.info("Latest Message: " + latestMessageDTO.getContent());
-        websocketPublisher.convertAndSend(websocketUnreadPath + chatRoomId, chatUpdateDTO);
-    }
 
-    private void convenience(ChatMessageRequest request, Member loginMember, ChatRoom chatRoom) {
-        // If both users are in the chat room, set the readCount to 2.
-        chatService.setMessageReadCount(request);
-
-        // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
-        chatService.saveMessage(request);
-        Member receiver = chatService.getReceiver(loginMember.getId(), chatRoom);
-
-        // 메시지를 수신 하는 멤버의 unreadMessageCount를 호출
-        int unreadMessageCount = chatService.getUnreadMessageCount(chatRoom.getId(), receiver.getId());
-
-        // webSocket에 보내기
-        websocketPublisher.convertAndSend(websocketChatPath + request.getChatRoomId(), request);
-        LatestMessageDTO latestChatMessage = LatestMessageDTO.createLatestMessageDTO(chatService.findLatestChatMessage(chatRoom.getId()));
-
-        // 채팅 목록에 보내기
-        extracted(chatRoom.getId(), unreadMessageCount, latestChatMessage);
-
-        //FCM 알림
-        FcmDTO fcmDTO = fcmService.createChatFcmDTO(request);
-        fcmService.sendMessageTo(fcmDTO);
-    }
 }

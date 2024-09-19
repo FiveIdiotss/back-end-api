@@ -38,13 +38,14 @@ public class ChatMessage {
 
     private LocalDateTime localDateTime;
 
-    public ChatMessage(MessageType messageType, String fileURL, String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime) {
+    public ChatMessage(MessageType messageType, String fileURL, String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime, int readCount) {
         this.messageType = messageType;
         this.fileURL = fileURL;
         this.content = content;
         this.sender = sender;
         this.chatRoom = chatRoom;
         this.localDateTime = localDateTime;
+        this.readCount = readCount;
     }
 
     public void changeToComplete(){
