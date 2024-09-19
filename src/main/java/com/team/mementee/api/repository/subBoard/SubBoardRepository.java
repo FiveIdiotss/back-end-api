@@ -16,9 +16,8 @@ import java.util.List;
 public interface SubBoardRepository extends JpaRepository<SubBoard, Long> {
 
     // 제목 검색
-    List<SubBoard> findAllByTitleContaining(String query);
-
-    List<SubBoard> findAllByContentContaining(String query);
+    @Query("SELECT s FROM SubBoard s WHERE s.title LIKE %:keyword% OR s.content LIKE %:keyword%")
+    List<SubBoard> findAllByTitleOrContentContaining(@Param("keyword") String keyword);
 
     //특정 멤버가 작성한 게시물
     Page<SubBoard> findSubBoardsBySubBoardTypeAndMember(SubBoardType subBoardType, Member member, Pageable pageable);
