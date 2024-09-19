@@ -95,9 +95,12 @@ public class ApplyController {
     @PostMapping("/api/reject/{applyId}")
     public CommonApiResponse<?> boardDeny(@RequestHeader("Authorization") String authorizationHeader,
                                           @RequestBody ReasonOfRejectRequest request,
-                                          @PathVariable Long applyId){
-            matchingService.declineMatching(applyId, request, authorizationHeader);
-            return CommonApiResponse.createSuccess();
+                                          @PathVariable Long applyId) {
+        matchingService.declineMatching(applyId, request, authorizationHeader);
+        FcmDTO fcmDTO = fcmService.createMatchingDeclineFcmDTO(authorizationHeader, applyId, request);
+        fcmService.sendMessageTo(fcmDTO);
+        notificationService.saveNotification(fcmDTO);
+        return CommonApiResponse.createSuccess();
     }
 
     //신청 글 조회
