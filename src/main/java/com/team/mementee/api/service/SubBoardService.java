@@ -43,6 +43,9 @@ public class SubBoardService {
     public List<SubBoard> findAllByTitleContaining(String query) {
         return subBoardRepository.findAllByTitleContaining(query);
     }
+    public List<SubBoard> findAllByContentContaining(String query) {
+        return subBoardRepository.findAllByContentContaining(query);
+    }
 
     //게시글 조회시 필요한 Info
     public SubBoardInfoResponse createSubBoardInfoResponse(Long subBoardId, String authorizationHeader) {

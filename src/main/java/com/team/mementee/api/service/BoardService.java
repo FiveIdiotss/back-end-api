@@ -43,6 +43,10 @@ public class BoardService {
         return boardRepository.findAllByTitleContaining(query);
     }
 
+    public List<Board> findAllByContentContaining(String query) {
+        return boardRepository.findAllByContentContaining(query);
+    }
+
     //게시글 조회시 필요한 Info
     public BoardInfoResponse createBoardInfoResponse(Long boardId, String authorizationHeader){
         Board board = findBoardById(boardId);

@@ -18,6 +18,7 @@ public interface BoardRepository extends JpaRepository<com.team.mementee.api.dom
 
     // 제목 검색
     List<Board> findAllByTitleContaining(String query);
+    List<Board> findAllByContentContaining(String query);
 
     //특정 멤버가 작성한 게시물
     Page<Board> findBoardsByMember(Member member, Pageable pageable);
