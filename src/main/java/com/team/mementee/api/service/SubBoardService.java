@@ -40,8 +40,12 @@ public class SubBoardService {
     private final MemberService memberService;
     private final S3Service s3Service;
 
-    public List<SubBoard> findAllByTitleOrContentContaining(String query) {
-        return subBoardRepository.findAllByTitleOrContentContaining(query);
+    public List<SubBoard> findAllByTitleContaining(String query) {
+        return subBoardRepository.findAllByTitleContaining(query);
+    }
+
+    public List<SubBoard> findAllByContentContaining(String query) {
+        return subBoardRepository.findAllByContentContaining(query);
     }
 
     //게시글 조회시 필요한 Info
