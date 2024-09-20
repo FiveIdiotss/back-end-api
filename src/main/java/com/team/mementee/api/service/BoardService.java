@@ -39,8 +39,12 @@ public class BoardService {
     private final MemberService memberService;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public List<Board> findAllByTitleOrContentContaining(String query) {
-        return boardRepository.findAllByTitleOrContentContaining(query);
+    public List<Board> findAllByTitleContaining(String query) {
+        return boardRepository.findAllByTitleContaining(query);
+    }
+
+    public List<Board> findAllByContentContaining(String query) {
+        return boardRepository.findAllByContentContaining(query);
     }
 
     //게시글 조회시 필요한 Info

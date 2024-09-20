@@ -17,8 +17,8 @@ import java.util.List;
 public interface BoardRepository extends JpaRepository<com.team.mementee.api.domain.Board, Long>{
 
     // 제목 검색
-    @Query("SELECT b FROM Board b WHERE b.title LIKE %:keyword% OR b.content LIKE %:keyword%")
-    List<Board> findAllByTitleOrContentContaining(@Param("keyword") String keyword);
+    List<Board> findAllByTitleContaining(String query);
+    List<Board> findAllByContentContaining(String query);
 
     //특정 멤버가 작성한 게시물
     Page<Board> findBoardsByMember(Member member, Pageable pageable);
