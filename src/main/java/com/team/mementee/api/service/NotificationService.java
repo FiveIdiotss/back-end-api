@@ -33,6 +33,19 @@ public class NotificationService {
     private final ChatService chatService;
     private final RedisService redisService;
     private final SimpMessagingTemplate websocketPublisher;
+
+    public void sendTotalChatCount(Long targetMemberId) {
+        int totalChatCount = 0;
+
+        List<ChatRoom> chatRooms = chatService.findAllChatRoomByMemberId(targetMemberId);
+        for(ChatRoom chatRoom : chatRooms) {
+            totalChatCount += chatService.getUnreadMessageCount(chatRoom.getId(), targetMemberId);
+        }
+
+        // WebSocket을 통해 실시간으로 클라이언트에 알림 개수 전송
+        websocketPublisher.convertAndSend(totalChatCountPath + targetMemberId, totalChatCount);
+    }
+
     public void sendNotification(Long targetMemberId) {
 
         // 알림 발생 시 Redis에 알림 개수 증가
