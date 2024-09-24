@@ -2,6 +2,7 @@ package com.team.mementee.api.service;
 
 import com.team.mementee.api.domain.Member;
 import com.team.mementee.api.domain.Notification;
+import com.team.mementee.api.domain.chat.ChatRoom;
 import com.team.mementee.api.dto.notificationDTO.FcmDTO;
 import com.team.mementee.api.repository.fcm.NotificationRepository;
 import com.team.mementee.api.validation.MemberValidation;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,8 +24,13 @@ public class NotificationService {
 
     @Value("${websocket.notification-path}")
     private String websocketPath;
+
+    @Value("${websocket.chat-notification-path}")
+    private String totalChatCountPath;
+
     private final NotificationRepository notificationRepository;
     private final MemberService memberService;
+    private final ChatService chatService;
     private final RedisService redisService;
     private final SimpMessagingTemplate websocketPublisher;
     public void sendNotification(Long targetMemberId) {
