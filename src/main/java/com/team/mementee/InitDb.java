@@ -100,6 +100,13 @@ public class InitDb {
             School 서경대학교 = schoolService.findSchoolById(138L);
             School 삼육대학교 = schoolService.findSchoolById(133L);
 
+            List<String> 서경대과목록 = Arrays.asList("글로벌비즈니스어학부", "광고홍보콘텐츠", "문화콘텐츠",
+                            "아동학과", "공공인재학부", "경영학부", "군사학과", "소프트웨어학과", "금융정보공학과",
+                            "전자공학과", "컴퓨터공학과", "나노화학생명공학과", "물류시스템공학과", "도시공학과",
+                            "토목건축공학과", "음악학부", "실용음악학부", "공연예술/연기", "공연예술/연출",
+                            "공연예술/무대기술", "공연예술/모델연기", "공연예술/무대패션", "공연예술/뮤지컬",
+                            "무용예술학부", "헤어디자인학과", "메이크업디자인학과", "코스메틱뷰티매니지먼트학과", "디자인학부",
+                            "영화영상학과", "스포츠앤테크놀로지학과", "아트앤테크놀로지학과", "광고홍보영상학과");
 
             List<String> 가천대과목록 = Arrays.asList("국어국문학과", "영어영문학과", "동양어문학과", "유럽어문학과", "법학과", "행정학과",
                     "경영학과", "글로벌경제학과", "관광경영학과", "회계·세무학과", "사회복지학과", "유아교육학과",
@@ -116,20 +123,23 @@ public class InitDb {
                 em.persist(major);
             }
 
+            for (String s : 서경대과목록) {
+                Major major = new Major(s, 서경대학교);
+                em.persist(major);
+            }
+
             Major major1 = new Major("컴퓨터공학과", ICT폴리텍대학);
             Major major2 = new Major("전기공학과", ICT폴리텍대학);
 
             Major major3 = new Major("컴퓨터공학과", 가야대학교);
             Major major4 = new Major("건축공학과", 가야대학교);
 
-            Major major5 = new Major("컴퓨터공학과", 서경대학교);
             Major major6 = new Major("메카트로닉스학과", 삼육대학교);
 
             em.persist(major1);
             em.persist(major2);
             em.persist(major3);
             em.persist(major4);
-            em.persist(major5);
             em.persist(major6);
         }
     }
