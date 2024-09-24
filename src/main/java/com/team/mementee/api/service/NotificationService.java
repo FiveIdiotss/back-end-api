@@ -2,6 +2,7 @@ package com.team.mementee.api.service;
 
 import com.team.mementee.api.domain.Member;
 import com.team.mementee.api.domain.Notification;
+import com.team.mementee.api.domain.chat.ChatRoom;
 import com.team.mementee.api.dto.notificationDTO.FcmDTO;
 import com.team.mementee.api.repository.fcm.NotificationRepository;
 import com.team.mementee.api.validation.MemberValidation;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,10 +24,28 @@ public class NotificationService {
 
     @Value("${websocket.notification-path}")
     private String websocketPath;
+
+    @Value("${websocket.chat-notification-path}")
+    private String totalChatCountPath;
+
     private final NotificationRepository notificationRepository;
     private final MemberService memberService;
+    private final ChatService chatService;
     private final RedisService redisService;
     private final SimpMessagingTemplate websocketPublisher;
+
+    public void sendTotalChatCount(Long targetMemberId) {
+        int totalChatCount = 0;
+
+        List<ChatRoom> chatRooms = chatService.findAllChatRoomByMemberId(targetMemberId);
+        for(ChatRoom chatRoom : chatRooms) {
+            totalChatCount += chatService.getUnreadMessageCount(chatRoom.getId(), targetMemberId);
+        }
+
+        // WebSocket을 통해 실시간으로 클라이언트에 알림 개수 전송
+        websocketPublisher.convertAndSend(totalChatCountPath + targetMemberId, totalChatCount);
+    }
+
     public void sendNotification(Long targetMemberId) {
 
         // 알림 발생 시 Redis에 알림 개수 증가

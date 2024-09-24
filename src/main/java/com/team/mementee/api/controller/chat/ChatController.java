@@ -52,6 +52,7 @@ public class ChatController {
     private final MemberService memberService;
     private final FcmService fcmService;
     private final FileService fileService;
+    private final NotificationService notificationService;
     private final SimpMessagingTemplate websocketPublisher;
 
     @MessageMapping("/hello")
@@ -63,6 +64,9 @@ public class ChatController {
         Member receiver = chatService.getReceiver(senderId, chatRoom);
 
         convenience(request, receiver, chatRoom);
+
+        // 읽지 않은 전체 채팅 갯수
+        notificationService.sendTotalChatCount(receiver.getId());
     }
 
     private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
