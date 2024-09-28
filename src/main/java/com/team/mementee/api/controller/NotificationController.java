@@ -51,6 +51,17 @@ public class NotificationController {
         return CommonApiResponse.createSuccess(unReadCount);
     }
 
+    @Operation(summary = "채팅 알림 갯수 Return")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "success", description = "성공"),
+            @ApiResponse(responseCode = "fail", description = "실패")})
+    @GetMapping("/api/chat/count")
+    public CommonApiResponse<?> getChatNotificationCount(@RequestHeader("Authorization") String authorizationHeader) {
+        Member member = memberService.findMemberByToken(authorizationHeader);
+        int unReadCount = notificationService.getUnreadChatCount(member.getId());
+        return CommonApiResponse.createSuccess(unReadCount);
+    }
+
     @Operation(summary = "자신의 FCM 토큰 DB에 저장")
     @PostMapping("/api/fcm")
     public CommonApiResponse<?> saveFCMToken(@RequestHeader("Authorization") String authorizationHeader,

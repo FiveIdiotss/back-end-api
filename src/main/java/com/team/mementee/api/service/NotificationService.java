@@ -35,12 +35,7 @@ public class NotificationService {
     private final SimpMessagingTemplate websocketPublisher;
 
     public void sendTotalChatCount(Long targetMemberId) {
-        int totalChatCount = 0;
-
-        List<ChatRoom> chatRooms = chatService.findAllChatRoomByMemberId(targetMemberId);
-        for(ChatRoom chatRoom : chatRooms) {
-            totalChatCount += chatService.getUnreadMessageCount(chatRoom.getId(), targetMemberId);
-        }
+        int totalChatCount = getUnreadChatCount(targetMemberId);
 
         // WebSocket을 통해 실시간으로 클라이언트에 알림 개수 전송
         websocketPublisher.convertAndSend(totalChatCountPath + targetMemberId, totalChatCount);
@@ -58,14 +53,14 @@ public class NotificationService {
         websocketPublisher.convertAndSend(websocketPath + targetMemberId, unreadCount);
     }
 
-    public Notification findNotificationById(Long notificationId){
+    public Notification findNotificationById(Long notificationId) {
         Optional<Notification> notification = notificationRepository.findById(notificationId);
-        if(notification.isEmpty())
+        if (notification.isEmpty())
             throw new NotificationNotFound();
         return notification.get();
     }
 
-    public Page<Notification> findNotificationsByReceiveMember(String authorizationHeader, Pageable pageable){
+    public Page<Notification> findNotificationsByReceiveMember(String authorizationHeader, Pageable pageable) {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
         redisService.resetUnreadCount(loginMember.getId());
         return notificationRepository.findNotificationsByReceiveMember(loginMember, pageable);
@@ -88,5 +83,14 @@ public class NotificationService {
         MemberValidation.isCheckMe(member, memberService.findMemberById(notification.getReceiveMember().getId()));
 
         notificationRepository.delete(notification);
+    }
+
+    public int getUnreadChatCount(Long targetMemberId) {
+        int totalChatCount = 0;
+        List<ChatRoom> chatRooms = chatService.findAllChatRoomByMemberId(targetMemberId);
+        for (ChatRoom chatRoom : chatRooms) {
+            totalChatCount += chatService.getUnreadMessageCount(chatRoom.getId(), targetMemberId);
+        }
+        return totalChatCount;
     }
 }
