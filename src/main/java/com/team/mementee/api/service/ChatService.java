@@ -20,6 +20,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
@@ -29,12 +30,16 @@ import java.util.*;
 @Slf4j
 public class ChatService {
 
+    @Value("${api.chat.enter-url}")
+    private String chatEnterUrl;
+    @Value("${api.chat.leave-url}")
+    private String chatLeaveUrl;
+
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MemberService memberService;
     private final S3Service s3Service;
     private final RedisTemplate<String, Object> redisTemplate;
-
     private final WebClient webClient;
 
     public void userEnterChatRoom(Long chatRoomId, Long userId) {
@@ -58,10 +63,8 @@ public class ChatService {
     }
 
     private void callChatRoomEnterAPI(Long chatRoomId, Long userId) {
-//        String apiUrl = "http://localhost:8080/api/chat/enter";
-        String apiUrl = "https://menteetor.site/api/chat/enter";
         webClient.post()
-                .uri(apiUrl)
+                .uri(chatEnterUrl)
                 .bodyValue(Map.of("chatRoomId", chatRoomId, "userId", userId))
                 .retrieve()
                 .bodyToMono(Void.class)
@@ -70,10 +73,9 @@ public class ChatService {
 
     // REST API 호출 메서드 추가
     private void callChatRoomLeaveAPI(Long chatRoomId, Long userId) {
-//        String apiUrl = "http://localhost:8080/api/chat/leave";
-        String apiUrl = "https://menteetor.site/api/chat/leave";
+        log.info(userId + "번 유저가 " + chatRoomId + "번 채팅방에서 퇴장하였습니다.");
         webClient.post()
-                .uri(apiUrl)
+                .uri(chatLeaveUrl)
                 .bodyValue(Map.of("chatRoomId", chatRoomId, "userId", userId))
                 .retrieve()
                 .bodyToMono(Void.class)

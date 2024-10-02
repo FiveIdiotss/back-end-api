@@ -74,9 +74,7 @@ public class ChatController {
 
     private void convenience(ChatMessageRequest request, Member loginMember, ChatRoom chatRoom) {
         // If both users are in the chat room, set the readCount to 2.
-        System.out.println(request);
         chatService.setMessageReadCount(request);
-        System.out.println(request.getReadCount());
 
         // If a file that has supported contentType is uploaded, save the file in S3 and return the URL.
         chatService.saveMessage(request);
