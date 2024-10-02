@@ -47,6 +47,30 @@ public class ChatMessageRequest {
                 LocalDateTime.now());
     }
 
+    public static ChatMessageRequest createUserEnterChatRoomMessage(Member member, Long chatRoomId){
+        return new ChatMessageRequest(
+                MessageType.USER_ENTER,
+                null,
+                "유저가 채팅방에 입장하였습니다.",
+                member.getName(),
+                member.getId(),
+                chatRoomId,
+                1,
+                LocalDateTime.now());
+    }
+
+    public static ChatMessageRequest createUserLeaveChatRoomMessage(Member member, Long chatRoomId) {
+        return new ChatMessageRequest(
+                MessageType.USER_LEAVE,
+                null,
+                "유저가 채팅방에서 퇴장하였습니다.",
+                member.getName(),
+                member.getId(),
+                chatRoomId,
+                1,
+                LocalDateTime.now());
+    }
+
     public static ChatMessageRequest createExtendResponse(DecisionStatus decisionStatus, Member member, Long chatRoomId){
         if (decisionStatus.equals(DecisionStatus.ACCEPT))
             return new ChatMessageRequest(
@@ -69,4 +93,6 @@ public class ChatMessageRequest {
                 1,
                 LocalDateTime.now());
     }
+
+
 }
