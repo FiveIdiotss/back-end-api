@@ -13,7 +13,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     //채팅방 목록 조회, 멤버 아이디로 조회하도록 수정 필요.
     @Query("SELECT cr FROM ChatRoom cr WHERE cr.sender.id = :memberId OR cr.receiver.id = :memberId")
-    List<ChatRoom> findChatRoomsByMemberId(@Param("memberId") Long memberId);
+    List<ChatRoom> findAllChatRoomByMemberId(@Param("memberId") Long memberId);
 
     //나와 상대방사이의 채팅방
     @Query("SELECT cr FROM ChatRoom cr WHERE (cr.sender = :loginMember AND cr.receiver = :otherMember) OR " +
