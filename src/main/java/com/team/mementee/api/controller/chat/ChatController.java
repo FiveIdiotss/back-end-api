@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -45,8 +46,10 @@ public class ChatController {
 
     @Value("${websocket.unread-path}")
     private String websocketUnreadPath;
+
     @Value("${websocket.chat-path}")
     private String websocketChatPath;
+
     private final ChatService chatService;
     private final MatchingService matchingService;
     private final MemberService memberService;
@@ -67,12 +70,6 @@ public class ChatController {
 
         // 읽지 않은 전체 채팅 갯수
         notificationService.sendTotalChatCount(receiver.getId());
-    }
-
-    private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
-        ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
-        log.info("Latest Message: " + latestMessageDTO.getContent());
-        websocketPublisher.convertAndSend(websocketUnreadPath + chatRoomId, chatUpdateDTO);
     }
 
     private void convenience(ChatMessageRequest request, Member loginMember, ChatRoom chatRoom) {
@@ -99,6 +96,37 @@ public class ChatController {
         fcmService.sendMessageTo(fcmDTO);
     }
 
+    private void extracted(Long chatRoomId, int unreadMessageCount, LatestMessageDTO latestMessageDTO) {
+        ChatUpdateDTO chatUpdateDTO = new ChatUpdateDTO(chatRoomId, unreadMessageCount, latestMessageDTO);
+        log.info("Latest Message: " + latestMessageDTO.getContent());
+        websocketPublisher.convertAndSend(websocketUnreadPath + chatRoomId, chatUpdateDTO);
+    }
+
+    @Operation(summary = "사용자 채팅방 입장", description = "지정된 채팅방 ID와 사용자 ID를 사용하여 사용자가 채팅방에 입장했음을 알리는 메시지를 WebSocket을 통해 전송합니다.")
+    @PostMapping("/enter")
+    public void userEnterChatRoom(@RequestBody Map<String, Long> requestBody) {
+        Long chatRoomId = requestBody.get("chatRoomId");
+        Long userId = requestBody.get("userId");
+
+        ChatMessageRequest enterRequest = ChatMessageRequest.createUserEnterChatRoomMessage(memberService.findMemberById(userId), chatRoomId);
+        chatService.setMessageReadCount(enterRequest);
+        websocketPublisher.convertAndSend(websocketChatPath + chatRoomId, enterRequest);
+    }
+
+    @Operation(summary = "사용자 채팅방 퇴장", description = "지정된 채팅방 ID와 사용자 ID를 사용하여 사용자가 채팅방에서 퇴장했음을 알리는 메시지를 WebSocket을 통해 전송합니다.")
+    @PostMapping("/leave")
+    public void userLeaveChatRoom(@RequestBody Map<String, Long> requestBody) {
+        Long chatRoomId = requestBody.get("chatRoomId");
+        Long userId = requestBody.get("userId");
+
+        // 퇴장 메시지 생성
+        ChatMessageRequest leaveRequest = ChatMessageRequest.createUserLeaveChatRoomMessage(memberService.findMemberById(userId), chatRoomId);
+        chatService.setMessageReadCount(leaveRequest);  // 읽음 처리 (필요한 경우)
+
+        // WebSocket을 통해 퇴장 메시지를 전송
+        websocketPublisher.convertAndSend(websocketChatPath + chatRoomId, leaveRequest);
+    }
+
     @Operation(description = "파일 전송 처리")
     @PostMapping("/sendFile")
     public CommonApiResponse<?> sendFileInChatRoom(@RequestHeader("Authorization") String authorizationHeader,
@@ -106,7 +134,7 @@ public class ChatController {
                                                    @RequestParam Long chatRoomId) {
         Member loginMember = memberService.findMemberByToken(authorizationHeader);
         ChatMessageRequest request = new ChatMessageRequest(
-                fileService.getFileType(file.getContentType()),
+                fileService.getFileType(Objects.requireNonNull(file.getContentType())),
                 chatService.saveMultipartFile(file),
                 file.getOriginalFilename(),
                 loginMember.getName(),
