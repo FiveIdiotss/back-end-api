@@ -42,11 +42,14 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
                     chatService.userEnterChatRoom(chatRoomId, senderId);
                 }
             }
+
             if (StompCommand.UNSUBSCRIBE.equals(accessor.getCommand()) || StompCommand.DISCONNECT.equals(accessor.getCommand())) {
                 Long chatRoomId = (Long) accessor.getSessionAttributes().get("chatRoomId");
                 Long senderId = (Long) accessor.getSessionAttributes().get("senderId");
 
-                chatService.userLeaveChatRoom(chatRoomId, senderId);
+                if (chatRoomId != null && senderId != null) {
+                    chatService.userLeaveChatRoom(chatRoomId, senderId);
+                }
             }
         }
         return message;
