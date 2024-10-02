@@ -26,7 +26,6 @@ jobs:
 
       - name: Build with Gradle Wrapper
         run: |
-          cd app  # move to app directory
           ./gradlew build
 
       - name: Log in to Docker Hub
