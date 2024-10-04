@@ -2,10 +2,7 @@ package com.team.mementee.api.service;
 
 import com.team.mementee.api.domain.*;
 import com.team.mementee.api.domain.enumtype.BoardCategory;
-import com.team.mementee.api.dto.boardDTO.BoardDTO;
-import com.team.mementee.api.dto.boardDTO.BoardImageDTO;
-import com.team.mementee.api.dto.boardDTO.BoardInfoResponse;
-import com.team.mementee.api.dto.boardDTO.WriteBoardRequest;
+import com.team.mementee.api.dto.boardDTO.*;
 import com.team.mementee.api.repository.board.BoardImageRepository;
 import com.team.mementee.api.repository.board.BoardRepository;
 import com.team.mementee.api.repository.board.FavoriteRepository;
@@ -128,31 +125,14 @@ public class BoardService {
 
     //게시글에 속한 이미지 수정
     public void modifyBoardImage(List<MultipartFile> multipartFiles, Board board){
-        if(multipartFiles == null) return;
-        // 기존 이미지 목록
-        List<BoardImage> existingImages = boardImageRepository.findBoardImagesByBoard(board);
+        if (multipartFiles == null) return ;
 
-        // 새 이미지 URL 목록 생성
-        List<String> newImageUrls = new ArrayList<>();
-        for (MultipartFile imageFile : multipartFiles) {
-            String imageUrl = s3Service.saveFile(imageFile); // S3에 이미지 업로드 후 URL 반환
-            newImageUrls.add(imageUrl);
-        }
+        boardImageRepository.deleteBoardImageByBoard(board);
 
-        // 기존 이미지 목록에서 삭제할 이미지 식별
-        List<BoardImage> imagesToRemove = existingImages.stream()
-                .filter(existingImage -> !newImageUrls.contains(existingImage.getBoardImageUrl()))
-                .toList();
-
-        // 식별된 이미지 삭제
-        boardImageRepository.deleteAll(imagesToRemove);
-
-        // 새로운 이미지 추가
-        for (String url : newImageUrls) {
-            if (existingImages.stream().noneMatch(image -> image.getBoardImageUrl().equals(url))) {
-                BoardImage newImage = new BoardImage(board, url);
-                boardImageRepository.save(newImage); // 데이터베이스에 저장
-            }
+        for(MultipartFile multipartFile : multipartFiles){
+            String url = s3Service.saveFile(multipartFile);
+            BoardImage boardImage = new BoardImage(board, url);
+            boardImageRepository.save(boardImage);
         }
     }
 
@@ -169,10 +149,10 @@ public class BoardService {
 
     //게시물 수정
     @Transactional
-    public void modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId) {
+    public void modifyBoard(WriteBoardRequest request, String authorizationHeader, Long boardId, List<MultipartFile> multipartFiles) {
         Board board = findBoardById(boardId);
         MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), board.getMember());
-        //modifyBoardImage(updatedImages, board);
+        modifyBoardImage(multipartFiles, board);
         board.modifyBoard(request);
     }
 

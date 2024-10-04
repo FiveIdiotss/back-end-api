@@ -2,20 +2,18 @@ package com.team.mementee.api.service;
 
 import com.team.mementee.api.domain.Member;
 import com.team.mementee.api.domain.Notification;
-import com.team.mementee.api.domain.chat.ChatRoom;
 import com.team.mementee.api.dto.notificationDTO.FcmDTO;
 import com.team.mementee.api.repository.fcm.NotificationRepository;
 import com.team.mementee.api.validation.MemberValidation;
 import com.team.mementee.exception.notFound.NotificationNotFound;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -86,11 +84,11 @@ public class NotificationService {
     }
 
     public int getUnreadChatCount(Long targetMemberId) {
-        int totalChatCount = 0;
-        List<ChatRoom> chatRooms = chatService.findAllChatRoomByMemberId(targetMemberId);
-        for (ChatRoom chatRoom : chatRooms) {
-            totalChatCount += chatService.getUnreadMessageCount(chatRoom.getId(), targetMemberId);
-        }
-        return totalChatCount;
+        return chatService.findAllChatRoomByMemberId(targetMemberId)
+                .stream()
+                .mapToInt(chatRoom -> chatService.getUnreadMessageCount(chatRoom.getId(), targetMemberId))
+                .sum();
+
     }
+
 }

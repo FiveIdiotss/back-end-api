@@ -19,6 +19,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
@@ -28,11 +30,17 @@ import java.util.*;
 @Slf4j
 public class ChatService {
 
+    @Value("${api.chat.enter-url}")
+    private String chatEnterUrl;
+    @Value("${api.chat.leave-url}")
+    private String chatLeaveUrl;
+
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MemberService memberService;
     private final S3Service s3Service;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final WebClient webClient;
 
     public void userEnterChatRoom(Long chatRoomId, Long userId) {
         log.info(userId + "번 유저가 " + chatRoomId + "번 채팅방에 입장하였습니다.");
@@ -40,12 +48,38 @@ public class ChatService {
         redisTemplate.opsForSet().add(key, userId);
         // 읽지 않은 메시지 모두 읽음 처리
         markAllMessagesAsRead(chatRoomId, userId);
+
+        // REST API 호출 예제
+        callChatRoomEnterAPI(chatRoomId, userId);
     }
 
     public void userLeaveChatRoom(Long chatRoomId, Long userId) {
         log.info(userId + "번 유저가 " + chatRoomId + "번 채팅방에서 퇴장하였습니다.");
         String key = "chatRoom" + chatRoomId;
         redisTemplate.opsForSet().remove(key, userId);
+
+        // 유저 퇴장 REST API 호출
+        callChatRoomLeaveAPI(chatRoomId, userId);
+    }
+
+    private void callChatRoomEnterAPI(Long chatRoomId, Long userId) {
+        webClient.post()
+                .uri(chatEnterUrl)
+                .bodyValue(Map.of("chatRoomId", chatRoomId, "userId", userId))
+                .retrieve()
+                .bodyToMono(Void.class)
+                .subscribe();
+    }
+
+    // REST API 호출 메서드 추가
+    private void callChatRoomLeaveAPI(Long chatRoomId, Long userId) {
+        log.info(userId + "번 유저가 " + chatRoomId + "번 채팅방에서 퇴장하였습니다.");
+        webClient.post()
+                .uri(chatLeaveUrl)
+                .bodyValue(Map.of("chatRoomId", chatRoomId, "userId", userId))
+                .retrieve()
+                .bodyToMono(Void.class)
+                .subscribe();
     }
 
     public Long getNumberOfUserInChatRoom(Long chatRoodId) {
@@ -142,7 +176,7 @@ public class ChatService {
 
     // 특정 멤버가 속한 모든 채팅방 조회
     public List<ChatRoom> findAllChatRoomByMemberId(Long memberId) {
-        return chatRoomRepository.findChatRoomsByMemberId(memberId);
+        return chatRoomRepository.findAllChatRoomByMemberId(memberId);
     }
 
     public String saveMultipartFile(MultipartFile file) {
