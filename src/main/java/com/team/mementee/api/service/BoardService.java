@@ -125,10 +125,9 @@ public class BoardService {
 
     //게시글에 속한 이미지 수정
     public void modifyBoardImage(List<MultipartFile> multipartFiles, Board board){
-        if (multipartFiles == null) return ;
-
         boardImageRepository.deleteBoardImageByBoard(board);
 
+        if (multipartFiles == null) return ;
         for(MultipartFile multipartFile : multipartFiles){
             String url = s3Service.saveFile(multipartFile);
             BoardImage boardImage = new BoardImage(board, url);
