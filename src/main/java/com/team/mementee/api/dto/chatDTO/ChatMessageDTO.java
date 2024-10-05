@@ -43,6 +43,7 @@ public class ChatMessageDTO {
                 .senderId(message.getSender().getId())
                 .chatRoomId(message.getChatRoom().getId())
                 .readCount(message.getReadCount())
+                .localDateTime(message.getLocalDateTime())
                 .build();
     }
 }
