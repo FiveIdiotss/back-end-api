@@ -51,10 +51,10 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
 
         if (StompCommand.UNSUBSCRIBE.equals(accessor.getCommand()) || StompCommand.DISCONNECT.equals(accessor.getCommand())) {
             Long chatRoomId = (Long) accessor.getSessionAttributes().get("chatRoomId");
-            Long senderId = (Long) accessor.getSessionAttributes().get("senderId");
+            Member member = (Member) accessor.getSessionAttributes().get("member");
 
-            if (chatRoomId != null && senderId != null) {
-                chatService.userLeaveChatRoom(chatRoomId, senderId);
+            if (chatRoomId != null && member != null) {
+                chatService.userLeaveChatRoom(chatRoomId, member.getId());
             }
         }
 
