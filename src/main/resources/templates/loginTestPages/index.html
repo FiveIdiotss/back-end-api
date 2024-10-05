@@ -52,8 +52,8 @@
     });
 
     function connectWebSocket() {
-        var ws = new WebSocket('ws://localhost:8080/ws');
-        // var ws = new WebSocket('wss://menteetor.site/ws');
+        // var ws = new WebSocket('ws://localhost:8080/ws');
+        var ws = new WebSocket('wss://menteetor.site/ws');
 
         stompClient = Stomp.over(ws);
 
