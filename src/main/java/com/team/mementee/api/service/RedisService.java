@@ -8,7 +8,25 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RedisService {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> stringRedisTemplate; // String 타입으로 변경
+    private final RedisTemplate<String, Object> redisTemplate; // String 타입으로 변경
+
+    public void save(String key, Object value) {
+        redisTemplate.opsForValue().set(key, value);
+    }
+
+    // 객체 불러오기
+    public Object get(String key) {
+        return redisTemplate.opsForValue().get(key); // Redis에서 JSON 문자열을 가져옴
+    }
+
+    // 객체 삭제
+    public void delete(String key) {
+        redisTemplate.delete(key);
+    }
+
+
+
     //받는 사람
     //알림 발생할 때마다 추가
     public void incrementUnreadCount(Long memberId) {
