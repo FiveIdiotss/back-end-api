@@ -52,8 +52,8 @@
     });
 
     function connectWebSocket() {
-        // var ws = new WebSocket('ws://localhost:8080/ws');
-        var ws = new WebSocket('wss://menteetor.site/ws');
+        var ws = new WebSocket('ws://localhost:8080/ws');
+        // var ws = new WebSocket('wss://menteetor.site/ws');
 
         stompClient = Stomp.over(ws);
 
@@ -83,16 +83,16 @@
 
         chatRoomId = id;
 
-        var connectHeader = {
-            'senderId': senderId,
-            'chatRoomId': chatRoomId.toString()
+        var headers = {
+            'Authorization': 'Bearer ' + accessToken, // 실제 토큰으로 교체하세요
+            'chatRoomId': chatRoomId
         };
 
         // 새로운 채팅방 구독
         var subscription = stompClient.subscribe('/sub/chats/' + chatRoomId, function (messageOutput) {
             var messageDisplay = document.querySelector('#messageDisplay');
             messageDisplay.innerHTML += messageOutput.body + '<br>';
-        }, connectHeader);
+        }, headers);
         currentSubscriptions.push(subscription);
 
         // 입장 시 unreadMessageCount를 0으로 설정
@@ -110,15 +110,24 @@
         if (message !== '') {
             var senderName = "이종현";
 
-            stompClient.send("/pub/hello", {
-                'senderId': senderId,
+            var headers = {
+                'Authorization': 'Bearer ' + accessToken, // 실제 토큰으로 교체하세요
                 'chatRoomId': chatRoomId.toString()
-            }, JSON.stringify({
+            };
+
+            stompClient.send("/pub/hello", headers, JSON.stringify({
                 content: message,
-                senderName: senderName,
-                senderId: senderId,
-                chatRoomId: chatRoomId,
             }));
+
+            // stompClient.send("/pub/hello", {
+            //     'senderId': senderId.toString(),
+            //     'chatRoomId': chatRoomId.toString()
+            // }, JSON.stringify({
+            //     content: message,
+            //     senderName: senderName,
+            //     senderId: senderId,
+            //     chatRoomId: chatRoomId,
+            // }));
 
             messageInput.value = '';
         }
