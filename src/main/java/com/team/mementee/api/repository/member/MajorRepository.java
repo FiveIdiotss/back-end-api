@@ -9,4 +9,7 @@ import java.util.List;
 public interface MajorRepository extends JpaRepository<Major, Long> {
 
     List<Major> findAllBySchool(School school);
+
+    Major findByNameAndSchool(String name, School school);
+
 }
