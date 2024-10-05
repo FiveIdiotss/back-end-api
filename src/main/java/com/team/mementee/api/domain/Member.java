@@ -1,15 +1,16 @@
 package com.team.mementee.api.domain;
 
-import com.team.mementee.api.domain.Major;
-import com.team.mementee.api.domain.School;
 import com.team.mementee.api.domain.enumtype.Gender;
 import com.team.mementee.api.domain.enumtype.Role;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@ToString
 public class Member {
 
     @Id
@@ -45,10 +46,12 @@ public class Member {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
+//    @JsonIgnore
     private School school;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "major_id")
+//    @JsonIgnore
     private Major major;
 
     public Member(String email, String name, String password, int year, String defaultMemberImageUrl,
