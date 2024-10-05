@@ -2,15 +2,15 @@ package com.team.mementee.api.domain.chat;
 
 import com.team.mementee.api.domain.Member;
 import com.team.mementee.api.domain.enumtype.MessageType;
+import com.team.mementee.api.dto.chatDTO.ChatMessageRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class ChatMessage {
 
     @Id
@@ -34,18 +34,18 @@ public class ChatMessage {
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
 
-    private int readCount = 1;
+    private int readCount;
 
     private LocalDateTime localDateTime;
 
-    public ChatMessage(MessageType messageType, String fileURL, String content, Member sender, ChatRoom chatRoom, LocalDateTime localDateTime, int readCount) {
-        this.messageType = messageType;
-        this.fileURL = fileURL;
-        this.content = content;
+    public ChatMessage(ChatMessageRequest request, Member sender, ChatRoom chatRoom) {
+        this.messageType = request.getMessageType();
+        this.fileURL = request.getFileURL();
+        this.content = request.getContent();
         this.sender = sender;
         this.chatRoom = chatRoom;
-        this.localDateTime = localDateTime;
-        this.readCount = readCount;
+        this.localDateTime = request.getLocalDateTime();
+        this.readCount = request.getReadCount();
     }
 
     public void changeToComplete(){

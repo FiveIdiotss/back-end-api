@@ -26,14 +26,14 @@ public class JwtUtil {
 
 
     //accessToken을 통해 사용자 email 조회, 이 부분에서 토큰 만료되면 ExpiredJwtException 발생
-    public static String getMemberEmail(String token){
+    public static String getMemberEmail(String token) {
         //parseClaimsJws를 통해 토큰 만료 예외 발생 여부 검사
         return Jwts.parser().setSigningKey(staticSecretKey).parseClaimsJws(token)
                 .getBody().get("email", String.class);
     }
 
     //access 토큰 발행
-    public static String createAccessToken(String email){
+    public static String createAccessToken(String email) {
         Claims claims = Jwts.claims();  //일종의 Map
         claims.put("email", email);
 
@@ -46,7 +46,7 @@ public class JwtUtil {
     }
 
     //refresh 토큰 발행
-    public static String createRefreshToken(){
+    public static String createRefreshToken() {
         Claims claims = Jwts.claims();  //일종의 Map
 
         return Jwts.builder()
@@ -58,24 +58,24 @@ public class JwtUtil {
     }
 
     //토큰 만료 되었는지
-    public static boolean isExpired(String token, String secretKey){
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
+    public static boolean isExpired(String token) {
+        return Jwts.parser().setSigningKey(staticSecretKey).parseClaimsJws(token)
                 .getBody().getExpiration().before(new Date());
     }
 
-    public static boolean validateToken(String token, String secretKey){
+    public static boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .setSigningKey(secretKey)
+                    .setSigningKey(staticSecretKey)
                     .parseClaimsJws(token);
             return true;
-        } catch (SecurityException | MalformedJwtException e){
+        } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
-        } catch (ExpiredJwtException e){
+        } catch (ExpiredJwtException e) {
             log.info("Expired JWT Token", e);
-        } catch (UnsupportedJwtException e){
+        } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             log.info("JWT claims Empty", e);
         }
         return false;

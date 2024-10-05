@@ -3,9 +3,11 @@ package com.team.mementee.api.dto.memberDTO;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class LoginMemberRequest {
 
     @NotEmpty(message = "이메일을 입력하세요.")

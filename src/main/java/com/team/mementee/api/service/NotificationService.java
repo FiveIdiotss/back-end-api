@@ -86,7 +86,7 @@ public class NotificationService {
     public int getUnreadChatCount(Long targetMemberId) {
         return chatService.findAllChatRoomByMemberId(targetMemberId)
                 .stream()
-                .mapToInt(chatRoom -> chatService.getUnreadMessageCount(chatRoom.getId(), targetMemberId))
+                .mapToInt(chatRoom -> chatService.countUnreadMessages(chatRoom.getId(), targetMemberId))
                 .sum();
 
     }

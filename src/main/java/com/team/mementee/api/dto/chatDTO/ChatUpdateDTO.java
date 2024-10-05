@@ -10,5 +10,5 @@ import lombok.ToString;
 public class ChatUpdateDTO {
     private Long chatRoomId;
     private int unreadMessageCount;
-    private LatestMessageDTO latestMessageDTO;
+    private LatestMessage latestMessageDTO;
 }
