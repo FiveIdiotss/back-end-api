@@ -19,6 +19,7 @@ import com.team.mementee.exception.ServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +50,7 @@ public class FcmService {
 
     //title, otherPK 추가
 
-    public FcmDTO createMatchinCompleteFcmDTO(String authorizationHeader, Long applyId){
+    public FcmDTO createMatchinCompleteFcmDTO(String authorizationHeader, Long applyId) {
         Member sender = memberService.findMemberByToken(authorizationHeader);
         Apply apply = applyService.findApplyById(applyId);
         Board board = apply.getBoard();
@@ -59,7 +59,7 @@ public class FcmService {
                 board.getTitle(), "수락", applyId, NotificationType.MATCHING_COMPLETE);
     }
 
-    public FcmDTO createMatchingDeclineFcmDTO(String authorizationHeader, Long applyId, ReasonOfRejectRequest request){
+    public FcmDTO createMatchingDeclineFcmDTO(String authorizationHeader, Long applyId, ReasonOfRejectRequest request) {
         Member sender = memberService.findMemberByToken(authorizationHeader);
         Apply apply = applyService.findApplyById(applyId);
         Board board = apply.getBoard();
@@ -68,7 +68,7 @@ public class FcmService {
                 board.getTitle(), request.getContent(), applyId, NotificationType.MATCHING_DECLINE);
     }
 
-    public FcmDTO createApplyFcmDTO(String authorizationHeader, Long boardId, ApplyRequest request){
+    public FcmDTO createApplyFcmDTO(String authorizationHeader, Long boardId, ApplyRequest request) {
         Member sender = memberService.findMemberByToken(authorizationHeader);
         Board board = boardService.findBoardById(boardId);
         Long receiverId = board.getMember().getId();
@@ -76,17 +76,17 @@ public class FcmService {
                 board.getTitle(), request.getContent(), boardId, NotificationType.APPLY);
     }
 
-    public FcmDTO createReplyFcmDTO(String authorizationHeader, SubBoard subBoard, ReplyRequest request){
+    public FcmDTO createReplyFcmDTO(String authorizationHeader, SubBoard subBoard, ReplyRequest request) {
         Member sender = memberService.findMemberByToken(authorizationHeader);
         Long receiverId = subBoard.getMember().getId();
         NotificationType notificationType;
-        if(subBoard.getSubBoardType().equals(SubBoardType.QUEST)) notificationType = NotificationType.REPLY_QUEST;
+        if (subBoard.getSubBoardType().equals(SubBoardType.QUEST)) notificationType = NotificationType.REPLY_QUEST;
         else notificationType = NotificationType.REPLY_REQUEST;
         return new FcmDTO(receiverId, sender.getId(), sender.getName(), sender.getMemberImageUrl(),
                 subBoard.getTitle(), request.getContent(), subBoard.getId(), notificationType);
     }
 
-    public FcmDTO createChatFcmDTO(ChatMessageRequest messageDTO){
+    public FcmDTO createChatFcmDTO(ChatMessageRequest messageDTO) {
         Member sender = memberService.findMemberById(messageDTO.getSenderId());
         ChatRoom chatRoom = chatService.findChatRoomById(messageDTO.getChatRoomId());
         Member receiver = chatService.getReceiver(messageDTO.getSenderId(), chatRoom);
@@ -97,14 +97,14 @@ public class FcmService {
     @Transactional
     public void saveFCMToken(Member member, String token) {
         Optional<FcmToken> fcmToken = fcmTokenRepository.findFcmTokenByMember(member);
-        if(fcmToken.isEmpty())
+        if (fcmToken.isEmpty())
             fcmTokenRepository.save(new FcmToken(token, member));
         else
             fcmToken.get().updateFCMToken(token);
     }
 
     //알림 보내기
-    public void sendMessageTo(FcmDTO fcmDTO){
+    public void sendMessageTo(FcmDTO fcmDTO) {
         try {
             Member member = memberService.findMemberById(fcmDTO.getTargetMemberId());
             Optional<FcmToken> fcmNotification = fcmTokenRepository.findFcmTokenByMember(member);
@@ -127,7 +127,7 @@ public class FcmService {
 
             Response response = client.newCall(request).execute();
             log.info(response.body().string());
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -165,7 +165,7 @@ public class FcmService {
                     .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
             googleCredentials.refreshIfExpired();
             return googleCredentials.getAccessToken().getTokenValue();
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new ServerErrorException();
         }
     }
