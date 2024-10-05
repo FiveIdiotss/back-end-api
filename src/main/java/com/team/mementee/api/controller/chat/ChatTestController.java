@@ -26,13 +26,14 @@ public class ChatTestController {
     public String index() {
         return "loginTestPages/login";
     }
+
     @GetMapping("/login")
     public String loginPage() {
         return "loginTestPages/login";
     }
 
     @PostMapping("/login")
-    public ModelAndView login(@RequestParam String email, @RequestParam String password) {
+    public ModelAndView login(@RequestParam("email") String email, @RequestParam("password") String password) {
         // AccessToken, SenderId
         LoginMemberResponse login = memberService.login(new LoginMemberRequest(email, password));
         String accessToken = login.getTokenDTO().getAccessToken();
@@ -44,7 +45,6 @@ public class ChatTestController {
 
         // ChatRooms
         List<ChatRoom> chatRooms = chatService.findAllChatRoomByMemberId(memberId);
-
         List<ChatRoomDTO> chatRoomDTOs = chatRooms.stream()
                 .map(chatRoom -> chatService.createChatRoomDTO(memberId, chatRoom))
                 .toList();
