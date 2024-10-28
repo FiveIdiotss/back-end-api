@@ -63,27 +63,27 @@ public class JwtFilter extends OncePerRequestFilter {
             email = sessionService.get(session);
 
             // 세션이 존재하지만 세션 안에 값이 없을 경우 처리
-            if (email == null) {
-                log.info("세션은 존재하나 이메일 값이 없음.");
-            } else {
-                log.info("세션에서 이메일 추출.");
-            }
+//            if (email == null) {
+//                log.info("세션은 존재하나 이메일 값이 없음.");
+//            } else {
+//                log.info("세션에서 이메일 추출.");
+//            }
 
 
             // 세션에서 이메일을 가져오지 못한 경우, JWT 토큰을 파싱하여 이메일 추출
             if (email == null) {
                 email = JwtUtil.getMemberEmail(token);
-                log.info("JWT 토큰에서 이메일 추출: {}", email);
+                //log.info("JWT 토큰에서 이메일 추출: {}", email);
 
                 // 세션에 이메일 저장 (세션이 존재하는 경우에만 저장)
                 if (email != null) {
                     sessionService.save(session, email);
-                    log.info("세션에 이메일 저장 완료: {}", email);
+                    //log.info("세션에 이메일 저장 완료: {}", email);
                 }
             }
 
             String s = sessionService.get(session);
-            log.info("email에서 추출한 값={}", s);
+            //log.info("email에서 추출한 값={}", s);
 
             // 이메일이 여전히 null이라면 필터 체인 진행 후 반환
             if (email == null) {
