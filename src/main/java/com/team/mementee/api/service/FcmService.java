@@ -165,7 +165,8 @@ public class FcmService {
                     .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
             googleCredentials.refreshIfExpired();
             return googleCredentials.getAccessToken().getTokenValue();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            log.error("FireBase Exception", e); // 예외 전체 스택 트레이스를 로그에 기록
             throw new ServerErrorException();
         }
     }
