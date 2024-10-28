@@ -79,8 +79,7 @@ public class GlobalExceptionHandler {
     //BaseException 을 상속받지 않은 Exception 은 이 부분에서 처리
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<CommonApiResponse<?>> handle(Exception e) {
-        e.printStackTrace(System.out);
-        log.error("Exception", e);
+        log.error("Unhandled Exception occurred: {}", e.getMessage(), e); // 예외 메시지와 스택 트레이스 포함
         return createErrorResponseEntity(ErrorCode.SERVER_ERROR);
     }
 
