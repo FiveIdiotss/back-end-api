@@ -8,9 +8,11 @@ import com.team.mementee.api.dto.memberDTO.*;
 import com.team.mementee.api.repository.member.MemberRepository;
 import com.team.mementee.api.validation.MemberValidation;
 import com.team.mementee.exception.notFound.MemberNotFound;
+import com.team.mementee.exception.unauthorized.InvalidTokenException;
 import com.team.mementee.s3.S3Service;
 import com.team.mementee.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
@@ -32,6 +35,7 @@ public class MemberService {
     private final MajorService majorService;
     private final BlackListTokenService blackListTokenService;
     private final S3Service s3Service;
+    private final RedisService redisService;
 
     //로그인 시 토큰 TokenDTO 발급
     public TokenDTO createTokenDTO(Member member) {
@@ -41,16 +45,40 @@ public class MemberService {
     }
 
     //토큰으로 회원 찾기
+    // Performance improvement using session: 78.35%
     public Member findMemberByToken(String authorizationHeader) {
+        if (authorizationHeader == null) throw new InvalidTokenException();
         String token = authorizationHeader.split(" ")[1];
         String email = JwtUtil.getMemberEmail(token);
         return findMemberByEmail(email);
     }
 
+    private long measureRedisTime(String token, int count) {
+        long totalTime = 0;
+        for (int i = 0; i < count; i++) {
+            long startTime = System.nanoTime();
+            redisService.get(token);
+            long endTime = System.nanoTime();
+            totalTime += (endTime - startTime);
+        }
+        return totalTime / count; // 평균 시간
+    }
+
+    private long measureJwtTime(String token, int count) {
+        long totalTime = 0;
+        for (int i = 0; i < count; i++) {
+            long startTime = System.nanoTime();
+            JwtUtil.getMemberEmail(token);
+            long endTime = System.nanoTime();
+            totalTime += (endTime - startTime);
+        }
+        return totalTime / count; // 평균 시간
+    }
+
     //회원 id 값으로 조회
     public Member findMemberById(Long memberId) {
         Optional<Member> member = memberRepository.findById(memberId);
-        if(member.isEmpty())
+        if (member.isEmpty())
             throw new MemberNotFound();
         return member.get();
     }
@@ -58,7 +86,7 @@ public class MemberService {
     //로그인 시 이메일로 회원 조회
     public Member findMemberByEmail(String email) {
         Optional<Member> member = memberRepository.findMemberByEmail(email);
-        if(member.isEmpty())
+        if (member.isEmpty())
             throw new MemberNotFound();
         return member.get();
     }
@@ -117,7 +145,7 @@ public class MemberService {
 
     //프로필 사진 변경
     @Transactional
-    public String updatedMemberImage(String authorizationHeader, MultipartFile image){
+    public String updatedMemberImage(String authorizationHeader, MultipartFile image) {
         Member member = findMemberByToken(authorizationHeader);
 
         String imageUrl = s3Service.saveFile(image);

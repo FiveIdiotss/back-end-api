@@ -31,4 +31,8 @@ public class MajorService {
         School school = schoolService.findSchoolByName(name);
         return majorRepository.findAllBySchool(school);
     }
+
+    public Major findByNameAndSchool(String name, School school) {
+        return majorRepository.findByNameAndSchool(name, school);
+    }
 }

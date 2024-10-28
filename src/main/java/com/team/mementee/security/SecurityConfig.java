@@ -2,6 +2,7 @@ package com.team.mementee.security;
 
 import com.team.mementee.api.service.BlackListTokenService;
 import com.team.mementee.api.service.CustomMemberService;
+import com.team.mementee.session.ServerSessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,7 @@ public class SecurityConfig {
 
     private final BlackListTokenService bf;
     private final CustomMemberService customMemberService;
+    private final ServerSessionService sessionService;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -38,7 +40,7 @@ public class SecurityConfig {
                         .anyRequest().permitAll() //authenticated
                 )
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtFilter(bf, customMemberService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(bf, customMemberService, sessionService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

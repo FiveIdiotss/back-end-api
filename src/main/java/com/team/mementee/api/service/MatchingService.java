@@ -44,7 +44,7 @@ public class MatchingService {
         //신청 받은(게시물 글쓴이) 사람의 Id와 로그인한 사람(나)가 같은지
         MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), apply.getReceiveMember());
 
-        Member mentor = apply.getReceiveMember();;
+        Member mentor = apply.getReceiveMember();
         Member mentee = apply.getSendMember();
 
         Matching matching = new Matching(consultDate, consultTime, board.getConsultTime(),
@@ -52,7 +52,7 @@ public class MatchingService {
 
         matchingRepository.save(matching);
 
-        if(chatRoomRepository.findChatRoomBySenderAndReceiver(mentee, mentor).isEmpty()){
+        if (chatRoomRepository.findChatRoomBySenderAndReceiver(mentee, mentor).isEmpty()) {
             ChatRoom chatRoom = new ChatRoom(mentor, mentee, matching);
             chatRoomRepository.save(chatRoom);
         }
@@ -64,7 +64,7 @@ public class MatchingService {
 
     //거절-----
     @Transactional
-    public void declineMatching(Long applyId, ReasonOfRejectRequest request, String authorizationHeader){
+    public void declineMatching(Long applyId, ReasonOfRejectRequest request, String authorizationHeader) {
         Apply apply = applyService.findApplyById(applyId);
         MatchingValidation.isCheckCompleteApply(apply);
         MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), apply.getReceiveMember());
@@ -73,14 +73,14 @@ public class MatchingService {
     }
 
     @Transactional
-    public void extendConsultTime(Matching matching){
+    public void extendConsultTime(Matching matching) {
         matching.extendConsultTime();
     }
 
     //멘토/멘티 매칭 목록
     public List<Matching> findMatchingsByMember(BoardType boardType, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
-        if(boardType.equals(BoardType.MENTOR)){
+        if (boardType.equals(BoardType.MENTOR)) {
             return matchingRepository.findMatchingsByMentee(member);
         }
         return matchingRepository.findMatchingsByMentor(member);

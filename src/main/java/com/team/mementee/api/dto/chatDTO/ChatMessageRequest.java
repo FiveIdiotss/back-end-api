@@ -5,22 +5,23 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.team.mementee.api.domain.Member;
-import com.team.mementee.api.domain.enumtype.MessageType;
 import com.team.mementee.api.domain.enumtype.DecisionStatus;
+import com.team.mementee.api.domain.enumtype.MessageType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@ToString
 public class ChatMessageRequest {
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private MessageType messageType = MessageType.TEXT; // 기본 설정: MESSAGE
     private String fileURL;
@@ -28,14 +29,41 @@ public class ChatMessageRequest {
     private String senderName;
     private Long senderId;
     private Long chatRoomId;
+
+    @Builder.Default
     private int readCount = 1;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @CreatedDate
+    @Builder.Default
     private LocalDateTime localDateTime = LocalDateTime.now();
 
-    public static ChatMessageRequest createExtendRequest(Member member, Long chatRoomId){
+    public void updateReadCount(Long userCount) {
+        if (userCount == 2) this.readCount = 2;
+    }
+
+    public ChatMessageRequest updateChatRequest(Member member, Long chatRoomId) {
+        this.senderName = member.getName();
+        this.senderId = member.getId();
+        this.chatRoomId = chatRoomId;
+        return this;
+    }
+
+    public static ChatMessageRequest of(MessageType messageType, String fileURL, String fileName, Member loginMember, Long chatRoomId) {
+        return com.team.mementee.api.dto.chatDTO.ChatMessageRequest.builder()
+                .messageType(messageType)
+                .fileURL(fileURL)
+                .content(fileName)
+                .senderName(loginMember.getName())
+                .senderId(loginMember.getId())
+                .chatRoomId(chatRoomId)
+                .readCount(1)
+                .localDateTime(LocalDateTime.now())
+                .build();
+    }
+
+    public static ChatMessageRequest createExtendRequest(Member member, Long chatRoomId) {
         return new ChatMessageRequest(
                 MessageType.CONSULT_EXTEND,
                 null,
@@ -47,7 +75,7 @@ public class ChatMessageRequest {
                 LocalDateTime.now());
     }
 
-    public static ChatMessageRequest createUserEnterChatRoomMessage(Member member, Long chatRoomId){
+    public static ChatMessageRequest createUserEnterChatRequest(Member member, Long chatRoomId) {
         return new ChatMessageRequest(
                 MessageType.USER_ENTER,
                 null,
@@ -59,7 +87,7 @@ public class ChatMessageRequest {
                 LocalDateTime.now());
     }
 
-    public static ChatMessageRequest createUserLeaveChatRoomMessage(Member member, Long chatRoomId) {
+    public static ChatMessageRequest createUserLeaveChatRequest(Member member, Long chatRoomId) {
         return new ChatMessageRequest(
                 MessageType.USER_LEAVE,
                 null,
@@ -71,7 +99,7 @@ public class ChatMessageRequest {
                 LocalDateTime.now());
     }
 
-    public static ChatMessageRequest createExtendResponse(DecisionStatus decisionStatus, Member member, Long chatRoomId){
+    public static ChatMessageRequest createExtendResponse(DecisionStatus decisionStatus, Member member, Long chatRoomId) {
         if (decisionStatus.equals(DecisionStatus.ACCEPT))
             return new ChatMessageRequest(
                     MessageType.CONSULT_EXTEND_ACCEPT,
@@ -93,6 +121,5 @@ public class ChatMessageRequest {
                 1,
                 LocalDateTime.now());
     }
-
 
 }

@@ -42,8 +42,8 @@ public class ChatRoom {
         this.extendState = ExtendState.EMPTY;
     }
 
-    public void updateState(ChatRoom chatRoom){
-        if(chatRoom.getExtendState().equals(ExtendState.WAITING))
+    public void updateState(ChatRoom chatRoom) {
+        if (chatRoom.getExtendState().equals(ExtendState.WAITING))
             chatRoom.extendState = ExtendState.EMPTY;
         else
             chatRoom.extendState = ExtendState.WAITING;

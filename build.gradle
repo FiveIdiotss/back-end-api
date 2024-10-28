@@ -1,89 +1,89 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.1'
-	id 'io.spring.dependency-management' version '1.1.4'
-	id "org.sonarqube" version "5.0.0.4638"
+    id 'java'
+    id 'org.springframework.boot' version '3.2.1'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id "org.sonarqube" version "5.0.0.4638"
 }
 
 group = 'com.team.mementee'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
+    sourceCompatibility = '17'
 }
 
 jar {
-	enabled = false
+    enabled = false
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
 
-	//firebase
-	implementation 'com.google.firebase:firebase-admin:9.1.1'
-	implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    //firebase
+    implementation 'com.google.firebase:firebase-admin:9.1.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
 
-	//image 파일 압축
-	implementation 'net.coobird:thumbnailator:0.4.14'
-	//연락처 정보 처리 (vCard, .vcf 파일)
-	implementation 'com.googlecode.ez-vcard:ez-vcard:0.10.6'
-	//PDF파일 처리
-	implementation 'org.apache.pdfbox:pdfbox:2.0.24'
+    //image 파일 압축
+    implementation 'net.coobird:thumbnailator:0.4.14'
+    //연락처 정보 처리 (vCard, .vcf 파일)
+    implementation 'com.googlecode.ez-vcard:ez-vcard:0.10.6'
+    //PDF파일 처리
+    implementation 'org.apache.pdfbox:pdfbox:2.0.24'
 
-	//aws s3
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    //aws s3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
-	// Redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'io.lettuce:lettuce-core'
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'io.lettuce:lettuce-core'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
-	// Jackson Datatype JSR310: Java 8의 날짜 및 시간 형식을 처리하기 위한 Jackson 모듈
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    // Jackson Datatype JSR310: Java 8의 날짜 및 시간 형식을 처리하기 위한 Jackson 모듈
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
-	// Gson
-	implementation 'com.google.code.gson:gson'
+    // Gson
+    implementation 'com.google.code.gson:gson'
 
-	// Websocket
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // Websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-	// Spring Security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
-	// JWT Token
-	implementation 'io.jsonwebtoken:jjwt:0.9.1'
-	implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    // JWT Token
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
-	// Web Client
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // Web Client
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-	//default
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    //default
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	// Lombok
-	compileOnly 'org.projectlombok:lombok'
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.30' // 최신 버전 사용
 
 
-	implementation 'mysql:mysql-connector-java:8.0.28'
+    implementation 'mysql:mysql-connector-java:8.0.28'
 
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

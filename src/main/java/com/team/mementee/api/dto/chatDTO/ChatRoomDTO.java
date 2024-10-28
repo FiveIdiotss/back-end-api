@@ -3,19 +3,19 @@ package com.team.mementee.api.dto.chatDTO;
 import com.team.mementee.api.domain.Member;
 import com.team.mementee.api.domain.chat.ChatRoom;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class ChatRoomDTO {
 
     private Long chatRoomId;
     private Long receiverId;
     private String receiverName;
-    private LatestMessageDTO latestMessageDTO;
+    private LatestMessage latestMessageDTO;
 
     private String receiverImageUrl;
 
@@ -31,14 +31,21 @@ public class ChatRoomDTO {
 
     private Long mentorId;
 
-    public static ChatRoomDTO createChatRoomDTO(Member loginMember, Member receiver, ChatRoom chatRoom, LatestMessageDTO latestMessageDTO, int unreadMessageCount,
-                                                Long boardId, Long matchingId){
-        return new ChatRoomDTO(chatRoom.getId(), receiver.getId(), receiver.getName(), latestMessageDTO,
+    public static ChatRoomDTO of(Member loginMember, Member receiver, ChatRoom chatRoom, LatestMessage latestMessage, int unreadMessageCount) {
+        return new ChatRoomDTO(
+                chatRoom.getId(),
+                receiver.getId(),
+                receiver.getName(),
+                latestMessage,
                 loginMember.getMemberImageUrl(),
                 chatRoom.getMatching().getBoard().getTitle(),
                 chatRoom.getMatching().getDate(),
-                chatRoom.getMatching().getStartTime(), chatRoom.getMatching().getConsultTime(),
-                unreadMessageCount, boardId, matchingId, chatRoom.getMatching().getMentor().getId());
+                chatRoom.getMatching().getStartTime(),
+                chatRoom.getMatching().getConsultTime(),
+                unreadMessageCount,
+                chatRoom.getMatching().getBoard().getId(),
+                chatRoom.getMatching().getId(),
+                chatRoom.getMatching().getMentor().getId());
     }
 
 }
