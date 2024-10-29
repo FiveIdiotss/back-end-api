@@ -1,30 +1,25 @@
 package com.team.mementee.api.service;
 
-import com.team.mementee.api.domain.BlackListToken;
-import com.team.mementee.api.repository.BlackListTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.time.Duration;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BlackListTokenService {
 
-    private final BlackListTokenRepository blackListTokenRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private static final Duration BLACKLIST_EXPIRATION = Duration.ofHours(1); // 1시간 만료 설정
 
-    //로그아웃시 accessToken을 blackList에 추가 (토큰 탈취 방지)
-    @Transactional
-    public void addBlackList(String accessToken){
-        BlackListToken bt = new BlackListToken(accessToken);
-        blackListTokenRepository.save(bt);
+    // 로그아웃 시 accessToken을 블랙리스트에 추가
+    public void addBlackList(String accessToken) {
+        // Redis에 블랙리스트 토큰 저장, 만료 시간 1시간 설정
+        redisTemplate.opsForValue().set(accessToken, "blacklisted", BLACKLIST_EXPIRATION);
     }
 
-    public boolean isCheckBlackList(String accessToken){
-        Optional<BlackListToken> bt = blackListTokenRepository.findBlackListTokenByBlackListToken(accessToken);
-        return bt.isPresent();
+    public boolean isCheckBlackList(String accessToken) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(accessToken));
     }
-
 }
