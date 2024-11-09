@@ -1,6 +1,8 @@
 package com.team.mementee.api.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import com.team.mementee.api.domain.enumtype.ApplyState;
@@ -11,7 +13,7 @@ import java.time.LocalTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Apply {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
