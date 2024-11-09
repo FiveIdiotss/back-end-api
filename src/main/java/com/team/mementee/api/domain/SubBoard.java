@@ -5,6 +5,8 @@ import com.team.mementee.api.domain.enumtype.Platform;
 import com.team.mementee.api.domain.enumtype.SubBoardType;
 import com.team.mementee.api.dto.subBoardDTO.WriteSubBoardRequest;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +15,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class SubBoard {
 
     @Id

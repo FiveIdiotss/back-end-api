@@ -3,13 +3,12 @@ package com.team.mementee.api.domain;
 import com.team.mementee.api.domain.enumtype.Gender;
 import com.team.mementee.api.domain.enumtype.Role;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @ToString
 public class Member {
 

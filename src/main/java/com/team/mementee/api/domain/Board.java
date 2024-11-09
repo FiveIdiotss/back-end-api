@@ -5,6 +5,8 @@ import com.team.mementee.api.domain.enumtype.Platform;
 import com.team.mementee.api.domain.subdomain.UnavailableTime;
 import com.team.mementee.api.dto.boardDTO.WriteBoardRequest;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import com.team.mementee.api.domain.enumtype.BoardType;
@@ -20,7 +22,8 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Board {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
