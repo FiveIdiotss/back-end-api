@@ -2,6 +2,8 @@ package com.team.mementee.api.domain;
 
 import com.team.mementee.api.dto.subBoardDTO.ReplyRequest;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +12,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Reply {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
