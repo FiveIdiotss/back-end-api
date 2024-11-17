@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Notification {
+public class Notification extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +38,6 @@ public class Notification {
     @JoinColumn(name = "receiver_id")
     private Member receiveMember;
 
-    private LocalDateTime arriveTime;            //작성 시간
-
     public Notification(String title, String content, Long otherPK, NotificationType type, Member sendMember, Member receiveMember) {
         this.title = title;
         this.content = content;
@@ -47,6 +45,5 @@ public class Notification {
         this.type = type;
         this.sendMember =  sendMember;
         this.receiveMember = receiveMember;
-        this.arriveTime = LocalDateTime.now();
     }
 }

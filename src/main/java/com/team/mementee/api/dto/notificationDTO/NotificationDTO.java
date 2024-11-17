@@ -29,7 +29,7 @@ public class NotificationDTO {
 
     public static NotificationDTO createNotificationDTO(Notification notification){
         return new NotificationDTO(notification.getId(), notification.getSendMember().getId(), notification.getSendMember().getName(), notification.getSendMember().getMemberImageUrl(),
-                notification.getOtherPK(), notification.getTitle(), notification.getContent(), notification.getType(), notification.getArriveTime());
+                notification.getOtherPK(), notification.getTitle(), notification.getContent(), notification.getType(), notification.getCreatedAt());
     }
 
     public static List<NotificationDTO> createNotificationDTOs(List<Notification> notifications){

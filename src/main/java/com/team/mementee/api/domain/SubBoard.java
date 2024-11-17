@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class SubBoard {
+public class SubBoard extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +33,6 @@ public class SubBoard {
 
     private int likeCount;
     private int replyCount;
-
-    private LocalDateTime writeTime;            //작성 시간
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -56,7 +54,6 @@ public class SubBoard {
         this.title = title;
         this.content = content;
         this.member = member;
-        this.writeTime = LocalDateTime.now();
         this.likeCount = 0;
         this.replyCount = 0;
         this.boardCategory = boardCategory;
