@@ -229,5 +229,15 @@ public class SubBoardController {
         List<SubBoardDTO> list = subBoardService.createSubBoardDTOs(response, authorizationHeader);
         return CommonApiResponse.createSuccess(new PaginationSubBoardResponse(list, pageInfo));
     }
+
+    @GetMapping("/api/weekly-top5")
+    public CommonApiResponse<List<SubBoardDTO>> getWeeklyTop5PopularPosts() {
+        // 서비스 호출
+        List<SubBoard> popularPosts = subBoardService.getWeeklyTop5PopularPosts();
+
+        // SubBoardResponseDto로 변환 (필요 시)
+        List<SubBoardDTO> responseDtos = subBoardService.createSubBoardDTOs(popularPosts, null);
+        return CommonApiResponse.createSuccess(responseDtos);
+    }
 }
 
