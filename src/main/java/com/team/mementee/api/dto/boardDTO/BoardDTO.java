@@ -44,6 +44,6 @@ public class BoardDTO {
                 board.getTarget(), board.getContent(), board.getMember().getYear(),
                 board.getMember().getSchool().getName(), board.getMember().getMajor().getName(),
                 board.getMember().getId(), board.getMember().getName(), board.getMember().getMemberImageUrl(),
-                board.getWriteTime(), isFavorite, representImage, board.getPlatform());
+                board.getCreatedAt(), isFavorite, representImage, board.getPlatform());
     }
 }
