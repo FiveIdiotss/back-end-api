@@ -38,7 +38,7 @@ public class SubBoardDTO {
     public static SubBoardDTO createSubBoardDTO(SubBoard subBoard, boolean isLike, String representImage) {
         return new SubBoardDTO(subBoard.getId(), subBoard.getBoardCategory(),subBoard.getTitle(), subBoard.getContent(),
                 subBoard.getMember().getYear(), subBoard.getMember().getSchool().getName(), subBoard.getMember().getMajor().getName(),
-                subBoard.getMember().getId(), subBoard.getMember().getMemberImageUrl(), subBoard.getMember().getName(), subBoard.getWriteTime(),
+                subBoard.getMember().getId(), subBoard.getMember().getMemberImageUrl(), subBoard.getMember().getName(), subBoard.getCreatedAt(),
                 subBoard.getLikeCount(), subBoard.getReplyCount(), isLike, representImage, subBoard.getPlatform());
     }
 }
