@@ -24,7 +24,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Board {
+public class Board extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_id")
@@ -65,8 +65,6 @@ public class Board {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private LocalDateTime writeTime;            //작성 시간
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private List<DayOfWeek> availableDays = new ArrayList<>();              //상담 가능한 요일
@@ -94,7 +92,6 @@ public class Board {
         this.boardCategory = boardCategory;
         this.platform = platform;
         this.member = member;
-        this.writeTime = LocalDateTime.now();
         this.boardType = BoardType.MENTOR;
     }
 
@@ -112,6 +109,5 @@ public class Board {
         this.platform = request.getPlatform();
         this.times = request.getTimes();
         this.availableDays = request.getAvailableDays();
-        this.writeTime = LocalDateTime.now();
     }
 }

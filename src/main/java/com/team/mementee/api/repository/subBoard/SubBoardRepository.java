@@ -11,9 +11,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SubBoardRepository extends JpaRepository<SubBoard, Long> {
+
+    // 주간 인기글 상위 5개 추출
+    @Query("SELECT s FROM SubBoard s WHERE s.createdAt >= :startDate AND s.createdAt < :endDate ORDER BY s.likeCount DESC")
+    List<SubBoard> findTop5ByLikeCountInLastWeek(@Param("startDate") LocalDateTime startDate,
+                                                 @Param("endDate") LocalDateTime endDate,
+                                                 Pageable pageable);
 
     // 제목 검색
     List<SubBoard> findAllByTitleContaining(@Param("query") String query);

@@ -18,11 +18,16 @@ import com.team.mementee.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -91,7 +96,7 @@ public class SubBoardService {
     }
 
     //특정 멤버가 쓴 질문/요청 게시글 목록
-    public Page<SubBoard> findSubBoardsBySubBoardTypeAndMember(SubBoardType subBoardType, Long memberId, Pageable pageable){
+    public Page<SubBoard> findSubBoardsBySubBoardTypeAndMember(SubBoardType subBoardType, Long memberId, Pageable pageable) {
         Member member = memberService.findMemberById(memberId);
         return subBoardRepository.findSubBoardsBySubBoardTypeAndMember(subBoardType, member, pageable);
     }
@@ -121,6 +126,17 @@ public class SubBoardService {
     public Page<Reply> findAllReply(Long subBoardId, Pageable pageable) {
         SubBoard subBoard = findSubBoardById(subBoardId);
         return replyRepository.findRepliesBySubBoard(subBoard, pageable);
+    }
+
+    public List<SubBoard> getWeeklyTop5PopularPosts() {
+        // 이번 주 시작 (월요일 0시 기준)
+        LocalDateTime startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
+        // 다음 주 시작 (다음 월요일 0시 기준)
+        LocalDateTime endDate = startDate.plusWeeks(1);
+
+        // 인기 글 5개 조회
+        Pageable top5 = PageRequest.of(0, 5); // 첫 페이지에서 5개
+        return subBoardRepository.findTop5ByLikeCountInLastWeek(startDate, endDate, top5);
     }
 
     //게시글에 속한 이미지 저장

@@ -45,7 +45,7 @@ public class BoardService {
     }
 
     //게시글 조회시 필요한 Info
-    public BoardInfoResponse createBoardInfoResponse(Long boardId, String authorizationHeader){
+    public BoardInfoResponse createBoardInfoResponse(Long boardId, String authorizationHeader) {
         Board board = findBoardById(boardId);
         List<BoardImageDTO> boardImageDTOs = BoardImageDTO.createBoardImageDTOs(findBoarImagesByBoard(board));
         BoardDTO boardDTO = createBoardDTO(board, authorizationHeader);
@@ -53,8 +53,8 @@ public class BoardService {
     }
 
     //게시글 조회시 필요한 DTO
-    public BoardDTO createBoardDTO(Board board, String authorizationHeader){
-        if(authorizationHeader == null)
+    public BoardDTO createBoardDTO(Board board, String authorizationHeader) {
+        if (authorizationHeader == null)
             return BoardDTO.createBoardDTO(board, false, findRepresentImage(board));
 
         Member member = memberService.findMemberByToken(authorizationHeader);
@@ -62,8 +62,8 @@ public class BoardService {
     }
 
     //게시글 목록시 필요한 DTO List
-    public List<BoardDTO> createBoardDTOs(List<Board> boards, String authorizationHeader){
-        if(authorizationHeader == null) {
+    public List<BoardDTO> createBoardDTOs(List<Board> boards, String authorizationHeader) {
+        if (authorizationHeader == null) {
             return boards.stream()
                     .map(b -> BoardDTO.createBoardDTO(b, false, findRepresentImage(b)))
                     .collect(Collectors.toList());
@@ -75,15 +75,15 @@ public class BoardService {
     }
 
     //id로 Board 조회
-    public Board findBoardById(Long boardId){
+    public Board findBoardById(Long boardId) {
         Optional<Board> board = boardRepository.findById(boardId);
-        if(board.isEmpty())
+        if (board.isEmpty())
             throw new BoardNotFound();
         return board.get();
     }
 
     //게시물에 속한 이미지 조회
-    public List<BoardImage> findBoarImagesByBoard(Board board){
+    public List<BoardImage> findBoarImagesByBoard(Board board) {
         return boardImageRepository.findBoardImagesByBoard(board);
     }
 
@@ -97,26 +97,26 @@ public class BoardService {
 
 
     //로그인한 유저가 즐겨찾기한 게시물 목록
-    public Page<Board> findFavoritesByMember(String authorizationHeader, Pageable pageable){
+    public Page<Board> findFavoritesByMember(String authorizationHeader, Pageable pageable) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         return boardRepository.findFavoritesByMember(member, pageable);
     }
 
     //특정 멤버가 쓴 글목록
-    public Page<Board> findBoardsByMember(Long memberId, Pageable pageable){
+    public Page<Board> findBoardsByMember(Long memberId, Pageable pageable) {
         Member member = memberService.findMemberById(memberId);
         return boardRepository.findBoardsByMember(member, pageable);
     }
 
     //Member 와 Board 에 대한 즐겨찾기 조회
-    public Optional<Favorite> findFavoriteByMemberAndBoard(Member member, Board board){
+    public Optional<Favorite> findFavoriteByMemberAndBoard(Member member, Board board) {
         return favoriteRepository.findFavoriteByMemberAndBoard(member, board);
     }
 
     //게시물 등록시 이미지 추출 후 엔티티 생성
     public void saveBoardImageUrl(List<MultipartFile> multipartFiles, Board board) {
-        if (multipartFiles == null) return ;
-        for(MultipartFile multipartFile : multipartFiles){
+        if (multipartFiles == null) return;
+        for (MultipartFile multipartFile : multipartFiles) {
             String url = s3Service.saveFile(multipartFile);
             BoardImage boardImage = new BoardImage(board, url);
             boardImageRepository.save(boardImage);
@@ -124,11 +124,11 @@ public class BoardService {
     }
 
     //게시글에 속한 이미지 수정
-    public void modifyBoardImage(List<MultipartFile> multipartFiles, Board board){
+    public void modifyBoardImage(List<MultipartFile> multipartFiles, Board board) {
         boardImageRepository.deleteBoardImageByBoard(board);
 
-        if (multipartFiles == null) return ;
-        for(MultipartFile multipartFile : multipartFiles){
+        if (multipartFiles == null) return;
+        for (MultipartFile multipartFile : multipartFiles) {
             String url = s3Service.saveFile(multipartFile);
             BoardImage boardImage = new BoardImage(board, url);
             boardImageRepository.save(boardImage);
@@ -157,11 +157,11 @@ public class BoardService {
 
     //즐겨찾기 추가
     @Transactional
-    public void addFavoriteBoard(String authorizationHeader, Long boardId){
+    public void addFavoriteBoard(String authorizationHeader, Long boardId) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         Board board = findBoardById(boardId);
 
-        BoardValidation.isCheckAddFavorite(findFavoriteByMemberAndBoard(member,board));
+        BoardValidation.isCheckAddFavorite(findFavoriteByMemberAndBoard(member, board));
 
         Favorite favorite = new Favorite(member, board);
         favoriteRepository.save(favorite);
@@ -169,7 +169,7 @@ public class BoardService {
 
     //즐겨찾기 제거
     @Transactional
-    public void removeFavoriteBoard(String authorizationHeader, Long boardId){
+    public void removeFavoriteBoard(String authorizationHeader, Long boardId) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         Board board = findBoardById(boardId);
 
@@ -183,12 +183,12 @@ public class BoardService {
                                           boolean favoriteFilter,
                                           BoardCategory boardCategory,
                                           String keyWord,
-                                          Pageable pageable){
+                                          Pageable pageable) {
         Member member = null;
         School school = null;
 
-        if(schoolFilter || favoriteFilter){
-            if(authorizationHeader == null)
+        if (schoolFilter || favoriteFilter) {
+            if (authorizationHeader == null)
                 throw new RequiredLoginException();
             member = memberService.findMemberByToken(authorizationHeader);
             school = member.getSchool();
@@ -212,7 +212,7 @@ public class BoardService {
             return boardRepository.findBoardsByMemberSchool(school, pageable);
 
         //즐겨찾기
-        if (boardCategory == null && searchKeyWord == null && !schoolFilter && favoriteFilter )
+        if (boardCategory == null && searchKeyWord == null && !schoolFilter && favoriteFilter)
             return boardRepository.findFavoritesByMember(member, pageable);
 
         //카테고리, 검색
@@ -257,7 +257,7 @@ public class BoardService {
         if (boardCategory != null && searchKeyWord != null && schoolFilter && !favoriteFilter) {
             redisTemplate.opsForZSet().incrementScore("popular_keywords", keyWord, 1);
             return boardRepository.findBoardsByBoardCategoryAndMemberSchoolAndKeyWord(boardCategory, school, searchKeyWord, pageable);
-            }
+        }
 
         //검색, 내 학교, 즐겨찾기;
         if (boardCategory == null && searchKeyWord != null && schoolFilter && favoriteFilter) {

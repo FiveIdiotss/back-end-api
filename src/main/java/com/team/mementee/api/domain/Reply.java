@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Reply {
+public class Reply extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "reply_id")
@@ -23,8 +23,6 @@ public class Reply {
     @Lob
     @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
     private String content;
-
-    private LocalDateTime writeTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -36,13 +34,11 @@ public class Reply {
 
     public Reply(String content, Member member, SubBoard subBoard) {
         this.content = content;
-        this.writeTime = LocalDateTime.now();
         this.member = member;
         this.subBoard = subBoard;
     }
 
     public void modifyReply(ReplyRequest request){
         this.content = request.getContent();
-        this.writeTime = LocalDateTime.now();
     }
 }

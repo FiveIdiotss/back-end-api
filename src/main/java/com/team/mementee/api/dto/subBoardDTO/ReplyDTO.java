@@ -24,7 +24,7 @@ public class ReplyDTO {
     public static List<ReplyDTO> createReplyDTOs(List<Reply> replies){
         return replies.stream()
                 .map(r -> new ReplyDTO(r.getId(), r.getMember().getId(), r.getMember().getMemberImageUrl(),
-                        r.getMember().getName(), r.getMember().getMajor().getName(), r.getWriteTime(), r.getContent()))
+                        r.getMember().getName(), r.getMember().getMajor().getName(), r.getCreatedAt(), r.getContent()))
                         .collect(Collectors.toList());
     }
 }
