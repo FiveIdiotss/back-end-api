@@ -14,10 +14,11 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 
-public interface BoardRepository extends JpaRepository<com.team.mementee.api.domain.Board, Long>{
+public interface BoardRepository extends JpaRepository<Board, Long> {
 
     // 제목 검색
     List<Board> findAllByTitleContaining(String query);
+
     List<Board> findAllByContentContaining(String query);
 
     //특정 멤버가 작성한 게시물
@@ -43,11 +44,11 @@ public interface BoardRepository extends JpaRepository<com.team.mementee.api.dom
 
     //내 학교, 검색
     @Query("SELECT b FROM Board b WHERE (b.content LIKE :keyWord OR b.title LIKE :keyWord) AND b.member.school = :school")
-    Page<Board> findBoardsByMemberSchoolAndKeyWord(@Param("school") School school, @Param("keyWord") String keyWord , Pageable pageable);
+    Page<Board> findBoardsByMemberSchoolAndKeyWord(@Param("school") School school, @Param("keyWord") String keyWord, Pageable pageable);
 
     //카테고리, 검색
     @Query("SELECT b FROM Board b WHERE (b.content LIKE :keyWord OR b.title LIKE :keyWord) AND b.boardCategory = :boardCategory")
-    Page<Board> findBoardsByBoardCategoryAndKeyWord(@Param("boardCategory") BoardCategory boardCategory, @Param("keyWord") String keyWord , Pageable pageable);
+    Page<Board> findBoardsByBoardCategoryAndKeyWord(@Param("boardCategory") BoardCategory boardCategory, @Param("keyWord") String keyWord, Pageable pageable);
 
 
     //즐겨찾기, 검색
@@ -62,7 +63,7 @@ public interface BoardRepository extends JpaRepository<com.team.mementee.api.dom
     //내 학교, 즐겨찾기
     @Query("SELECT b FROM Board b WHERE b.member.school = :school AND " +
             "b.id IN (SELECT f.board.id FROM Favorite f WHERE f.member = :member)")
-    Page<Board> findBoardsByMemberSchoolAndFavorite(@Param("school")School school, @Param("member") Member member, Pageable pageable);
+    Page<Board> findBoardsByMemberSchoolAndFavorite(@Param("school") School school, @Param("member") Member member, Pageable pageable);
 
     //카테고리, 즐겨찾기
     @Query("SELECT b FROM Board b WHERE b.boardCategory = :boardCategory AND " +
@@ -74,7 +75,7 @@ public interface BoardRepository extends JpaRepository<com.team.mementee.api.dom
     @Query("SELECT b FROM Board b WHERE b.boardCategory = :boardCategory AND " +
             "b.member.school = :school AND " +
             "b.id IN (SELECT f.board.id FROM Favorite f WHERE f.member = :member)")
-    Page<Board> findBoardsByBoardCategoryAndMemberSchoolAndFavorite(@Param("boardCategory") BoardCategory boardCategory, @Param("school")School school,
+    Page<Board> findBoardsByBoardCategoryAndMemberSchoolAndFavorite(@Param("boardCategory") BoardCategory boardCategory, @Param("school") School school,
                                                                     @Param("member") Member member, Pageable pageable);
 
     //카테고리, 검색, 즐거찾기
@@ -83,12 +84,14 @@ public interface BoardRepository extends JpaRepository<com.team.mementee.api.dom
             " b.id IN (SELECT f.board.id FROM Favorite f WHERE f.member = :member)")
     Page<Board> findBoardsByBoardCategoryAndKeyWordAndFavorite(@Param("boardCategory") BoardCategory boardCategory, @Param("keyWord") String keyWord,
                                                                @Param("member") Member member, Pageable pageable);
+
     //카테고리, 내 학교, 검색 b.boardCategory = :boardCategory AND
     @Query("SELECT b FROM Board b WHERE (b.content LIKE :keyWord OR b.title LIKE :keyWord) AND " +
             "b.member.school = :school AND " +
             "b.boardCategory = :boardCategory")
     Page<Board> findBoardsByBoardCategoryAndMemberSchoolAndKeyWord(@Param("boardCategory") BoardCategory boardCategory, @Param("school") School school,
                                                                    @Param("keyWord") String keyWord, Pageable pageable);
+
     //내 학교, 검색, 즐겨찾기
     @Query("SELECT b FROM Board b WHERE (b.content LIKE :keyWord OR b.title LIKE :keyWord) AND " +
             "b.member.school = :school AND " +
@@ -105,5 +108,4 @@ public interface BoardRepository extends JpaRepository<com.team.mementee.api.dom
     Page<Board> findBoardsByMemberSchoolAndKeyWordAndBoardCategoryAndFavorite(@Param("school") School school, @Param("keyWord") String keyWord,
                                                                               @Param("boardCategory") BoardCategory boardCategory, @Param("member") Member member,
                                                                               Pageable pageable);
-
 }
