@@ -17,6 +17,8 @@ import com.team.mementee.exception.unauthorized.RequiredLoginException;
 import com.team.mementee.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -128,7 +130,8 @@ public class SubBoardService {
         return replyRepository.findRepliesBySubBoard(subBoard, pageable);
     }
 
-    public List<SubBoard> getWeeklyTop5PopularPosts() {
+    @Cacheable(value = "weeklyTop5Posts", key = "'weeklyTop5Posts'")
+    public SubBoardDTOs getWeeklyTop5PopularPosts() {
         // 이번 주 시작 (월요일 0시 기준)
         LocalDateTime startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
         // 다음 주 시작 (다음 월요일 0시 기준)
@@ -136,7 +139,8 @@ public class SubBoardService {
 
         // 인기 글 5개 조회
         Pageable top5 = PageRequest.of(0, 5); // 첫 페이지에서 5개
-        return subBoardRepository.findTop5ByLikeCountInLastWeek(startDate, endDate, top5);
+        List<SubBoardDTO> responseDTOs = createSubBoardDTOs(subBoardRepository.findTop5ByLikeCountInLastWeek(startDate, endDate, top5), null);
+        return new SubBoardDTOs(responseDTOs);
     }
 
     //게시글에 속한 이미지 저장
@@ -191,6 +195,7 @@ public class SubBoardService {
 
     //게시물 수정
     @Transactional
+    @CacheEvict(value = "weeklyTop5Posts", key = "'weeklyTop5Posts'")
     public void modifySubBoard(WriteSubBoardRequest request, String authorizationHeader, Long subBoardId) {
         Member member = memberService.findMemberByToken(authorizationHeader);
         SubBoard subBoard = findSubBoardById(subBoardId);
