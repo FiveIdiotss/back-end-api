@@ -1,16 +1,19 @@
 package com.team.mementee.api.dto.subBoardDTO;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.team.mementee.api.domain.SubBoard;
 import com.team.mementee.api.domain.enumtype.BoardCategory;
 import com.team.mementee.api.domain.enumtype.Platform;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class SubBoardDTO {
     private Long subBoardId;
     private BoardCategory boardCategory;
@@ -30,6 +33,8 @@ public class SubBoardDTO {
 
     private int likeCount;
     private int replyCount;
+
+    @JsonProperty("like")
     private boolean isLike;
 
     private String representImage;
