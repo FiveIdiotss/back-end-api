@@ -130,8 +130,9 @@ public class SubBoardService {
         return replyRepository.findRepliesBySubBoard(subBoard, pageable);
     }
 
-    @Cacheable(value = "weeklyTop5Posts", key = "'weeklyTop5Posts'")
-    public SubBoardDTOs getWeeklyTop5PopularPosts() {
+    @Cacheable(value = "weeklyTop5Posts", key = "'weeklyTop5Posts:' + #subBoardType.name()")
+    public SubBoardDTOs getWeeklyTop5PopularPosts(SubBoardType subBoardType) {
+        System.out.println("로직 실행");
         // 이번 주 시작 (월요일 0시 기준)
         LocalDateTime startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
         // 다음 주 시작 (다음 월요일 0시 기준)
@@ -139,7 +140,7 @@ public class SubBoardService {
 
         // 인기 글 5개 조회
         Pageable top5 = PageRequest.of(0, 5); // 첫 페이지에서 5개
-        List<SubBoardDTO> responseDTOs = createSubBoardDTOs(subBoardRepository.findTop5ByLikeCountInLastWeek(startDate, endDate, top5), null);
+        List<SubBoardDTO> responseDTOs = createSubBoardDTOs(subBoardRepository.findTop5ByLikeCountInLastWeek(startDate, endDate, subBoardType, top5), null);
         return new SubBoardDTOs(responseDTOs);
     }
 

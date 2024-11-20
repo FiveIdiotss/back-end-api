@@ -17,9 +17,10 @@ import java.util.List;
 public interface SubBoardRepository extends JpaRepository<SubBoard, Long> {
 
     // 주간 인기글 상위 5개 추출
-    @Query("SELECT s FROM SubBoard s WHERE s.likeCount > 0 AND s.createdAt >= :startDate AND s.createdAt < :endDate ORDER BY s.likeCount DESC")
+    @Query("SELECT s FROM SubBoard s WHERE s.subBoardType = :subBoardType AND s.likeCount > 0 AND s.createdAt >= :startDate AND s.createdAt < :endDate ORDER BY s.likeCount DESC")
     List<SubBoard> findTop5ByLikeCountInLastWeek(@Param("startDate") LocalDateTime startDate,
                                                  @Param("endDate") LocalDateTime endDate,
+                                                 @Param("subBoardType") SubBoardType subBoardType,
                                                  Pageable pageable);
 
     // 제목 검색

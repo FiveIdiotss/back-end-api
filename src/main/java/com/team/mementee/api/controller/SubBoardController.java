@@ -231,8 +231,8 @@ public class SubBoardController {
     }
 
     @GetMapping("/api/subBoards/top5")
-    public CommonApiResponse<List<SubBoardDTO>> getWeeklyTop5PopularPosts() {
-        List<SubBoardDTO> popularPosts = subBoardService.getWeeklyTop5PopularPosts().getSubBoardDTOS();
+    public CommonApiResponse<List<SubBoardDTO>> getWeeklyTop5PopularPosts(@RequestParam SubBoardType subBoardType) {
+        List<SubBoardDTO> popularPosts = subBoardService.getWeeklyTop5PopularPosts(subBoardType).getSubBoardDTOS();
         return CommonApiResponse.createSuccess(popularPosts);
     }
 }
