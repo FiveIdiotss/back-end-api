@@ -49,23 +49,6 @@
 
 ---
 
-## ERD 
-
-![image](https://github.com/FiveIdiotss/back-end-api/assets/109346159/9e7d163e-0049-48c0-8a85-462c0f12d3d3)
-
----
-
-## Architecture
-
-![image](https://github.com/user-attachments/assets/7dcf7a05-e435-4299-b231-8cdb8bf813f5)
-
-
-
-
-
-
----
-
 ## 사용 기술
 Back-End : <br> 
 - <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
@@ -110,22 +93,6 @@ etc:
 - <img src="https://img.shields.io/badge/firebase%20cloud%20messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=white">
 - <img src="https://img.shields.io/badge/amazon%20s3-569A31?style=for-the-badge&logo=amazon%20s3&logoColor=white">
 - <img src="https://img.shields.io/badge/web%20socket-000?style=for-the-badge&logo=alogoColor=white">
-
-
-
----
-
-## 웹 화면 순서도
-
-추가 예정
-
-
----
-
-## 모바일 화면 순서도
-
-![img.png](img.png)
-
 
 ---
 
@@ -262,4 +229,29 @@ etc:
 - 현재 redis 는 pub/sub 기능을 이용하여 실시간 채팅 위주로 사용중이다.
 이 프로젝트의 서비스들에 대한 정보는 메인 DB에 모두 저장하는 방식으로 진행하였는데 지금은 서비스 규모가 작기 때문에 별 다른 문제가 발생하고 있지 않고 있지만 채팅내역, FCM 토큰, RefreshToken 등의 정보는 redis 저장소를 이용하여 캐시 처리를 통해 메인 DB에 부담을 줄여주는 방식에 대한 충분한 고려를 통해 서비스를 개발 요망
 
+---
+
+
+## ERD 
+
+![image](https://github.com/FiveIdiotss/back-end-api/assets/109346159/9e7d163e-0049-48c0-8a85-462c0f12d3d3)
+
+---
+
+## Architecture
+
+![image](https://github.com/user-attachments/assets/7dcf7a05-e435-4299-b231-8cdb8bf813f5)
+
+---
+
+## 웹 화면 순서도
+
+추가 예정
+
+
+---
+
+## 모바일 화면 순서도
+
+![img.png](img.png)
 
