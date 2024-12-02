@@ -2,7 +2,7 @@
 
 [English Version](README.en.md)
 
-- 프로젝트 기간 : 24.01 ~ 24.06
+- 프로젝트 기간 : 24.01 ~ 24.08
 - 프로젝트 인원 : 4명
   - Back-End : 2명
   - Front-End 
