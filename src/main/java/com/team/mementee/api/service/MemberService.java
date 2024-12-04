@@ -77,7 +77,7 @@ public class MemberService {
 
     //회원 id 값으로 조회
     public Member findMemberById(Long memberId) {
-        Optional<Member> member = memberRepository.findById(memberId);
+        Optional<Member> member = memberRepository.findMemberById(memberId);
         if (member.isEmpty())
             throw new MemberNotFound();
         return member.get();
