@@ -76,7 +76,7 @@ public class BoardService {
 
     //id로 Board 조회
     public Board findBoardById(Long boardId) {
-        Optional<Board> board = boardRepository.findById(boardId);
+        Optional<Board> board = boardRepository.findBoardById(boardId);
         if (board.isEmpty())
             throw new BoardNotFound();
         return board.get();

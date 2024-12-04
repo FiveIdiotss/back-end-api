@@ -10,8 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
@@ -108,4 +110,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findBoardsByMemberSchoolAndKeyWordAndBoardCategoryAndFavorite(@Param("school") School school, @Param("keyWord") String keyWord,
                                                                               @Param("boardCategory") BoardCategory boardCategory, @Param("member") Member member,
                                                                               Pageable pageable);
+
+    @Query("SELECT b FROM Board b JOIN FETCH b.member")
+    Optional<Board> findBoardById(@RequestParam("boardId") Long boardId);
 }
