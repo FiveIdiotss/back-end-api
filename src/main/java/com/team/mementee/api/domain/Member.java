@@ -45,12 +45,10 @@ public class Member extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
-//    @JsonIgnore
     private School school;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "major_id")
-//    @JsonIgnore
     private Major major;
 
     public Member(String email, String name, String password, int year, String defaultMemberImageUrl,
