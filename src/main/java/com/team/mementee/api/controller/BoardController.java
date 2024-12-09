@@ -112,7 +112,7 @@ public class BoardController {
             @ApiResponse(responseCode = "fail")})
     @PutMapping("/api/board/{boardId}")
     public CommonApiResponse<?> boardModify(@RequestHeader("Authorization") String authorizationHeader,
-                                            @RequestBody @Valid WriteBoardRequest request,
+                                            @RequestPart @Valid WriteBoardRequest request,
                                             @RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles,
                                             @PathVariable Long boardId) {
         boardService.modifyBoard(request, authorizationHeader, boardId, multipartFiles);
