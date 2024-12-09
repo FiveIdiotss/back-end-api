@@ -132,7 +132,6 @@ public class SubBoardService {
 
     @Cacheable(value = "weeklyTop5Posts", key = "'weeklyTop5Posts:' + #subBoardType.name()")
     public SubBoardDTOs getWeeklyTop5PopularPosts(SubBoardType subBoardType) {
-        System.out.println("로직 실행");
         // 이번 주 시작 (월요일 0시 기준)
         LocalDateTime startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
         // 다음 주 시작 (다음 월요일 0시 기준)
