@@ -111,6 +111,6 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
                                                                               @Param("boardCategory") BoardCategory boardCategory, @Param("member") Member member,
                                                                               Pageable pageable);
 
-    @Query("SELECT b FROM Board b JOIN FETCH b.member")
+    @Query("SELECT b FROM Board b JOIN FETCH b.member WHERE b.id = :boardId ")
     Optional<Board> findBoardById(@RequestParam("boardId") Long boardId);
 }
