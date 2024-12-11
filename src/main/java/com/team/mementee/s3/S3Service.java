@@ -25,6 +25,19 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    public String saveMemberProFile(MultipartFile multipartFile) {
+        return saveToS3ForMember(multipartFile, bucket);
+    }
+
+    private String saveToS3ForMember(MultipartFile file, String bucketName) {
+        try {
+            return saveToS3(file.getInputStream(), file.getSize(), file.getName(), bucketName, fileService.getExtension(file));
+        } catch (IOException e) {
+            log.error("Error uploading to S3: {}", e.getMessage());
+            return "Error uploading file: " + e.getMessage();
+        }
+    }
+
     public String saveFile(MultipartFile multipartFile) {
         return saveToS3(multipartFile, bucket);
     }

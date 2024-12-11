@@ -148,7 +148,7 @@ public class MemberService {
     public String updatedMemberImage(String authorizationHeader, MultipartFile image) {
         Member member = findMemberByToken(authorizationHeader);
 
-        String imageUrl = s3Service.saveFile(image);
+        String imageUrl = s3Service.saveMemberProFile(image);
         member.updateMemberImage(imageUrl);
         return imageUrl;
     }
