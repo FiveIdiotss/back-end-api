@@ -39,31 +39,31 @@ public class BoardService {
     private final MemberService memberService;
     private final RedisTemplate<String, String> redisTemplate;
 
-//    public List<Board> findAllByTitleContaining(String query) {
-//        return boardRepository.findAllByTitleContaining(query);
-//    }
-//
-//    public List<Board> findAllByContentContaining(String query) {
-//        return boardRepository.findAllByContentContaining(query);
-//    }
-
     public List<Board> findAllByTitleContaining(String query) {
-        List<Long> ids = esBoardRepository.findAllByTitle(query)
-                .stream()
-                .map(EsBoard::getBoardId)
-                .collect(Collectors.toList());
-
-        return boardRepository.findAllById(ids);
+        return boardRepository.findAllByTitleContaining(query);
     }
 
     public List<Board> findAllByContentContaining(String query) {
-        List<Long> ids = esBoardRepository.findAllByContent(query)
-                .stream()
-                .map(EsBoard::getBoardId)
-                .collect(Collectors.toList());
-
-        return boardRepository.findAllById(ids);
+        return boardRepository.findAllByContentContaining(query);
     }
+
+//    public List<Board> findAllByTitleContaining(String query) {
+//        List<Long> ids = esBoardRepository.findAllByTitle(query)
+//                .stream()
+//                .map(EsBoard::getBoardId)
+//                .collect(Collectors.toList());
+//
+//        return boardRepository.findAllById(ids);
+//    }
+//
+//    public List<Board> findAllByContentContaining(String query) {
+//        List<Long> ids = esBoardRepository.findAllByContent(query)
+//                .stream()
+//                .map(EsBoard::getBoardId)
+//                .collect(Collectors.toList());
+//
+//        return boardRepository.findAllById(ids);
+//    }
 
     //게시글 조회시 필요한 Info
     public BoardInfoResponse createBoardInfoResponse(Long boardId, String authorizationHeader) {
