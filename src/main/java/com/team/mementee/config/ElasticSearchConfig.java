@@ -12,7 +12,8 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
     @Override
     public ClientConfiguration clientConfiguration() {
         return ClientConfiguration.builder()
-                .connectedTo("menteetor.site:9200")
+               // .connectedTo("menteetor.site:9200")
+                .connectedTo("localhost:9200")
                 .build();
     }
 }
