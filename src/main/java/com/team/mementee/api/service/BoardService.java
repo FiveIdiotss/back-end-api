@@ -1,6 +1,8 @@
 package com.team.mementee.api.service;
 
 import com.team.mementee.api.domain.*;
+import com.team.mementee.api.domain.document.EsBoard;
+import com.team.mementee.api.domain.document.EsBoardRepository;
 import com.team.mementee.api.domain.enumtype.BoardCategory;
 import com.team.mementee.api.dto.boardDTO.*;
 import com.team.mementee.api.repository.board.BoardImageRepository;
@@ -31,17 +33,36 @@ public class BoardService {
 
     private final S3Service s3Service;
     private final BoardRepository boardRepository;
+    private final EsBoardRepository esBoardRepository;
     private final FavoriteRepository favoriteRepository;
     private final BoardImageRepository boardImageRepository;
     private final MemberService memberService;
     private final RedisTemplate<String, String> redisTemplate;
 
+//    public List<Board> findAllByTitleContaining(String query) {
+//        return boardRepository.findAllByTitleContaining(query);
+//    }
+//
+//    public List<Board> findAllByContentContaining(String query) {
+//        return boardRepository.findAllByContentContaining(query);
+//    }
+
     public List<Board> findAllByTitleContaining(String query) {
-        return boardRepository.findAllByTitleContaining(query);
+        List<Long> ids = esBoardRepository.findAllByTitle(query)
+                .stream()
+                .map(EsBoard::getBoardId)
+                .collect(Collectors.toList());
+
+        return boardRepository.findAllById(ids);
     }
 
     public List<Board> findAllByContentContaining(String query) {
-        return boardRepository.findAllByContentContaining(query);
+        List<Long> ids = esBoardRepository.findAllByContent(query)
+                .stream()
+                .map(EsBoard::getBoardId)
+                .collect(Collectors.toList());
+
+        return boardRepository.findAllById(ids);
     }
 
     //게시글 조회시 필요한 Info
@@ -143,6 +164,7 @@ public class BoardService {
                 request.getBoardCategory(), request.getPlatform(), member, request.getTimes(), request.getAvailableDays());
         saveBoardImageUrl(multipartFiles, board);
         boardRepository.save(board);
+        esBoardRepository.save(EsBoard.toDocument(board));
         return board.getId();
     }
 
@@ -153,6 +175,11 @@ public class BoardService {
         MemberValidation.isCheckMe(memberService.findMemberByToken(authorizationHeader), board.getMember());
         modifyBoardImage(multipartFiles, board);
         board.modifyBoard(request);
+
+        EsBoard esBoard = esBoardRepository.findByBoardId(boardId);
+        EsBoard updateEsBoard = EsBoard.updatedEsBoard(esBoard.getId(), board);
+
+        esBoardRepository.save(updateEsBoard);
     }
 
     //즐겨찾기 추가
