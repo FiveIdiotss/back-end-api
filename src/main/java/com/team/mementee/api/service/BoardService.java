@@ -1,8 +1,6 @@
 package com.team.mementee.api.service;
 
 import com.team.mementee.api.domain.*;
-import com.team.mementee.api.domain.document.EsBoard;
-import com.team.mementee.api.domain.document.EsBoardRepository;
 import com.team.mementee.api.domain.enumtype.BoardCategory;
 import com.team.mementee.api.dto.boardDTO.*;
 import com.team.mementee.api.repository.board.BoardImageRepository;
@@ -33,7 +31,7 @@ public class BoardService {
 
     private final S3Service s3Service;
     private final BoardRepository boardRepository;
-    private final EsBoardRepository esBoardRepository;
+    //private final EsBoardRepository esBoardRepository;
     private final FavoriteRepository favoriteRepository;
     private final BoardImageRepository boardImageRepository;
     private final MemberService memberService;
@@ -164,7 +162,7 @@ public class BoardService {
                 request.getBoardCategory(), request.getPlatform(), member, request.getTimes(), request.getAvailableDays());
         saveBoardImageUrl(multipartFiles, board);
         boardRepository.save(board);
-        esBoardRepository.save(EsBoard.toDocument(board));
+       // esBoardRepository.save(EsBoard.toDocument(board));
         return board.getId();
     }
 
@@ -176,10 +174,10 @@ public class BoardService {
         modifyBoardImage(multipartFiles, board);
         board.modifyBoard(request);
 
-        EsBoard esBoard = esBoardRepository.findByBoardId(boardId);
-        EsBoard updateEsBoard = EsBoard.updatedEsBoard(esBoard.getId(), board);
-
-        esBoardRepository.save(updateEsBoard);
+//        EsBoard esBoard = esBoardRepository.findByBoardId(boardId);
+//        EsBoard updateEsBoard = EsBoard.updatedEsBoard(esBoard.getId(), board);
+//
+//        esBoardRepository.save(updateEsBoard);
     }
 
     //즐겨찾기 추가
