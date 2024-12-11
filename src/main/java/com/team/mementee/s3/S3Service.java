@@ -31,7 +31,7 @@ public class S3Service {
 
     private String saveToS3ForMember(MultipartFile file, String bucketName) {
         try {
-            return saveToS3(file.getInputStream(), file.getSize(), file.getName(), bucketName, fileService.getExtension(file));
+            return saveToS3(file.getInputStream(), file.getSize(), file.getName(), bucketName, file.getOriginalFilename());
         } catch (IOException e) {
             log.error("Error uploading to S3: {}", e.getMessage());
             return "Error uploading file: " + e.getMessage();
