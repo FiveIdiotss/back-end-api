@@ -109,7 +109,7 @@ public class SubBoardController {
     public CommonApiResponse<?> saveReply(@RequestHeader("Authorization") String authorizationHeader,
                                           @RequestBody ReplyRequest request,
                                           @PathVariable Long subBoardId) {
-        SubBoard subBoard = subBoardService.findSubBoardById(subBoardId);
+        SubBoard subBoard = subBoardService.findSubBoardByIdWithLock(subBoardId);
         Member member = memberService.findMemberByToken(authorizationHeader);
         subBoardService.saveReply(request, subBoard, member);
 
