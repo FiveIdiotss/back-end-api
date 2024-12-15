@@ -127,6 +127,7 @@ public class SubBoardService {
     }
 
     //게시글에 속한 댓글 목록
+    @Transactional
     public Page<Reply> findAllReply(Long subBoardId, Pageable pageable) {
         SubBoard subBoard = findSubBoardById(subBoardId);
         return replyRepository.findRepliesBySubBoard(subBoard, pageable);
