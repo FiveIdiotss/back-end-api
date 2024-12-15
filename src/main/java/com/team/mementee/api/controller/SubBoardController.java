@@ -82,7 +82,7 @@ public class SubBoardController {
             @ApiResponse(responseCode = "fail", description = "실패")})
     @PutMapping(value = "/api/subBoard/{subBoardId}")
     public CommonApiResponse<?> modifySubBoard(@RequestHeader("Authorization") String authorizationHeader,
-                                               @RequestBody @Valid WriteSubBoardRequest request,
+                                               @RequestPart @Valid WriteSubBoardRequest request,
                                                @PathVariable Long subBoardId) {
         subBoardService.modifySubBoard(request, authorizationHeader, subBoardId);
         return CommonApiResponse.createSuccess();

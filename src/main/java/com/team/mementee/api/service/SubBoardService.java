@@ -56,6 +56,7 @@ public class SubBoardService {
     }
 
     //게시글 조회시 필요한 Info
+    @Transactional(readOnly = true)
     public SubBoardInfoResponse createSubBoardInfoResponse(Long subBoardId, String authorizationHeader) {
         SubBoard subBoard = findSubBoardById(subBoardId);
         List<SubBoardImageDTO> subBoardImagesDTOS = SubBoardImageDTO.createSubBoardImageDTOs(findSubBoardImagesBySubBoard(subBoard));
@@ -85,7 +86,7 @@ public class SubBoardService {
     }
 
     //id로 게시글 조회
-    @Transactional
+    @Transactional(readOnly = true)
     public SubBoard findSubBoardById(Long subBoardId) {
         Optional<SubBoard> subBoard = subBoardRepository.findByIdWithLock(subBoardId);
         if (subBoard.isEmpty())
