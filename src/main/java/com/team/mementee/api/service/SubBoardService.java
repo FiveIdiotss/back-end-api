@@ -85,8 +85,9 @@ public class SubBoardService {
     }
 
     //id로 게시글 조회
+    @Transactional
     public SubBoard findSubBoardById(Long subBoardId) {
-        Optional<SubBoard> subBoard = subBoardRepository.findById(subBoardId);
+        Optional<SubBoard> subBoard = subBoardRepository.findByIdWithLock(subBoardId);
         if (subBoard.isEmpty())
             throw new BoardNotFound();
         return subBoard.get();
