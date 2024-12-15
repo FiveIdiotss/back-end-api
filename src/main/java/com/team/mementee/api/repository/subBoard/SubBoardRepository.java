@@ -5,16 +5,23 @@ import com.team.mementee.api.domain.School;
 import com.team.mementee.api.domain.SubBoard;
 import com.team.mementee.api.domain.enumtype.BoardCategory;
 import com.team.mementee.api.domain.enumtype.SubBoardType;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface SubBoardRepository extends JpaRepository<SubBoard, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM SubBoard s WHERE s.id = :subBoardId")
+    Optional<SubBoard> findByIdWithLock(@Param("subBoardId") Long subBoardId);
 
     // 주간 인기글 상위 5개 추출
     @Query("SELECT s FROM SubBoard s WHERE s.subBoardType = :subBoardType AND s.likeCount > 0 AND s.createdAt >= :startDate AND s.createdAt < :endDate ORDER BY s.likeCount DESC")

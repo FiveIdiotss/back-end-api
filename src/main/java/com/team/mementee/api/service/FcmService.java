@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,6 +105,7 @@ public class FcmService {
     }
 
     //알림 보내기
+    @Async
     public void sendMessageTo(FcmDTO fcmDTO) {
         try {
             Member member = memberService.findMemberById(fcmDTO.getTargetMemberId());
