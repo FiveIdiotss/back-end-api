@@ -56,7 +56,6 @@ public class SubBoardService {
     }
 
     //게시글 조회시 필요한 Info
-    @Transactional
     public SubBoardInfoResponse createSubBoardInfoResponse(Long subBoardId, String authorizationHeader) {
         SubBoard subBoard = findSubBoardById(subBoardId);
         List<SubBoardImageDTO> subBoardImagesDTOS = SubBoardImageDTO.createSubBoardImageDTOs(findSubBoardImagesBySubBoard(subBoard));
@@ -86,8 +85,16 @@ public class SubBoardService {
     }
 
     //id로 게시글 조회
-    @Transactional
     public SubBoard findSubBoardById(Long subBoardId) {
+        Optional<SubBoard> subBoard = subBoardRepository.findById(subBoardId);
+        if (subBoard.isEmpty())
+            throw new BoardNotFound();
+        return subBoard.get();
+    }
+
+
+    @Transactional
+    public SubBoard findSubBoardByIdWithLock(Long subBoardId) {
         Optional<SubBoard> subBoard = subBoardRepository.findByIdWithLock(subBoardId);
         if (subBoard.isEmpty())
             throw new BoardNotFound();
@@ -127,7 +134,6 @@ public class SubBoardService {
     }
 
     //게시글에 속한 댓글 목록
-    @Transactional
     public Page<Reply> findAllReply(Long subBoardId, Pageable pageable) {
         SubBoard subBoard = findSubBoardById(subBoardId);
         return replyRepository.findRepliesBySubBoard(subBoard, pageable);
@@ -211,7 +217,7 @@ public class SubBoardService {
     @Transactional
     public void addSubBoardLike(Long subBoardId, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = findSubBoardById(subBoardId);
+        SubBoard subBoard = findSubBoardByIdWithLock(subBoardId);
         SubBoardValidation.isCheckAddSubBordLike(findSubBoardLikeByMemberAndBoard(member, subBoard));
         SubBoardLike subBoardLike = new SubBoardLike(member, subBoard);
         subBoard.plusLikeCount();
@@ -222,7 +228,7 @@ public class SubBoardService {
     @Transactional
     public void removeSubBoardLike(Long subBoardId, String authorizationHeader) {
         Member member = memberService.findMemberByToken(authorizationHeader);
-        SubBoard subBoard = findSubBoardById(subBoardId);
+        SubBoard subBoard = findSubBoardByIdWithLock(subBoardId);
         SubBoardLike subBoardLike = SubBoardValidation.isCheckRemoveSubBoardLike(findSubBoardLikeByMemberAndBoard(member, subBoard));
         subBoard.minusLikeCount();
         subBoardLikeRepository.delete(subBoardLike);
